@@ -19,6 +19,7 @@
     "moment": "^2.18.1",
     "mongoose": "^4.11.4",
     "morgan": "~1.8.1",
+    "plotly": "^1.0.6",
     "pug": "^2.0.0-rc.2",
     "pug-lexer": "^3.1.0",
     "serve-favicon": "~2.4.2"
