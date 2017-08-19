@@ -1,0 +1,29 @@
+{
+  "name": "leaflet-map",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www",
+    "devstart": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "acorn-globals": "^4.0.0",
+    "async": "^2.5.0",
+    "body-parser": "~1.17.1",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.3",
+    "express": "~4.15.2",
+    "express-validator": "^3.2.1",
+    "leaflet": "^1.1.0",
+    "leaflet-draw": "^0.4.10",
+    "moment": "^2.18.1",
+    "mongoose": "^4.11.4",
+    "morgan": "~1.8.1",
+    "pug": "^2.0.0-rc.2",
+    "pug-lexer": "^3.1.0",
+    "serve-favicon": "~2.4.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
+  }
+}

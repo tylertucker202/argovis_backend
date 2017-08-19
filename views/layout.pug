@@ -1,0 +1,75 @@
+doctype html
+html(lang='en')
+    head
+        title= title
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1')
+        link(rel='stylesheet', href='http://cdn.leafletjs.com/leaflet-0.7/leaflet.css')
+        link(rel='stylesheet', href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css')
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        link(rel='stylesheet', href='/stylesheets/leaflet-draw.css')
+        script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js')
+        script(src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js')
+        script(src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js")
+        link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css")
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js")
+        link(rel='stylesheet', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+        script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+        script(src='../Profile.js')
+        //used for jquery date range
+        script(type="text/javascript", src="//cdn.jsdelivr.net/jquery/1/jquery.min.js")
+        script(type="text/javascript", src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js")
+        link(rel="stylesheet" type="text/css", href="//cdn.jsdelivr.net/bootstrap/3/css/bootstrap.css")
+        script(type="text/javascript", src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js")
+        link(rel="stylesheet" type="text/css", href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css")
+    body
+      script(type='text/javascript').
+        $(function() {
+          var start = moment().subtract(15, 'days');
+          var end = moment();
+
+          $('input[name="daterange"]').daterangepicker({
+            startDate: start,
+            endDate: end,
+            locale: {
+                format: 'MM/DD/YYYY'
+            },
+            dateLimit: {
+                days: 60
+            },
+            alwaysShowCalendars: false,
+            minDate: "01/01/1997",
+            ranges: {
+              'Today': [moment(), moment()],
+              'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+              'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+              'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+              'This Month': [moment().startOf('month'), moment().endOf('month')],
+              'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+          });
+        });
+      div(class='container-fluid')
+        div(class='row')
+          div(class='col-sm-2')
+            block sidebar
+              ul(class='sidebar-nav')
+                li 
+                  a(href='/map') Map
+                li 
+                  a(href='/catalog/platforms') Platforms
+                li 
+                  a(href='/catalog/profiles') Profiles
+                li
+                  a(href='/catalog/dacs') Dacs
+                li
+                  hr
+                li
+                  input(type="text", name="daterange", id="daterange")
+                a(href='/selection/lastProfiles') Last profiles reported  
+                li
+                  button.btn.btn-primary(type='submit', id='shapeSelection') Get floats within shape
+                li
+                  button.btn.btn-primary(type='submit', id='lastProfileSelection') Get last profiles of all floats
+          div(class='col-sm-10')
+            block content

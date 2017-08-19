@@ -1,0 +1,24 @@
+.sidebar-nav {
+    margin-top: 20px;
+    padding: 0;
+    list-style: none;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+#map {
+  width: 1200px;
+  height: 800px;
+  border: 1px solid #ccc
+}
+
+body {
+  margin:0;
+  padding:0px;
+  font:14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+a {
+  color:#00B7FF;
+}
