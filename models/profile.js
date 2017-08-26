@@ -7,7 +7,7 @@ var ProfileSchema = Schema(
     _id: {type: String, required: true, max: 100},
     nc_url: {type: String, required: true},
     position_qc: {type: String, required: true},
-    cycle_num: {type: String, required: true},
+    cycle_number: {type: String, required: true},
     dac: {type: String, required: true, max: 100},
     date: {type: Date, required: true},
     measurements: {type: Schema.Types.Mixed, required: true},
@@ -15,7 +15,7 @@ var ProfileSchema = Schema(
     lon: {type: Number, required: true},
     platform_num: {type: String, required: true, max: 100},
     geoLocation: {type: Schema.Types.Mixed, required: true}
-  }
+  },
 );
 
 // Virtual for profile's URL
@@ -29,7 +29,7 @@ ProfileSchema
 ProfileSchema
 .virtual('date_formatted')
 .get(function () {
-  return this.date ? moment(this.date).format('YYYY-MM-DD') : '';
+  return moment(this.date).format('YYYY-MM-DD');
 });
 
 //Export model, mongoose automatically looks for the plural of the first input. 'profiles'

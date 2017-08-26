@@ -5,36 +5,41 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var expressValidator = require('express-validator')
+var config = require('config');
+var mongoose = require('mongoose');
 
 var index = require('./routes/index');
 var catalog = require('./routes/catalog');  //Import routes for "catalog" area of site
 var selection = require('./routes/selection');  //Import routes for "catalog" area of site
 
 var app = express();
+const ENV = config.util.getEnv('NODE_ENV');
+console.log('NODE_ENV: ' + ENV);
+//don't show the log when it is test
+if(ENV !== 'test') {
+  //use morgan to log at command line
+  app.use(logger('dev'));
+}
+
+const mongoDB = config.db[ENV];
+console.log('mongodb: ' + mongoDB);
+// connect mongoose to the mongo dbUrl
+mongoose.connect(mongoDB, function (error) {
+  if (error) {
+      console.log(error);
+  }
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-//Import the mongoose module
-var mongoose = require('mongoose');
-//Set up default mongoose connection
-// Mongoose connection to MongoDB
-var mongoDB = 'mongodb://localhost/argo';
-mongoose.connect(mongoDB, function (error) {
-    if (error) {
-        console.log(error);
-    }
-});
 //Get the default connection
 var db = mongoose.connection;
 //Bind connection to error event (to get notification of connection errors)
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());

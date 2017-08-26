@@ -17,6 +17,4 @@ router.get('/latestProfiles', profile_controller.latest_profile_list);
 
 router.get('/profiles', profile_controller.selected_profile_list);
 
-//router.use('/selectedProfiles', profile_controller.selected_profile_list);
-
 module.exports = router;

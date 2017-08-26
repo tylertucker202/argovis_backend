@@ -1,0 +1,8 @@
+
+{
+  "dbConfig": {
+    "host": "localhost",
+    "dbName": "argo"
+  }
+}
+

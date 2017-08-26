@@ -4,18 +4,18 @@ block content
     #map  
     script(type='text/javascript').
         //var map = new L.Map('map', { center: new L.LatLng(#{lat},#{lng}), zoom: 5 }),
-        var map = L.map('map', {maxZoom: 13, minZoom: 3, maxBounds: [[-90, -180], [90,180]]}).setView([#{lat},#{lng}], 5);
-        var satelliteMap = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        var map = L.map('map', {maxZoom: 13, minZoom: 1, maxBounds: [[-180, -540], [180,540]]}).setView([#{lat},#{lng}], 5);
+        const satelliteMap = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
                                     {attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
         });
-        var googleMap = L.tileLayer('http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}',
+        const googleMap = L.tileLayer('http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}',
                                     {attribution: 'google'
         });
-        var watercolor = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}',
+        const watercolor = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}',
                                     {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                                      subdomains: 'abcd',
         });
-        var Esri_OceanBasemap = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}',
+        const Esri_OceanBasemap = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}',
                                     {attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri',
         });
         var drawnItems = new L.featureGroup().addTo(map);
@@ -25,11 +25,11 @@ block content
             //'Water color': watercolor.addTo(map),
             'Ocean basemap': Esri_OceanBasemap.addTo(map),
             },
-            { 'drawlayer': drawnItems },
+            { 'draw layer': drawnItems },
             { position: 'topleft', collapsed: false }
         ).addTo(map);
 
-        var drawOptions = {
+        const drawOptions = {
                     edit: {
                         featureGroup: drawnItems,
                         poly: {
@@ -65,9 +65,16 @@ block content
             drawnItems.addLayer(layer);
         });
 
-        var argoIcon = L.icon({
+        const argoIcon = L.icon({
             iconUrl: '../images/Argo_Logo_VS.gif',
             iconSize:     [35, 35], // size of the icon
+            iconAnchor:   [0, 0], // point of the icon which will correspond to marker's location
+            popupAnchor:  [20, 20] // point from which the popup should open relative to the iconAnchor
+        });
+
+        const argoIconBW = L.icon({
+            iconUrl: '../images/Argo_Logo_VS_BW.gif',
+            iconSize:     [15, 15], // size of the icon
             iconAnchor:   [0, 0], // point of the icon which will correspond to marker's location
             popupAnchor:  [20, 20] // point from which the popup should open relative to the iconAnchor
         });
@@ -75,36 +82,84 @@ block content
         //populate map with most recent profiles
         var markersLayer = new L.layerGroup();
 
-        var displayProfiles = function(url) {
+        const displayProfiles = function(url) {
             $.getJSON(url, function(result){
                 $.each(result, function(i, profile){
-                    addToMarkersLayer(profile);
+                    addToMarkersLayer(profile, argoIcon, markersLayer, false);
                 });
                 markersLayer.addTo(map);
             });
         }
 
+        var platformProfileMarkersLayer = new L.layerGroup();
+        const displayPlatformProfiles = function(url) {
+            $.getJSON(url, function(result){
+                $.each(result, function(i, profile){
+                    addToMarkersLayer(profile, argoIconBW, platformProfileMarkersLayer, true);
+                });
+                platformProfileMarkersLayer.addTo(map);            
+            });
+        }
+
         displayProfiles('/selection/lastProfiles');
 
-        function addToMarkersLayer(profile) {
-            var marker;
-            var geoLocation = profile.geoLocation;
-            var profileLink = "<a href='/catalog/profiles/"+profile.profile_id+"' >To profile page</a>";
-            //var platformLink = "<a href='/catalog/platform/"+profile.platform_number+"' >To platform page</a>";
-            var popupText = '<b>Hello, im '+profile.platform_number + '!</b>'
-                            + '<br>lon: ' + geoLocation.coordinates[0].toFixed(2) + '</b>'
-                            + '<br>lat: ' + geoLocation.coordinates[1].toFixed(2) + '</b>'
+        function addToMarkersLayer(profile, markerIcon, markers, platformProfileBool) {
+            const selectedPlatform = profile.platform_num;
+            const geoLocation = profile.geoLocation;
+            const lat = geoLocation.coordinates[1].toFixed(2);
+            const lon = geoLocation.coordinates[0].toFixed(2);
+
+            // plots the markers on the map three times. 
+            const makeWrappedCoordinates = function (coordinates) {
+                const lat = coordinates[1];
+                const lon = coordinates[0];
+                const coords = [[lon, lat], [lon - 360, lat], [lon + 360, lat]];
+                return coords;
+            };
+
+            const wrappedCoordinates = makeWrappedCoordinates(geoLocation.coordinates);
+
+
+            if (platformProfileBool === undefined) {
+                platformProfileBool = false;
+            }
+            if (markerIcon === undefined) {
+                markerIcon = argoIcon;
+            }
+            if (platformProfileBool) {
+                var profileLink = "<a href='/catalog/profiles/"+profile._id+"' >To profile page</a>";
+            }
+            else {
+                var profileLink = "<a href='/catalog/profiles/"+profile.profile_id+"' >To profile page</a>";
+            }
+            const platformButton = "<input type='button' value='show all platform profiles' onclick='platformProfilesSelection("+selectedPlatform+")'>"
+            const platformLink = "<a href='/catalog/platforms/"+profile.platform_number+"' >To platform page</a>";
+            const popupText = '<b>Hello, im ' + selectedPlatform + '!</b>'
+                            + '<br>lon: ' + lon + '</b>'
+                            + '<br>lat: ' + lat + '</b>'
                             + '<br>cycle: ' + profile.cycle_number + '</b>'
-                            + '<br>date: ' + moment(profile.date).format('YYYY/MM/DD') + '</b>'
+                            + '<br>date: ' + moment(profile.date).format('YYYY-MM-DD') + '</b>'
                             + '<br>' + profileLink + '</b>'
+                            + '<br>' + platformButton + '</b>'
             // Create an element to hold all your text and markup
-            var container = $('<div />');
+            let container = $('<div />');
             // Delegate all event handling for the container itself and its contents to the container
 
             // Insert whatever you want into the container, using whichever approach you prefer
             container.html(popupText);
-            marker = L.marker(geoLocation.coordinates.reverse(), {icon: argoIcon}).bindPopup(container[0]);
-            markersLayer.addLayer(marker);
+            
+            for(let i = 0; i < wrappedCoordinates.length; i++) {
+                let marker;
+                const coordinates = wrappedCoordinates[i];
+                marker = L.marker(coordinates.reverse(), {icon: markerIcon}).bindPopup(container[0]);
+                markers.addLayer(marker);
+            }
+        };
+
+        const platformProfilesSelection = function(selectedPlatform){
+            platformProfileMarkersLayer.clearLayers();
+            var url = '/catalog/platforms/'+selectedPlatform+'/profiles';
+            displayPlatformProfiles(url);
         };
 
         $('#lastProfileSelection').on('click', function(){
@@ -113,39 +168,46 @@ block content
         })
 
         $('#shapeSelection').on('click', function(){
-            //console.log('buttonClicked');
-            var body = {};
+            let body = {};
             // Extract dates from daterange picker
-            var startDate = $('#daterange').data('daterangepicker').startDate._d;
-            var endDate = $('#daterange').data('daterangepicker').endDate._d;
+            let startDate = $('#daterange').data('daterangepicker').startDate._d;
+            let endDate = $('#daterange').data('daterangepicker').endDate._d;
             startDate = moment(startDate).format('MM-DD-YYYY');
             endDate = moment(endDate).format('MM-DD-YYYY');
             body.startDate = startDate;
             body.endDate = endDate;
             // Extract GeoJson from featureGroup
             if (drawnItems) {
-                var data = drawnItems.toGeoJSON();
-                var features = data.features;
+                let data = drawnItems.toGeoJSON();
+                let features = data.features;
                 body.features = features;
                 //console.log("features :\n "+JSON.stringify(features));
                 //console.log("number of shapes: "+features.length.toString());
                 markersLayer.clearLayers();
-                var base = '/selection/profiles'
-                for (var i = 0; i < features.length; i++) {
-                    //console.log('on shape: '+i);
-                    var shape = features[i].geometry.coordinates;
+                let base = '/selection/profiles'
+                for (let i = 0; i < features.length; i++) {
+                    const shape = features[i].geometry.coordinates;
+                    let transformedShape = [];
+                    console.log('before tranformation for shape: '+i);
                     console.log(JSON.stringify(shape));
-                    var urlQuery = base+'?startDate='+startDate+'&endDate='+endDate+'&shape='+JSON.stringify(shape);
+                    console.log('number of points: '+shape[0].length);
+                    for (let j = 0; j < shape[0].length; j++) {
+
+                        //transformation if shape is outside latitude.
+                        let lat = shape[0][j][0] % 360;
+                        //crossing antimeridian transformation
+                        if (lat < -180) {
+                            lat = 180 + lat % 180;
+                        }
+                        let point = [lat, shape[0][j][1]];
+                        transformedShape.push(point);
+                    }
+                    console.log('after tranformation for shape: '+i);
+                    console.log(JSON.stringify([transformedShape]));
+                    let urlQuery = base+'?startDate='+startDate+'&endDate='+endDate+'&shape='+JSON.stringify([transformedShape]);
                     displayProfiles(urlQuery);
                     console.log(JSON.stringify(urlQuery));
                 }
             }
-
-            //console.log('url: ')
-            //console.log(url)
-
-            //populate map with profiles within shape and dates
-            //displayProfiles(url);
-                
         });
     

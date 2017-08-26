@@ -1,0 +1,87 @@
+doctype html
+html(lang='en')
+    head
+        title=title
+        meta(charset='utf-8')
+        script(type="text/javascript", src='https://cdn.plot.ly/plotly-latest.min.js')
+    body
+
+    block content
+        h1 Profile Id: #{title}
+        p Date: #{profile.date_formatted}
+        p Platform: #{profile.platform_num}
+        p Cycle number: #{profile.cycle_number}
+        p Dac: #{profile.dac}
+        p Data source:
+        a(href=profile.nc_url) #{profile.nc_url}
+        #TPS_CHART
+
+        script(type='text/javascript').
+
+            const psal = [!{profile.measurements.psal}];
+            const pres = [!{profile.measurements.pres}];
+            const temp = [!{profile.measurements.temp}];
+            //measurements = [temp, pres, psal];
+            const measurements = {'temp': {'value': temp, 'yaxis': 'y3', 'xaxis': 'x3'},
+                            'pres': {'value': pres, 'yaxis': 'y2', 'xaxis': 'x2'},
+                            'psal': {'value': psal, 'yaxis': 'y1', 'xaxis': 'x1'}
+                           };
+
+            const makeTrace =function(key) {
+                meas = measurements[key];
+                return {
+                    y: meas.value,
+                    xaxis: meas.xaxis,
+                    yaxis: meas.yaxis,
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: key
+                };
+            }
+
+            const layout = {
+                title: "Profile measurements",
+                autosize: false,
+                height: 800, 
+                width: 800, 
+                yaxis: {
+                    autorange: true, 
+                    domain: [
+                        0, 
+                        0.266
+                    ], 
+                    title: "Salinity [psi]"
+                }, 
+                xaxis3: {
+                    anchor: "y3", 
+                    autorange: true
+                }, 
+                xaxis2: {
+                    anchor: "y2", 
+                    autorange: true
+                }, 
+                yaxis2: {
+                    autorange: true, 
+                    domain: [
+                        0.366, 
+                        0.633
+                    ], 
+                    title: "Pressure [decibar]",
+                    autorange: 'reversed'
+                }, 
+                yaxis3: {
+                    autorange: true, 
+                    type: "linear", 
+                    domain: [
+                        0.733, 
+                        1
+                    ], 
+                    "title": "Temperature [Celsius]"
+                }, 
+                xaxis: {
+                    autorange: true
+                }, 
+                hovermode: "closest", 
+                showlegend: false
+            };
+            Plotly.plot('TPS_CHART', ['temp', 'pres', 'psal'].map(makeTrace), layout);
