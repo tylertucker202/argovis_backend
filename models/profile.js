@@ -13,7 +13,7 @@ var ProfileSchema = Schema(
     measurements: {type: Schema.Types.Mixed, required: true},
     lat: {type: Number, required: true},
     lon: {type: Number, required: true},
-    platform_num: {type: String, required: true, max: 100},
+    platform_number: {type: String, required: true, max: 100},
     geoLocation: {type: Schema.Types.Mixed, required: true}
   },
 );

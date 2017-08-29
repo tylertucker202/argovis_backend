@@ -12,18 +12,6 @@ exports.index = function(req, res) {
     });
 };
 
-/*
-// Display list of all platforms
-exports.db = function(req, res) {   
-    async.parallel({
-        profile_count: function(callback) {
-            Profile.count(callback);
-        },
-    }, function(err, results) {
-        res.render('db', { title: 'Argo Selection Home', error: err, data: results });
-    });
-};
-*/
 
 // Display db detail form on GET
 exports.db_list = function(req, res) {
@@ -34,12 +22,12 @@ exports.db_list = function(req, res) {
 exports.platform_list = function(req, res) {
     var query = Profile.aggregate([
                        {$sort: { 'date':-1}},
-                       {$group: {_id: '$platform_num',
-                                 'platform_number': {$first: '$platform_num'},
+                       {$group: {_id: '$platform_number',
+                                 'platform_number': {$first: '$platform_number'},
                                  'most_recent_date': {$first: '$date'},
                                  'number_of_profiles': {$sum: 1},
                                  'cycle_number': {$first: '$cycle_number'},
-                                 'location': {$first: '$geoLocation'}, 
+                                 'geoLocation': {$first: '$geoLocation'}, 
                                  'dac': {$first: '$dac'}}}
     ]);
     query.exec( function (err, profile) {

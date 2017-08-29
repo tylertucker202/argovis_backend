@@ -104,7 +104,7 @@ block content
         displayProfiles('/selection/lastProfiles');
 
         function addToMarkersLayer(profile, markerIcon, markers, platformProfileBool) {
-            const selectedPlatform = profile.platform_num;
+            const selectedPlatform = profile.platform_number;
             const geoLocation = profile.geoLocation;
             const lat = geoLocation.coordinates[1].toFixed(2);
             const lon = geoLocation.coordinates[0].toFixed(2);
@@ -133,13 +133,14 @@ block content
                 var profileLink = "<a href='/catalog/profiles/"+profile.profile_id+"' >To profile page</a>";
             }
             const platformButton = "<input type='button' value='show all platform profiles' onclick='platformProfilesSelection("+selectedPlatform+")'>"
-            const platformLink = "<a href='/catalog/platforms/"+profile.platform_number+"' >To platform page</a>";
+            const platformLink = "<a href='/catalog/platforms/" + selectedPlatform + "' >To platform page</a>";
             const popupText = '<b>Hello, im ' + selectedPlatform + '!</b>'
                             + '<br>lon: ' + lon + '</b>'
                             + '<br>lat: ' + lat + '</b>'
                             + '<br>cycle: ' + profile.cycle_number + '</b>'
                             + '<br>date: ' + moment(profile.date).format('YYYY-MM-DD') + '</b>'
                             + '<br>' + profileLink + '</b>'
+                            + '<br>' + platformLink + '</b>'
                             + '<br>' + platformButton + '</b>'
             // Create an element to hold all your text and markup
             let container = $('<div />');
@@ -157,9 +158,11 @@ block content
         };
 
         const platformProfilesSelection = function(selectedPlatform){
-            platformProfileMarkersLayer.clearLayers();
-            var url = '/catalog/platforms/'+selectedPlatform+'/profiles';
-            displayPlatformProfiles(url);
+            if (selectedPlatform) {
+                platformProfileMarkersLayer.clearLayers();
+                var url = '/catalog/platforms/'+selectedPlatform+'/profiles';
+                displayPlatformProfiles(url);
+            }
         };
 
         $('#lastProfileSelection').on('click', function(){

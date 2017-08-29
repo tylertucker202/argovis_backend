@@ -6,7 +6,7 @@ var moment = require('moment');
 // Display list of all Profiles
 exports.profile_list = function(req, res) {
     var query = Profile.find({},{});
-    query.select('platform_num date date_formatted geoLocation cycle_number wrappedGeoLocations');
+    query.select('platform_number date date_formatted geoLocation cycle_number wrappedGeoLocations');
     query.exec( function (err, profile) {
         if (err) { return next(err); }
         res.json(profile);
@@ -14,8 +14,8 @@ exports.profile_list = function(req, res) {
 };
 
 exports.platform_profiles = function(req, res) {
-    var query = Profile.find({ platform_num: req.params.platform_number});
-    query.select('platform_num date date_formatted geoLocation cycle_number wrappedGeoLocations');
+    var query = Profile.find({ platform_number: req.params.platform_number});
+    query.select('platform_number date date_formatted geoLocation cycle_number wrappedGeoLocations');
     query.exec( function (err, profile) {
         if (err) { return next(err); }
         res.json(profile);
@@ -42,7 +42,7 @@ exports.selected_profile_list = function(req, res) {
     var shapeJson = {"type": "Polygon", "coordinates": shape}
     var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()},
                                geoLocation: {$geoWithin: {$geometry: shapeJson}}});
-    query.select('_id platform_num date date_formatted geoLocation cycle_number wrappedGeoLocations');
+    query.select('_id platform_number date date_formatted geoLocation cycle_number wrappedGeoLocations');
     query.exec( function (err, profile) {
         if (err) { return next(err); }
         res.json(profile);
@@ -51,8 +51,8 @@ exports.selected_profile_list = function(req, res) {
 
 exports.last_profile_list = function(req,res) {
     var query = Profile.aggregate([{$sort: { 'date':-1}},
-                       {$group: {_id: '$platform_num',
-                                 'platform_num': {$first: '$platform_num'},
+                       {$group: {_id: '$platform_number',
+                                 'platform_number': {$first: '$platform_number'},
                                  'date': {$first: '$date'},
                                  'profile_id': {$first: '$_id'},
                                  'cycle_number': {$first: '$cycle_number'},
