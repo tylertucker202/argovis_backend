@@ -36,14 +36,16 @@ exports.platform_list = function(req, res) {
     });
 };
 
-
 // Display platform detail form on GET
 exports.platform_detail = function (req, res) {
-    var query = Profile.find({platform_num: req.params.platform_number});
-        query.select([''])
-        query.exec(function (err, platform) {
-            if (err) return handleError(err);
-            res.json(platform);
+    var query = Profile.find({platform_number: req.params.platform_number});
+    query.exec(function (err, profiles) {
+        if (err) return handleError(err);
+        if (req.params.format==='page'){
+            res.render('platform_page', {title:req.params.platform_number, profiles: JSON.stringify(profiles) })
+        }
+        else{
+            res.json(profiles)
+        }
     });
 };
-

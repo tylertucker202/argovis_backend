@@ -85,7 +85,7 @@ block content
         const displayProfiles = function(url) {
             $.getJSON(url, function(result){
                 $.each(result, function(i, profile){
-                    addToMarkersLayer(profile, argoIcon, markersLayer, false);
+                    addToMarkersLayer(profile, argoIcon, markersLayer);
                 });
                 markersLayer.addTo(map);
             });
@@ -95,7 +95,7 @@ block content
         const displayPlatformProfiles = function(url) {
             $.getJSON(url, function(result){
                 $.each(result, function(i, profile){
-                    addToMarkersLayer(profile, argoIconBW, platformProfileMarkersLayer, true);
+                    addToMarkersLayer(profile, argoIconBW, platformProfileMarkersLayer);
                 });
                 platformProfileMarkersLayer.addTo(map);            
             });
@@ -103,11 +103,13 @@ block content
 
         displayProfiles('/selection/lastProfiles');
 
-        function addToMarkersLayer(profile, markerIcon, markers, platformProfileBool) {
+        function addToMarkersLayer(profile, markerIcon, markers) {
             const selectedPlatform = profile.platform_number;
             const geoLocation = profile.geoLocation;
             const lat = geoLocation.coordinates[1].toFixed(2);
             const lon = geoLocation.coordinates[0].toFixed(2);
+            const cycle = profile.cycle_number
+            const profile_id = selectedPlatform.toString()+'_'+cycle.toString();
 
             // plots the markers on the map three times. 
             const makeWrappedCoordinates = function (coordinates) {
@@ -119,25 +121,16 @@ block content
 
             const wrappedCoordinates = makeWrappedCoordinates(geoLocation.coordinates);
 
-
-            if (platformProfileBool === undefined) {
-                platformProfileBool = false;
-            }
             if (markerIcon === undefined) {
                 markerIcon = argoIcon;
             }
-            if (platformProfileBool) {
-                var profileLink = "<a href='/catalog/profiles/"+profile._id+"' >To profile page</a>";
-            }
-            else {
-                var profileLink = "<a href='/catalog/profiles/"+profile.profile_id+"' >To profile page</a>";
-            }
-            const platformButton = "<input type='button' value='show all platform profiles' onclick='platformProfilesSelection("+selectedPlatform+")'>"
-            const platformLink = "<a href='/catalog/platforms/" + selectedPlatform + "' >To platform page</a>";
-            const popupText = '<b>Hello, im ' + selectedPlatform + '!</b>'
+            var profileLink = "<a href='/catalog/profiles/"+profile_id+"/page' > To profile page</a>";
+            const platformButton = "<input type='button' value='show all platform profiles' onclick='platformProfilesSelection("+selectedPlatform.toString()+")'>"
+            const platformLink = "<a href='/catalog/platforms/" + selectedPlatform + "/page' >To platform page</a>";
+            const popupText = '<b>Hello, im ' + profile_id + '!</b>'
                             + '<br>lon: ' + lon + '</b>'
                             + '<br>lat: ' + lat + '</b>'
-                            + '<br>cycle: ' + profile.cycle_number + '</b>'
+                            + '<br>cycle: ' + cycle.toString() + '</b>'
                             + '<br>date: ' + moment(profile.date).format('YYYY-MM-DD') + '</b>'
                             + '<br>' + profileLink + '</b>'
                             + '<br>' + platformLink + '</b>'
@@ -160,7 +153,7 @@ block content
         const platformProfilesSelection = function(selectedPlatform){
             if (selectedPlatform) {
                 platformProfileMarkersLayer.clearLayers();
-                var url = '/catalog/platforms/'+selectedPlatform+'/profiles';
+                var url = '/catalog/platforms/'+selectedPlatform;
                 displayPlatformProfiles(url);
             }
         };

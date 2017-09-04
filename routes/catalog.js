@@ -12,17 +12,14 @@ router.get('/', platform_controller.index);
 
 /// platform ROUTES ///
 /* GET individual platform (floats) data. */
-router.get('/platforms/:platform_number', platform_controller.platform_detail);
-
-/* GET platform profiles. */
-router.get('/platforms/:platform_number/profiles', profile_controller.platform_profiles);
+router.get('/platforms/:platform_number/:format?', platform_controller.platform_detail);
 
 /* GET request for list of all platform. */
 router.get('/platforms', platform_controller.platform_list);
 
 /// PROFILE ROUTES ///
 /* GET request for one profile. */
-router.get('/profiles/:_id', profile_controller.profile_detail);
+router.get('/profiles/:_id/:format?', profile_controller.profile_detail);
 
 /* GET request for list of all profile items. */
 router.get('/profiles', profile_controller.profile_list);

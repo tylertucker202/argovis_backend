@@ -23,6 +23,7 @@ if(ENV !== 'test') {
 
 const mongoDB = config.db[ENV];
 console.log('mongodb: ' + mongoDB);
+mongoose.Promise = global.Promise;
 // connect mongoose to the mongo dbUrl
 mongoose.connect(mongoDB, function (error) {
   if (error) {
@@ -43,8 +44,8 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(express.static('public'))
 app.use('/', index);
 app.use('/catalog', catalog);
 app.use('/selection', selection);

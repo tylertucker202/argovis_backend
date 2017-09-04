@@ -9,9 +9,10 @@ html(lang='en')
     block content
         h1 Profile Id: #{title}
         p Date: #{profile.date_formatted}
-        p Platform: #{profile.platform_num}
+        p Platform: #{profile.platform_number}
         p Cycle number: #{profile.cycle_number}
         p Dac: #{profile.dac}
+        p Parameters: #{profile.station_parameters}
         p Data source:
         a(href=profile.nc_url) #{profile.nc_url}
         #TPS_CHART
@@ -21,16 +22,16 @@ html(lang='en')
             const psal = [!{profile.measurements.psal}];
             const pres = [!{profile.measurements.pres}];
             const temp = [!{profile.measurements.temp}];
-            //measurements = [temp, pres, psal];
-            const measurements = {'temp': {'value': temp, 'yaxis': 'y3', 'xaxis': 'x3'},
-                            'pres': {'value': pres, 'yaxis': 'y2', 'xaxis': 'x2'},
-                            'psal': {'value': psal, 'yaxis': 'y1', 'xaxis': 'x1'}
+            const measurements = {'temp_v_psal': {'yvalue': temp, 'xvalue': psal,'yaxis': 'y1', 'xaxis': 'x1'},
+                            'pres_v_psal': {'yvalue': pres, 'xvalue': psal, 'yaxis': 'y2', 'xaxis': 'x2'},
+                            'pres_v_temp': {'yvalue': pres, 'xvalue': temp, 'yaxis': 'y3', 'xaxis': 'x3'}
                            };
 
             const makeTrace =function(key) {
                 meas = measurements[key];
                 return {
-                    y: meas.value,
+                    y: meas.yvalue,
+                    x: meas.xvalue,
                     xaxis: meas.xaxis,
                     yaxis: meas.yaxis,
                     mode: 'markers',
@@ -44,44 +45,49 @@ html(lang='en')
                 autosize: false,
                 height: 800, 
                 width: 800, 
+
+                xaxis3: {
+                    anchor: "y3", 
+                    autorange: true,
+                    title: "Temperature [Celsius]"
+                }, 
+                xaxis2: {
+                    anchor: "y2", 
+                    autorange: true,
+                    title: "Salinity [psi]"
+                }, 
+                xaxis: {
+                    autorange: true, 
+                    title: "Salinity [psi]"
+                },
+                yaxis3: {
+                    autorange: 'reversed', 
+                    type: "linear", 
+                    domain: [
+                        0.733, 
+                        1
+                    ], 
+                    title: "Pressure [dbar]"
+                },  
+                yaxis2: {
+                    autorange: 'reversed',
+                    domain: [
+                        0.366, 
+                        0.633
+                    ], 
+                    title: "Pressure [dbar]",
+                }, 
                 yaxis: {
                     autorange: true, 
                     domain: [
                         0, 
                         0.266
                     ], 
-                    title: "Salinity [psi]"
-                }, 
-                xaxis3: {
-                    anchor: "y3", 
-                    autorange: true
-                }, 
-                xaxis2: {
-                    anchor: "y2", 
-                    autorange: true
-                }, 
-                yaxis2: {
-                    autorange: true, 
-                    domain: [
-                        0.366, 
-                        0.633
-                    ], 
-                    title: "Pressure [decibar]",
-                    autorange: 'reversed'
-                }, 
-                yaxis3: {
-                    autorange: true, 
-                    type: "linear", 
-                    domain: [
-                        0.733, 
-                        1
-                    ], 
-                    "title": "Temperature [Celsius]"
-                }, 
-                xaxis: {
-                    autorange: true
+                    title: "Temperature [Celsius]"
                 }, 
                 hovermode: "closest", 
                 showlegend: false
             };
-            Plotly.plot('TPS_CHART', ['temp', 'pres', 'psal'].map(makeTrace), layout);
+            Plotly.plot('TPS_CHART',
+                        ['pres_v_temp', 'pres_v_psal', 'temp_v_psal'].map(makeTrace),
+                        layout);

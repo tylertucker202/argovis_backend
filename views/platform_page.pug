@@ -1,0 +1,139 @@
+doctype html
+html(lang='en')
+    head
+        title=title
+        meta(charset='utf-8')
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        script(type="text/javascript", src='https://cdn.plot.ly/plotly-latest.min.js')
+    body
+
+    block content
+        div
+        table(class="tableSection")
+            thead
+                tr
+                    th Platform Id
+                    th Date
+                    th Cycle number
+                    th Number of measurements
+            tbody(overflow='auto', height='150px')
+                each profile, i in JSON.parse(profiles)
+                    tr
+                        td 
+                            a(href=profile.nc_url) #{profile._id}
+                        td #{profile.date_formatted}
+                        td #{profile.cycle_number}
+                        td #{profile.measurements.temp.length}  
+        #TS_PROFILES
+
+        script(type='text/javascript').
+         
+            let psal = [];
+            let pres = [];
+            let temp = [];
+            let cycle = [];
+            let profiles = !{profiles};
+            for(var i=0; i < profiles.length; i++) {
+                let profile = profiles[i];
+                //convert nan to 0
+                let psal_array = profile.measurements.psal;
+                let pres_array = profile.measurements.pres;
+                let temp_array = profile.measurements.temp;
+                psal.push(psal_array);
+                pres.push(pres_array);
+                temp.push(temp_array);
+
+                let meas_idx = [];
+                for (var j = 1; j <= pres_array.length; j++) {
+                meas_idx.push(j);
+                }
+                cycle = cycle.concat(meas_idx);
+            };
+
+            function flatten(arr) {
+                return arr.reduce(function (flat, toFlatten) {
+                    return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
+                }, []);
+                }
+
+            const measurements = {'pres_v_temp': {'yvalue': flatten(pres),
+                                                  'xvalue': cycle,
+                                                  'zvalue': flatten(temp),
+                                                  'yaxis': 'y2',
+                                                  'xaxis': 'x1',
+                                                  'colorbar': {
+                                                            y: 0.8, 
+                                                            x: 1.02, 
+                                                            title: "Temperature [Celsius]", 
+                                                            len: 0.35, 
+                                                            yanchor: "middle"
+                                                            }},
+                                  'pres_v_psal': {'yvalue': flatten(pres),
+                                                  'xvalue': cycle,
+                                                  'zvalue': flatten(psal),
+                                                  'yaxis': 'y1',
+                                                  'xaxis': 'x1',
+                                                  'colorbar': {
+                                                            y: 0.2, 
+                                                            x: 1.02, 
+                                                            title: "Salinity [ppm]", 
+                                                            len: 0.35, 
+                                                            yanchor: "middle"
+                                                            }}
+                                 };
+
+            const makeTrace =function(key) {
+                meas = measurements[key];
+                return {
+                    y: meas.yvalue,
+                    x: meas.xvalue,
+                    z: meas.zvalue,
+                    xaxis: meas.xaxis,
+                    yaxis: meas.yaxis,
+                    type: 'contour',
+                    name: key, 
+                    colorbar: meas.colorbar, 
+                };
+            };
+
+            var layout = {
+                breakpoints: [], 
+                autosize: false, 
+                yaxis: {
+                    autorange: 'reversed', 
+                    type: "linear", 
+                    domain: [
+                        0, 
+                        0.45
+                    ], 
+                    title: "Pressure [dbar]"
+                },
+
+                title: "Profile measurements", 
+                anchor: "y2", 
+                
+                height: 800, 
+                width: 800, 
+                yaxis2: {
+                    domain: [
+                        0.55, 
+                        1
+                    ], 
+                    title: "Pressure [dbar]", 
+                    side: "left", 
+                    type: "linear", 
+                    autorange: 'reversed', 
+                }, 
+                xaxis: {
+                    autorange: true, 
+                    type: "linear", 
+                    anchor: "x", 
+                    title: "Cycle"
+                }, 
+                hovermode: "closest", 
+                showlegend: true
+            };
+
+            Plotly.plot('TS_PROFILES',
+                        ['pres_v_temp', 'pres_v_psal'].map(makeTrace),
+                        layout);

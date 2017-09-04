@@ -1,12 +1,12 @@
 .sidebar-nav {
     margin-top: 20px;
-    padding: 0;
+    padding: 10px;
     list-style: none;
 }
 
 html, body {
   height: 100%;
-  overflow: hidden;
+  overflow: scroll;
 }
 #map {
   width: 1200px;
@@ -21,4 +21,46 @@ body {
 }
 a {
   color:#00B7FF;
+}
+
+.range-slider {
+  position: relative;
+  height: 80px;
+}
+.extra-controls {
+  position: relative;
+  border-top: 3px solid #000;
+  padding: 10px 0 0;
+}
+
+.inp {
+  font-size: 12px;
+  width: 55px;
+  text-align: center;
+  padding: 5px;
+}
+.inp + .inp {
+  float: right;
+}
+
+table.tableSection {
+  display: table;
+  width: 50%;
+  border: '1';
+}
+table.tableSection thead, table.tableSection tbody {
+  float: left;
+  width: 100%;
+}
+table.tableSection tbody {
+  overflow: auto;
+  height: 150px;
+}
+table.tableSection tr {
+  width: 100%;
+  display: table;
+  text-align: left;
+}
+table.tableSection th, table.tableSection td {
+  width: 33%;
 }

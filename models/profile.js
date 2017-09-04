@@ -14,7 +14,8 @@ var ProfileSchema = Schema(
     lat: {type: Number, required: true},
     lon: {type: Number, required: true},
     platform_number: {type: String, required: true, max: 100},
-    geoLocation: {type: Schema.Types.Mixed, required: true}
+    geoLocation: {type: Schema.Types.Mixed, required: true},
+    station_parameters: {type: Schema.Types.Array, required: true}
   },
 );
 
