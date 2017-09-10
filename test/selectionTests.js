@@ -25,7 +25,7 @@ describe('/GET last reported profiles', function() {
               res.body.length.should.be.eql(99);
               //test an element of the response
               a_profile = res.body[0];
-              console.log('A profile is: ' + JSON.stringify(a_profile));
+              //console.log('A profile is: ' + JSON.stringify(a_profile));
               a_profile.should.include.keys('_id', 'date', 'platform_number', 'cycle_number', 'geoLocation');
               a_profile._id.should.be.a('string');
               moment(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
@@ -42,8 +42,8 @@ describe('/GET last reported profiles', function() {
 describe('/GET atlantic selection', function() {
     this.timeout(200);
     it('it should GET the selected profiles within a speciied date range and lat-lon shape.', (done) => {
-          const endDate = '08-30-2017'
-          const startDate = '08-15-2017'
+          const endDate = '2017-08-30';
+          const startDate = '2017-08-15';
           const transformedShape = [[-80.09,14.94],
                                     [-80.09,50.06],
                                     [2.51,50.06],
@@ -51,7 +51,7 @@ describe('/GET atlantic selection', function() {
                                     [-80.09,14.94]];
           const base = '/selection/profiles';
           const urlQuery = base+'?startDate='+startDate+'&endDate='+endDate+'&shape='+JSON.stringify([transformedShape]);
-          console.log('A selection query is: ' + urlQuery);
+          //console.log('A selection query is: ' + urlQuery);
           chai.request(app)
           .get(urlQuery)
           .end((err, res) => {
@@ -61,7 +61,7 @@ describe('/GET atlantic selection', function() {
               res.body.length.should.be.eql(14);
               //test an element of the response
               a_profile = res.body[0];
-              console.log('A profile is: ' + JSON.stringify(a_profile));
+              //console.log('A profile is: ' + JSON.stringify(a_profile));
               a_profile.should.include.keys('_id', 'date', 'cycle_number','platform_number', 'geoLocation');
               a_profile._id.should.be.a('string');
               moment(a_profile.date).format('YYYY-MM-DD').should.be.a('string');

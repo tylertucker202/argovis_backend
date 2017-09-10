@@ -6,9 +6,6 @@ var platform_controller = require('../controllers/platformController')
 var profile_controller = require('../controllers/profileController');
 var dac_controller = require('../controllers/dacController');
 
-/* GET selection home page. */
-router.get('/', platform_controller.index);
-
 /* Get request for list of last profiles. */
 router.get('/lastProfiles', profile_controller.last_profile_list);
 

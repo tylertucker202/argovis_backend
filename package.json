@@ -10,6 +10,7 @@
   "dependencies": {
     "acorn-globals": "^4.0.0",
     "async": "^2.5.0",
+    "binary-extensions": "^1.10.0",
     "body-parser": "~1.17.1",
     "bootstrap": "^3.3.7",
     "bootstrap-daterangepicker": "^2.1.25",
@@ -18,24 +19,28 @@
     "debug": "~2.6.3",
     "express": "~4.15.2",
     "express-validator": "^3.2.1",
+    "geojson-validation": "^0.1.6",
+    "graceful-fs": "^4.1.11",
     "ion-rangeslider": "^2.2.0",
     "jquery-ui": "^1.12.1",
     "leaflet": "^1.1.0",
-    "leaflet-draw": "^0.4.10",
+    "leaflet-draw": "^0.4.12",
     "moment": "^2.18.1",
-    "mongoose": "^4.10.8",
+    "mongoose": "^4.11.10",
     "morgan": "~1.8.1",
     "nouislider": "^10.1.0",
     "plotly": "^1.0.6",
     "pug": "^2.0.0-rc.2",
     "pug-lexer": "^3.1.0",
-    "serve-favicon": "~2.4.2"
+    "readdirp": "^2.1.0",
+    "serve-favicon": "~2.4.2",
+    "undefsafe": "^2.0.1"
   },
   "devDependencies": {
-    "chai": "^4.1.1",
+    "chai": "^4.1.2",
     "chai-http": "^3.0.0",
     "mocha": "^3.5.0",
-    "nodemon": "^1.11.0",
+    "nodemon": "^1.12.0",
     "sinon": "^3.2.1"
   }
 }

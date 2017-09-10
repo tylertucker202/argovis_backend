@@ -12,14 +12,13 @@ exports.index = function(req, res) {
     });
 };
 
-
 // Display db detail form on GET
 exports.db_list = function(req, res) {
     res.send('NOT IMPLEMENTED: db show');
 };
 
 // Display list of all platforms
-exports.platform_list = function(req, res) {
+exports.platform_list = function(req, res, next) {
     var query = Profile.aggregate([
                        {$sort: { 'date':-1}},
                        {$group: {_id: '$platform_number',
@@ -31,21 +30,33 @@ exports.platform_list = function(req, res) {
                                  'dac': {$first: '$dac'}}}
     ]);
     query.exec( function (err, profile) {
-        if (err) return handleError(err);
+        if (err) return next(err);
         res.json(profile);
     });
 };
 
 // Display platform detail form on GET
-exports.platform_detail = function (req, res) {
-    var query = Profile.find({platform_number: req.params.platform_number});
-    query.exec(function (err, profiles) {
-        if (err) return handleError(err);
-        if (req.params.format==='page'){
-            res.render('platform_page', {title:req.params.platform_number, profiles: JSON.stringify(profiles) })
-        }
-        else{
-            res.json(profiles)
-        }
-    });
+exports.platform_detail = function (req, res, next) {
+    req.checkParams('platform_number', 'platform_number should be specified.').notEmpty();
+    req.sanitize('platform_number').escape();
+
+    var errors = req.validationErrors();
+    if (errors) {
+        res.send(errors)
+    }
+    else {
+        var query = Profile.find({platform_number: req.params.platform_number});
+        query.exec(function (err, profiles) {
+            if (err) return next(err);
+            if (req.params.format==='page'){
+                if (profiles.length === 0) { res.send('platform not found'); }
+                else {
+                    res.render('platform_page', {title:req.params.platform_number, profiles: JSON.stringify(profiles) })
+                }
+            }
+            else{
+                res.json(profiles)
+            }
+        });
+    }
 };

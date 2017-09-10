@@ -21,10 +21,12 @@ html(lang='en')
                     tr
                         td 
                             a(href=profile.nc_url) #{profile._id}
-                        td #{profile.date_formatted}
+                        td #{profile.date}
                         td #{profile.cycle_number}
                         td #{profile.measurements.temp.length}  
         #TS_PROFILES
+        //#TEMP_PROFILES
+        //#PSAL_PROFILES
 
         script(type='text/javascript').
          
@@ -33,21 +35,35 @@ html(lang='en')
             let temp = [];
             let cycle = [];
             let profiles = !{profiles};
+            let psal_max = 0;
+            let psal_min = 100;
+            let temp_max = 0;
+            let temp_min = 100;
             for(var i=0; i < profiles.length; i++) {
                 let profile = profiles[i];
                 //convert nan to 0
                 let psal_array = profile.measurements.psal;
                 let pres_array = profile.measurements.pres;
                 let temp_array = profile.measurements.temp;
+                temp_array_max = Math.max.apply(null, temp_array.filter(Number));
+                temp_array_min = Math.min.apply(null, temp_array.filter(Number));
+                psal_array_max = Math.max.apply(null, psal_array.filter(Number));
+                psal_array_min = Math.min.apply(null, psal_array.filter(Number));
+                //console.log('temp_array_min: %s', temp_array_min);
+                //console.log('psal_array_min: %s', psal_array_min);
+                if (temp_array_max > temp_max) { temp_max = temp_array_max;}
+                if (temp_array_min < temp_min) { temp_min = temp_array_min;}
+                if (psal_array_max > psal_max) { psal_max = psal_array_max;}
+                if (psal_array_min < psal_min) { psal_min = psal_array_min;}
                 psal.push(psal_array);
                 pres.push(pres_array);
                 temp.push(temp_array);
 
                 let meas_idx = [];
                 for (var j = 1; j <= pres_array.length; j++) {
-                meas_idx.push(j);
+                meas_idx.push(i); //just an array of cycle number
                 }
-                cycle = cycle.concat(meas_idx);
+                cycle.push(meas_idx);
             };
 
             function flatten(arr) {
@@ -55,12 +71,43 @@ html(lang='en')
                     return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
                 }, []);
                 }
+            
+            function round_array(each_element){return(each_element.toFixed(2))}
 
-            const measurements = {'pres_v_temp': {'yvalue': flatten(pres),
-                                                  'xvalue': cycle,
-                                                  'zvalue': flatten(temp),
+            var psal_scl =    [[0, 'rgb(255,247,251)'],
+                              [.125, 'rgb(236,226,240)'],
+                              [.25, 'rgb(208,209,230)'],
+                              [.375, 'rgb(166,189,219)'],
+                              [.5, 'rgb(103,169,207)'],
+                              [.625, 'rgb(54,144,192)'],
+                              [.75, 'rgb(2,129,138)'],
+                              [.875, 'rgb(1,108,89)'],
+                              [1, 'rgb(1,70,54)']];
+            
+            var temp_scl = [[0, 'rgb(215,48,39)'],
+                              [.125, 'rgb(244,109,67)'],
+                              [.25, 'rgb(253,174,97)'],
+                              [.375, 'rgb(254,224,144)'],
+                              [.5, 'rgb(255,255,191)'],
+                              [.625, 'rgb(224,243,248)'],
+                              [.75, 'rgb(171,217,233)'],
+                              [.875, 'rgb(116,173,209)'],
+                              [1, 'rgb(69,117,180)']];
+
+            var psal_scl = [[0, 'rgb(166,97,26)'],
+                            [.25, 'rgb(223,194,125)'],
+                            [.5, 'rgb(245,245,245)'],
+                            [.75, 'rgb(128,205,193)'],
+                            [1, 'rgb(1,133,113)']];
+
+            const measurements = {'yvalues': flatten(pres),
+                                  'xvalues': flatten(cycle),
+                                  'pres_v_temp': {'cvalues': flatten(temp).map(round_array),
                                                   'yaxis': 'y2',
                                                   'xaxis': 'x1',
+                                                  'cmin': temp_min,
+                                                  'cmax': temp_max,
+                                                  'colorscale': temp_scl,
                                                   'colorbar': {
                                                             y: 0.8, 
                                                             x: 1.02, 
@@ -68,11 +115,12 @@ html(lang='en')
                                                             len: 0.35, 
                                                             yanchor: "middle"
                                                             }},
-                                  'pres_v_psal': {'yvalue': flatten(pres),
-                                                  'xvalue': cycle,
-                                                  'zvalue': flatten(psal),
+                                  'pres_v_psal': {'cvalues': flatten(psal).map(round_array),
                                                   'yaxis': 'y1',
                                                   'xaxis': 'x1',
+                                                  'cmin': psal_min,
+                                                  'cmax': psal_max,
+                                                  'colorscale': psal_scl,
                                                   'colorbar': {
                                                             y: 0.2, 
                                                             x: 1.02, 
@@ -83,21 +131,40 @@ html(lang='en')
                                  };
 
             const makeTrace =function(key) {
-                meas = measurements[key];
+                let meas = measurements[key];
                 return {
-                    y: meas.yvalue,
-                    x: meas.xvalue,
-                    z: meas.zvalue,
+                    y: measurements.yvalues,
+                    x: measurements.xvalues,
+                    text: meas.cvalues,
                     xaxis: meas.xaxis,
                     yaxis: meas.yaxis,
-                    type: 'contour',
+                    showlegend: false,
+                    type: 'scattergl',
+                    mode: 'markers',
+                    marker: { color: meas.cvalues,
+                              size: 5,
+                              symbol: 'dot',
+                              opacity: 0.8,
+                              reversescale: true,
+                              autocolorscale: false,
+                              cmin: meas.cmin,
+                              cmax: meas.cmax,
+                              colorscale: meas.colorscale,
+                              colorbar: meas.colorbar,
+                              line : {
+                                        width:0,
+                                        color:'rgba(102, 102, 102)'
+                                     },
+                            },
                     name: key, 
-                    colorbar: meas.colorbar, 
                 };
             };
 
             var layout = {
-                breakpoints: [], 
+                title: "Profile measurements", 
+                anchor: "y2", 
+                height: 800, 
+                width: 800, 
                 autosize: false, 
                 yaxis: {
                     autorange: 'reversed', 
@@ -108,21 +175,15 @@ html(lang='en')
                     ], 
                     title: "Pressure [dbar]"
                 },
-
-                title: "Profile measurements", 
-                anchor: "y2", 
-                
-                height: 800, 
-                width: 800, 
                 yaxis2: {
+                    autorange: 'reversed', 
+                    type: "linear",                     
                     domain: [
                         0.55, 
                         1
                     ], 
                     title: "Pressure [dbar]", 
-                    side: "left", 
-                    type: "linear", 
-                    autorange: 'reversed', 
+                    side: "left",
                 }, 
                 xaxis: {
                     autorange: true, 
@@ -133,7 +194,8 @@ html(lang='en')
                 hovermode: "closest", 
                 showlegend: true
             };
-
+            console.log('temp max: %s min: %s',temp_max, temp_min);
+            console.log('psal max: %s min: %s',psal_max, psal_min);
             Plotly.plot('TS_PROFILES',
-                        ['pres_v_temp', 'pres_v_psal'].map(makeTrace),
+                        ['pres_v_psal', 'pres_v_temp'].map(makeTrace),
                         layout);

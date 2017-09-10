@@ -1,7 +1,7 @@
 extends layout.pug
 
 block content
-    #map  
+    #map
     script(type='text/javascript').
         //var map = new L.Map('map', { center: new L.LatLng(#{lat},#{lng}), zoom: 5 }),
         var map = L.map('map', {maxZoom: 13, minZoom: 1, maxBounds: [[-180, -540], [180,540]]}).setView([#{lat},#{lng}], 5);
@@ -64,6 +64,7 @@ block content
             var layer = event.layer;
             drawnItems.addLayer(layer);
         });
+
 
         const argoIcon = L.icon({
             iconUrl: '../images/Argo_Logo_VS.gif',
@@ -168,8 +169,8 @@ block content
             // Extract dates from daterange picker
             let startDate = $('#daterange').data('daterangepicker').startDate._d;
             let endDate = $('#daterange').data('daterangepicker').endDate._d;
-            startDate = moment(startDate).format('MM-DD-YYYY');
-            endDate = moment(endDate).format('MM-DD-YYYY');
+            startDate = moment(startDate).format('YYYY-MM-DD');
+            endDate = moment(endDate).format('YYYY-MM-DD');
             body.startDate = startDate;
             body.endDate = endDate;
             // Extract GeoJson from featureGroup
@@ -206,4 +207,5 @@ block content
                 }
             }
         });
+    script(type='javascripts/profiles_on_map.js')
     
