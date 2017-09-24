@@ -3,10 +3,12 @@ var async = require('async');
 var moment = require('moment');
 var GJV = require('geojson-validation');
 
+const mapParams = 'platform_number date geoLocation cycle_number';
+
 // Display list of all Profiles
 exports.profile_list = function(req, res, next) {
     var query = Profile.find({},{});
-    query.select('platform_number date date_formatted geoLocation cycle_number wrappedGeoLocations');
+    query.select(mapParams);
     query.exec( function (err, profile) {
         if (err) { return next(err); }
         res.json(profile);
@@ -25,6 +27,9 @@ exports.profile_detail = function (req, res, next) {
     }
     else {
         var query = Profile.findOne({ _id: req.params._id })
+        if (req.params.format==='map') {
+            query.select(mapParams);
+        }
         query.exec( function (err, profile) {
             if (err) { return next(err); }
             if (req.params.format==='page'){
@@ -44,7 +49,8 @@ exports.selected_profile_list = function(req, res , next) {
 
     req.checkQuery('startDate', 'startDate should be specified.').notEmpty();
     req.checkQuery('endDate', 'endDate should be specified.').notEmpty();
-    req.checkQuery('shape', 'shape should not be empty.').notEmpty(); 
+    req.checkQuery('shape', 'shape should not be empty.').notEmpty();
+    //req.checkQuery('maxPres', 'maxPres should not be empty.').notEmpty(); 
 
     req.sanitize('_id').escape();
     req.sanitize('startDate').toDate();
@@ -60,16 +66,38 @@ exports.selected_profile_list = function(req, res , next) {
         res.send(errors)
     }
     else {
-        var startDate = moment(req.query.startDate, 'YYYY-MM-DD');
-        var endDate = moment(req.query.endDate, 'YYYY-MM-DD');
+        const startDate = moment(req.query.startDate, 'YYYY-MM-DD');
+        const endDate = moment(req.query.endDate, 'YYYY-MM-DD');
 
-        var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()},
-                                   geoLocation: {$geoWithin: {$geometry: shapeJson}}});
-        //query.select('_id platform_number date date_formatted geoLocation cycle_number wrappedGeoLocations');
-        query.exec( function (err, profile) {
+        if (req.query.maxPres) {
+            const maxPres = req.query.maxPres;
+            console.log('maxPres');
+            console.log(maxPres);
+            var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()},
+            geoLocation: {$geoWithin: {$geometry: shapeJson}},
+            //maximum_pressure: {$gte: maxPres}
+        });
+
+        }
+        else {
+            var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()},
+            geoLocation: {$geoWithin: {$geometry: shapeJson}}});
+        }
+        if (req.params.format === 'map') {
+            query.select(mapParams);
+        }
+        query.exec( function (err, profiles) {
             if (err) { return next(err); }
-            res.json(profile);
-        });        
+            if (req.params.format==='page'){
+                if (profiles === null) { res.send('profile not found'); }
+                else {
+                    res.render('platform_page', {title:'Custom selection', profiles: JSON.stringify(profiles) })
+                }
+            }
+            else {
+                res.json(profiles);
+            }
+        });     
     }
 };
 
@@ -80,6 +108,9 @@ exports.last_profile_list = function(req, res, next) {
                                  'date': {$first: '$date'},
                                  'cycle_number': {$first: '$cycle_number'},
                                  'geoLocation': {$first: '$geoLocation'}}}]);
+    if (req.params.format === 'map') {
+        query.select(mapParams);
+    }
     query.exec( function (err, profiles) {
         if (err) { return next(err); }
         res.json(profiles)
@@ -87,5 +118,16 @@ exports.last_profile_list = function(req, res, next) {
 };
 
 exports.latest_profile_list = function(req,res) {
-    res.send('NOT IMPLEMENTED: Profile list');
+    //get startDate, endDate
+    startDate = moment().subtract(15, 'days');
+    endDate = moment();
+    var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()}});
+    if (req.params.format === 'map') {
+        query.select(mapParams);
+    }
+    query.exec( function (err, profile) {
+        if (err) { return next(err); }
+        res.json(profile);
+    });        
+
 };

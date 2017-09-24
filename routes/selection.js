@@ -7,11 +7,11 @@ var profile_controller = require('../controllers/profileController');
 var dac_controller = require('../controllers/dacController');
 
 /* Get request for list of last profiles. */
-router.get('/lastProfiles', profile_controller.last_profile_list);
+router.get('/lastProfiles/:format?', profile_controller.last_profile_list);
 
 /* Get request for list of latest profiles. */
-router.get('/latestProfiles', profile_controller.latest_profile_list);
+router.get('/latestProfiles/:format?', profile_controller.latest_profile_list);
 
-router.get('/profiles', profile_controller.selected_profile_list);
+router.get('/profiles/:format?', profile_controller.selected_profile_list);
 
 module.exports = router;

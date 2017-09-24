@@ -8,7 +8,7 @@ html(lang='en')
 
     block content
         h1 Profile Id: #{title}
-        p Date: #{profile.date_formatted}
+        p Date: #{profile.date}
         p Platform: #{profile.platform_number}
         p Cycle number: #{profile.cycle_number}
         p Dac: #{profile.dac}
@@ -44,7 +44,7 @@ html(lang='en')
                 title: "Profile measurements",
                 autosize: false,
                 height: 800, 
-                width: 800, 
+                width: 1200, 
 
                 xaxis3: {
                     anchor: "y3", 

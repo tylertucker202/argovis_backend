@@ -25,8 +25,6 @@ html(lang='en')
                         td #{profile.cycle_number}
                         td #{profile.measurements.temp.length}  
         #TS_PROFILES
-        //#TEMP_PROFILES
-        //#PSAL_PROFILES
 
         script(type='text/javascript').
          
@@ -55,34 +53,43 @@ html(lang='en')
                 if (temp_array_min < temp_min) { temp_min = temp_array_min;}
                 if (psal_array_max > psal_max) { psal_max = psal_array_max;}
                 if (psal_array_min < psal_min) { psal_min = psal_array_min;}
-                psal.push(psal_array);
-                pres.push(pres_array);
-                temp.push(temp_array);
+                psal = psal.concat(psal_array);
+                pres = pres.concat(pres_array);
+                temp = temp.concat(temp_array);
 
                 let meas_idx = [];
                 for (var j = 1; j <= pres_array.length; j++) {
                 meas_idx.push(i); //just an array of cycle number
                 }
-                cycle.push(meas_idx);
+                cycle = cycle.concat(meas_idx);
             };
-
-            function flatten(arr) {
-                return arr.reduce(function (flat, toFlatten) {
-                    return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten);
-                }, []);
-                }
             
-            function round_array(each_element){return(each_element.toFixed(2))}
+            function round_array(x){return(x.toFixed(2))}
 
-            var psal_scl =    [[0, 'rgb(255,247,251)'],
-                              [.125, 'rgb(236,226,240)'],
-                              [.25, 'rgb(208,209,230)'],
-                              [.375, 'rgb(166,189,219)'],
-                              [.5, 'rgb(103,169,207)'],
-                              [.625, 'rgb(54,144,192)'],
-                              [.75, 'rgb(2,129,138)'],
-                              [.875, 'rgb(1,108,89)'],
-                              [1, 'rgb(1,70,54)']];
+            function scale_array(x, xmax, xmin){return( (x-xmin)/(xmax-xmin) )}
+
+            function normalize(min, max) {
+                var delta = max - min;
+                return function (val) {
+                    return (val - min) / delta;
+                };
+            }
+
+
+
+
+            //noneCoords = pres.findIndex(getNoneCoords)
+
+            //console.log(temp.length)
+            //console.log(psal.length)
+            //console.log(pres.length)
+            //pres[ pres.map(getNoneCoords)]
+
+            temp_color = temp.map(normalize(temp_min, temp_max));
+            //temp_color = temp_color.map(unnormalize(temp_min, temp_max));
+            //temp_color = temp_color.map(round_array);
+
+            //console.log(temp_color);
             
             var temp_scl = [[0, 'rgb(215,48,39)'],
                               [.125, 'rgb(244,109,67)'],
@@ -100,13 +107,13 @@ html(lang='en')
                             [.75, 'rgb(128,205,193)'],
                             [1, 'rgb(1,133,113)']];
 
-            const measurements = {'yvalues': flatten(pres),
-                                  'xvalues': flatten(cycle),
-                                  'pres_v_temp': {'cvalues': flatten(temp).map(round_array),
+            const measurements = {'yvalues': pres,
+                                  'xvalues': cycle,
+                                  'pres_v_temp': {'cvalues': temp,
                                                   'yaxis': 'y2',
                                                   'xaxis': 'x1',
-                                                  'cmin': temp_min,
-                                                  'cmax': temp_max,
+                                                  'cmin': 0,
+                                                  'cmax': 1,
                                                   'colorscale': temp_scl,
                                                   'colorbar': {
                                                             y: 0.8, 
@@ -115,7 +122,7 @@ html(lang='en')
                                                             len: 0.35, 
                                                             yanchor: "middle"
                                                             }},
-                                  'pres_v_psal': {'cvalues': flatten(psal).map(round_array),
+                                  'pres_v_psal': {'cvalues': psal,
                                                   'yaxis': 'y1',
                                                   'xaxis': 'x1',
                                                   'cmin': psal_min,
@@ -142,19 +149,12 @@ html(lang='en')
                     type: 'scattergl',
                     mode: 'markers',
                     marker: { color: meas.cvalues,
-                              size: 5,
+                              size: 8,
                               symbol: 'dot',
-                              opacity: 0.8,
+                              opacity: 1,
                               reversescale: true,
-                              autocolorscale: false,
-                              cmin: meas.cmin,
-                              cmax: meas.cmax,
                               colorscale: meas.colorscale,
                               colorbar: meas.colorbar,
-                              line : {
-                                        width:0,
-                                        color:'rgba(102, 102, 102)'
-                                     },
                             },
                     name: key, 
                 };
@@ -164,7 +164,7 @@ html(lang='en')
                 title: "Profile measurements", 
                 anchor: "y2", 
                 height: 800, 
-                width: 800, 
+                width: 1200, 
                 autosize: false, 
                 yaxis: {
                     autorange: 'reversed', 

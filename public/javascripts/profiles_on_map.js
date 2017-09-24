@@ -14,6 +14,8 @@ const argoIconBW = L.icon({
 
 //populate map with most recent profiles
 var markersLayer = new L.layerGroup();
+var platformProfileMarkersLayer = new L.layerGroup();
+
 
 const displayProfiles = function(url) {
     $.getJSON(url, function(result){
@@ -22,23 +24,23 @@ const displayProfiles = function(url) {
         });
         markersLayer.addTo(map);
     });
-}
+};
 
-var platformProfileMarkersLayer = new L.layerGroup();
 const displayPlatformProfiles = function(url) {
+    platformProfileMarkersLayer.clearLayers();
     $.getJSON(url, function(result){
         $.each(result, function(i, profile){
             addToMarkersLayer(profile, argoIconBW, platformProfileMarkersLayer);
         });
         platformProfileMarkersLayer.addTo(map);            
     });
-}
+};
 
-displayProfiles('/selection/lastProfiles');
+//displayProfiles('/selection/lastProfiles');
+displayProfiles('/selection/latestProfiles/map');
 
 const platformProfilesSelection = function(selectedPlatform){
     if (selectedPlatform) {
-        platformProfileMarkersLayer.clearLayers();
         var url = '/catalog/platforms/'+selectedPlatform;
         displayPlatformProfiles(url);
     }
@@ -92,48 +94,65 @@ function addToMarkersLayer(profile, markerIcon, markers) {
 };
 
 $('#lastProfileSelection').on('click', function(){
+    platformProfileMarkersLayer.clearLayers(); //delete platform profiles
     markersLayer.clearLayers();
-    displayProfiles('/selection/lastProfiles');
+    displayProfiles('/selection/lastProfiles'+'/map');
 })
 
-$('#shapeSelection').on('click', function(){
-    let body = {};
+$('#latestProfileSelection').on('click', function(){
+    platformProfileMarkersLayer.clearLayers(); //delete platform profiles
+    markersLayer.clearLayers();
+    displayProfiles('/selection/latestProfiles/map');
+})
+
+const getDateRange = function() {
     // Extract dates from daterange picker
+    let dates = {}
     let startDate = $('#daterange').data('daterangepicker').startDate._d;
     let endDate = $('#daterange').data('daterangepicker').endDate._d;
     startDate = moment(startDate).format('YYYY-MM-DD');
     endDate = moment(endDate).format('YYYY-MM-DD');
-    body.startDate = startDate;
-    body.endDate = endDate;
+    dates.startDate = startDate;
+    dates.endDate = endDate;
+    return(dates)
+};
+
+const getTransformedShape = function(shape) {
+    let transformedShape = [];
+    //console.log('before tranformation');
+    //console.log(JSON.stringify(shape));
+    //console.log('number of points: '+shape[0].length);
+    for (let j = 0; j < shape[0].length; j++) {
+        //transformation if shape is outside latitude.
+        let lat = shape[0][j][0] % 360;
+        //crossing antimeridian transformation
+        if (lat < -180) {
+            lat = 180 + lat % 180;
+        }
+        let point = [lat, shape[0][j][1]];
+        transformedShape.push(point);
+    }
+    return(transformedShape)
+};
+
+$('#shapeSelection').on('click', function(){
+    const dates = getDateRange();
+    let maxPres = document.getElementById('maxPres').value;
+    console.log(maxPres);
     // Extract GeoJson from featureGroup
     if (drawnItems) {
         let data = drawnItems.toGeoJSON();
         let features = data.features;
-        body.features = features;
-        //console.log("features :\n "+JSON.stringify(features));
-        //console.log("number of shapes: "+features.length.toString());
+        platformProfileMarkersLayer.clearLayers(); //delete platform profiles
         markersLayer.clearLayers();
-        let base = '/selection/profiles'
+        let base = '/selection/profiles/map'
         for (let i = 0; i < features.length; i++) {
             const shape = features[i].geometry.coordinates;
-            let transformedShape = [];
-            console.log('before tranformation for shape: '+i);
-            console.log(JSON.stringify(shape));
-            console.log('number of points: '+shape[0].length);
-            for (let j = 0; j < shape[0].length; j++) {
-
-                //transformation if shape is outside latitude.
-                let lat = shape[0][j][0] % 360;
-                //crossing antimeridian transformation
-                if (lat < -180) {
-                    lat = 180 + lat % 180;
-                }
-                let point = [lat, shape[0][j][1]];
-                transformedShape.push(point);
-            }
-            console.log('after tranformation for shape: '+i);
-            console.log(JSON.stringify([transformedShape]));
-            let urlQuery = base+'?startDate='+startDate+'&endDate='+endDate+'&shape='+JSON.stringify([transformedShape]);
+            const transformedShape = getTransformedShape(shape)
+            //console.log('after tranformation for shape: '+i);
+            //console.log(JSON.stringify([transformedShape]));
+            let urlQuery = base+'?startDate='+dates.startDate+'&endDate='+dates.endDate+'&maxPres='+maxPres+'&shape='+JSON.stringify([transformedShape]);
+            //let urlQuery = base+'?startDate='+dates.startDate+'&endDate='+dates.endDate+'&shape='+JSON.stringify([transformedShape]);
             displayProfiles(urlQuery);
             console.log(JSON.stringify(urlQuery));
         }

@@ -52,23 +52,29 @@ html(lang='en')
 
         $( document ).ready(function() {
           var slider = document.getElementById('slider');
+          var minPres = document.getElementById('minPres');
           var maxPres = document.getElementById('maxPres');
 
           function bindValues(){
             slider.noUiSlider.on('update', function( values, handle ) {
-              var value = values;
-              maxPres.value = value;
-
+              var value = values[handle];
+              if ( handle ) {
+                maxPres.value = value;
+              } else {
+                minPres.value = value;
+              }
             });
-
+            minPres.addEventListener('change', function(){
+              slider.noUiSlider.set([this.value, null]);
+            });
             maxPres.addEventListener('change', function(){
               slider.noUiSlider.set([null, this.value]);
             });
           }
 
           noUiSlider.create(slider, {
-            start: 2000,
-            range: { min: 0, max: 6500 },
+            start: [0, 2000],
+            range: { min: 0, max: 2000 },
             step: 1,
             connect: true,
             orientation: 'vertical'
@@ -102,7 +108,9 @@ html(lang='en')
                   div(class='col-sm-2', id='slider-div')
                     div(id='slider')
                   div(class='col-sm-2', id='input-div')
-                    label(id='maxPresLabel', for='maxPres') Maximum float pressure cutoff:
+                    label(id='minPresLabel', for='minPres') Low pressure:
+                    input(type="number", value="0" min="0" max="2000" id='minPres')
+                    label(id='maxPresLabel', for='maxPres') High pressure:
                     input(type="number" value="2000" min="0" max="2000" id='maxPres')
                 li
                   button.btn.btn-primary.btn-block(type='submit', id='shapeSelection') Show floats within shape
