@@ -1,6 +1,6 @@
 {
-  "name": "leaflet-map",
-  "version": "0.0.0",
+  "name": "argo-vis",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "test": "set NODE_ENV=test && mocha",
@@ -14,6 +14,7 @@
     "body-parser": "~1.17.1",
     "bootstrap": "^3.3.7",
     "bootstrap-daterangepicker": "^2.1.25",
+    "compression": "^1.7.1",
     "config": "^1.26.2",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.3",
@@ -22,6 +23,7 @@
     "file-saver": "^1.3.3",
     "geojson-validation": "^0.1.6",
     "graceful-fs": "^4.1.11",
+    "helmet": "^3.9.0",
     "ion-rangeslider": "^2.2.0",
     "jquery-ui": "^1.12.1",
     "leaflet": "^1.1.0",

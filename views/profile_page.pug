@@ -43,12 +43,10 @@ html(lang='en')
         var meas = [!{profile.measurements}];
 
         $('#downloadProfiles').on('click', function(){
-
             let data = JSON.stringify(!{profiles});
             let blob = new Blob(data, {type: "application/json"});
             let saveAs = window.saveAs;
             let filename = 'profile.json';
-            console.log('downloading file called')
             saveAs(blob, filename);
         });
         meas = collateMeasurements(meas);

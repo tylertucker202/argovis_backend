@@ -56,12 +56,10 @@ html(lang='en')
         });
 
         $('#downloadPlatform').on('click', function(){
-            console.log('downloadPlatform button pressed.')
             const data = JSON.stringify(!{profiles});
             const blob = new Blob([data], {type: "application/json"});
             const saveAs = window.saveAs;
             const filename = !{title}+'_profiles.json'
-            console.log('downloading file called')
             saveAs(blob, filename);
         });
     
@@ -161,11 +159,6 @@ html(lang='en')
         Array.prototype.min = function () {
             return Math.min.apply(null, this);
         };
-        console.log(pres.max());
-        console.log(pres.min());
-
-        //console.log(psal);
-        //console.log(temp);
 
         const makeTrace = function(key) {
             let meas = measurements[key];
@@ -263,23 +256,11 @@ html(lang='en')
             var profile_id = !{title} + '_' + data.points[0].data.x[xidx];
             var url = '/catalog/profiles/' + profile_id + '/page';
             window.open(url,'_blank');
-            console.log(Object.keys(data.points[0].data));
-            console.log(Object.keys(data.points[0]));
-            console.log(Object.keys(data.points[0].curveNumber))
-            console.log(data.points[0].pointNumber);
-            console.log(profile_id);
-            console.log(url);
         });
         pres_v_psal_plot.on('plotly_click', function(data){
             let xidx = data.points[0].pointNumber
             var profile_id = !{title} + '_' + data.points[0].data.x[xidx];
             var url = '/catalog/profiles/' + profile_id + '/page';
             window.open(url,'_blank');
-            console.log(Object.keys(data.points[0].data));
-            console.log(Object.keys(data.points[0]));
-            console.log(Object.keys(data.points[0].curveNumber))
-            console.log(data.points[0].pointNumber);
-            console.log(profile_id);
-            console.log(url);
         });
         

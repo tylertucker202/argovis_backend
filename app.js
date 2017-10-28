@@ -7,14 +7,19 @@ var bodyParser = require('body-parser');
 var expressValidator = require('express-validator')
 var config = require('config');
 var mongoose = require('mongoose');
-
+var debug = require('debug')('app');
 var index = require('./routes/index');
 var catalog = require('./routes/catalog');  //Import routes for "catalog" area of site
 var selection = require('./routes/selection');  //Import routes for "catalog" area of site
-
+var compression = require('compression'); //All routs are compressed
+var helmet = require('helmet'); //sets appropriate HTTP headers
 var app = express();
+
+app.use(compression()); //Compress all routes
+app.use(helmet());
+
 const ENV = config.util.getEnv('NODE_ENV');
-console.log('NODE_ENV: ' + ENV);
+debug('NODE_ENV: ' + ENV);
 //don't show the log when it is test
 if(ENV !== 'test') {
   //use morgan to log at command line
@@ -22,7 +27,7 @@ if(ENV !== 'test') {
 }
 
 const mongoDB = config.db[ENV];
-console.log('mongodb: ' + mongoDB);
+debug('mongodb: ' + mongoDB);
 mongoose.Promise = global.Promise;
 
 // connect mongoose to the mongo dbUrl
@@ -41,7 +46,7 @@ app.set('view engine', 'pug');
 //Get the default connection
 var db = mongoose.connection;
 //Bind connection to error event (to get notification of connection errors)
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.on('error', debug.bind(console, 'MongoDB connection error:'));
 
 
 app.use(bodyParser.json());

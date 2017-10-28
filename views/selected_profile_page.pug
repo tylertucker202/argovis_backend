@@ -54,12 +54,10 @@ html(lang='en')
         });
 
         $('#downloadProfiles').on('click', function(){
-            console.log('downloadProfiles button pressed.')
             const data = JSON.stringify(!{profiles});
             const blob = new Blob([data], {type: "application/json"});
             const saveAs = window.saveAs;
             const filename = 'selected_profiles.json';
-            console.log('downloading file called')
             saveAs(blob, filename);
         });
 
@@ -171,6 +169,4 @@ html(lang='en')
             var profile_id = data.points[0].data.name.replace('ID: ','');
             var url = '/catalog/profiles/' + profile_id + '/page'
             window.open(url,'_blank');
-            //console.log(profile_id);
-            //console.log(url);
         });
