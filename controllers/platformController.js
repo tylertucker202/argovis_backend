@@ -1,5 +1,6 @@
 var Profile = require('../models/profile');
 var async = require('async');
+var moment = require('moment');
 
 // Display list of all platforms
 exports.index = function(req, res) {   
@@ -51,7 +52,7 @@ exports.platform_detail = function (req, res, next) {
             if (req.params.format==='page'){
                 if (profiles.length === 0) { res.send('platform not found'); }
                 else {
-                    res.render('platform_page', {title:req.params.platform_number, profiles: JSON.stringify(profiles) })
+                    res.render('platform_page', {title:req.params.platform_number, profiles: JSON.stringify(profiles), moment: moment })
                 }
             }
             else{

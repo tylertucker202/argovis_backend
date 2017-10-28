@@ -22,6 +22,11 @@ html(lang='en')
         
         script(type="text/javascript", src="javascripts/nouislider.js")
         link(rel="stylesheet" type="text/css", href="stylesheets/nouislider.css")
+
+        //used for map projections
+        script(type="text/javascript", src="javascripts/proj4.js")
+        script(type="text/javascript", src="javascripts/proj4leaflet.js")
+        script(src='/javascripts/leaflet.ajax.min.js')
     body
       script(type='text/javascript').
         $(function() {
@@ -34,9 +39,9 @@ html(lang='en')
             locale: {
                 format: 'MM/DD/YYYY'
             },
-            dateLimit: {
-                days: 60
-            },
+            //dateLimit: {
+            //   days: 60
+            //},
             alwaysShowCalendars: false,
             minDate: "01/01/1997",
             ranges: {
@@ -51,24 +56,30 @@ html(lang='en')
         });
 
         $( document ).ready(function() {
-          var slider = document.getElementById('slider');
-          var maxPres = document.getElementById('maxPres');
+          let slider = document.getElementById('slider');
+          let minPres = document.getElementById('minPres');
+          let maxPres = document.getElementById('maxPres');
 
           function bindValues(){
             slider.noUiSlider.on('update', function( values, handle ) {
-              var value = values;
-              maxPres.value = value;
-
+              var value = values[handle];
+              if ( handle ) {
+                maxPres.value = value;
+              } else {
+                minPres.value = value;
+              }
             });
-
+            minPres.addEventListener('change', function(){
+              slider.noUiSlider.set([this.value, null]);
+            });
             maxPres.addEventListener('change', function(){
               slider.noUiSlider.set([null, this.value]);
             });
           }
 
           noUiSlider.create(slider, {
-            start: 2000,
-            range: { min: 0, max: 6500 },
+            start: [0, 2000],
+            range: { min: 0, max: 6000 },
             step: 1,
             connect: true,
             orientation: 'vertical'
@@ -76,6 +87,27 @@ html(lang='en')
 
           bindValues(slider)
         });
+
+        var getDateRange = function() {
+          // Extract dates from daterange picker
+          let dates = {}
+          let startDate = $('#daterange').data('daterangepicker').startDate._d;
+          let endDate = $('#daterange').data('daterangepicker').endDate._d;
+          startDate = moment(startDate).format('YYYY-MM-DD');
+          endDate = moment(endDate).format('YYYY-MM-DD');
+          dates.startDate = startDate;
+          dates.endDate = endDate;
+          return(dates)
+          };
+        
+        var getPresRange = function() {
+          let maxPres = document.getElementById('maxPres').value;
+          let minPres = document.getElementById('minPres').value;
+          maxPres = Math.round(maxPres);
+          minPres = Math.round(minPres);
+          var presRange = [minPres, maxPres];
+          return(presRange);
+          };
 
 
 
@@ -85,11 +117,11 @@ html(lang='en')
             block sidebar
               ul(class='sidebar-nav')
                 li 
-                  a(href='/map') Map
+                  a(href='/map') Web Mercator Map
                 li
-                  a(href='/catalog/platforms') Platforms
-                li 
-                  a(href='/catalog/profiles') Profiles
+                  a(href='/mapNPS') Northern Polar Stereo Map
+                li
+                  a(href='/mapSPS') Southern Polar Stereo Map
                 li
                   a(href='/catalog/dacs') Dacs
                 li
@@ -102,13 +134,11 @@ html(lang='en')
                   div(class='col-sm-2', id='slider-div')
                     div(id='slider')
                   div(class='col-sm-2', id='input-div')
-                    label(id='maxPresLabel', for='maxPres') Maximum float pressure cutoff:
-                    input(type="number" value="2000" min="0" max="2000" id='maxPres')
+                    label(id='minPresLabel', for='minPres') Low pressure:
+                    input(type="number", value="0" min="0" max="6000" id='minPres')
+                    label(id='maxPresLabel', for='maxPres') High pressure:
+                    input(type="number" value="2000" min="0" max="6000" id='maxPres')
                 li
-                  button.btn.btn-primary.btn-block(type='submit', id='shapeSelection') Show floats within shape
-                li
-                  button.btn.btn-primary.btn-block(type='submit', id='lastProfileSelection') Show last profiles of all floats
-                li
-                  button.btn.btn-primary.btn-block(type='submit', id='latestProfileSelection') Show latest profiles
+                  button.btn.btn-primary.btn-block(type='submit', id='latestProfileSelection') Reset to Last 1000 profiles
           div(class='col-sm-10')
             block content

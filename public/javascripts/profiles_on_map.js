@@ -1,13 +1,13 @@
 const argoIcon = L.icon({
     iconUrl: '../images/Argo_Logo_VS.gif',
-    iconSize:     [35, 35], 
+    iconSize:     [25, 25], 
     iconAnchor:   [0, 0],
     popupAnchor:  [20, 20]
 });
 
 const argoIconBW = L.icon({
     iconUrl: '../images/Argo_Logo_VS_BW.gif',
-    iconSize:     [15, 15],
+    iconSize:     [10, 10],
     iconAnchor:   [0, 0],
     popupAnchor:  [20, 20] 
 });
@@ -67,9 +67,9 @@ function addToMarkersLayer(profile, markerIcon, markers) {
     if (markerIcon === undefined) {
         markerIcon = argoIcon;
     }
-    var profileLink = "<a href='/catalog/profiles/"+profile_id+"/page' > To profile page</a>";
+    var profileLink = "<a href='/catalog/profiles/"+profile_id+"/page' target='_blank'> To profile page</a>";
     const platformButton = "<input type='button' value='show all platform profiles' onclick='platformProfilesSelection("+selectedPlatform.toString()+")'>"
-    const platformLink = "<a href='/catalog/platforms/" + selectedPlatform + "/page' >To platform page</a>";
+    const platformLink = "<a href='/catalog/platforms/" + selectedPlatform + "/page' target='_blank' >To platform page</a>";
     const popupText = '<b>Hello, im ' + profile_id + '!</b>'
                     + '<br>lon: ' + lon + '</b>'
                     + '<br>lat: ' + lat + '</b>'
@@ -93,29 +93,11 @@ function addToMarkersLayer(profile, markerIcon, markers) {
     }
 };
 
-$('#lastProfileSelection').on('click', function(){
-    platformProfileMarkersLayer.clearLayers(); //delete platform profiles
-    markersLayer.clearLayers();
-    displayProfiles('/selection/lastProfiles'+'/map');
-})
-
 $('#latestProfileSelection').on('click', function(){
     platformProfileMarkersLayer.clearLayers(); //delete platform profiles
     markersLayer.clearLayers();
     displayProfiles('/selection/latestProfiles/map');
 })
-
-const getDateRange = function() {
-    // Extract dates from daterange picker
-    let dates = {}
-    let startDate = $('#daterange').data('daterangepicker').startDate._d;
-    let endDate = $('#daterange').data('daterangepicker').endDate._d;
-    startDate = moment(startDate).format('YYYY-MM-DD');
-    endDate = moment(endDate).format('YYYY-MM-DD');
-    dates.startDate = startDate;
-    dates.endDate = endDate;
-    return(dates)
-};
 
 const getTransformedShape = function(shape) {
     let transformedShape = [];
@@ -134,27 +116,3 @@ const getTransformedShape = function(shape) {
     }
     return(transformedShape)
 };
-
-$('#shapeSelection').on('click', function(){
-    const dates = getDateRange();
-    let maxPres = document.getElementById('maxPres').value;
-    console.log(maxPres);
-    // Extract GeoJson from featureGroup
-    if (drawnItems) {
-        let data = drawnItems.toGeoJSON();
-        let features = data.features;
-        platformProfileMarkersLayer.clearLayers(); //delete platform profiles
-        markersLayer.clearLayers();
-        let base = '/selection/profiles/map'
-        for (let i = 0; i < features.length; i++) {
-            const shape = features[i].geometry.coordinates;
-            const transformedShape = getTransformedShape(shape)
-            //console.log('after tranformation for shape: '+i);
-            //console.log(JSON.stringify([transformedShape]));
-            let urlQuery = base+'?startDate='+dates.startDate+'&endDate='+dates.endDate+'&maxPres='+maxPres+'&shape='+JSON.stringify([transformedShape]);
-            //let urlQuery = base+'?startDate='+dates.startDate+'&endDate='+dates.endDate+'&shape='+JSON.stringify([transformedShape]);
-            displayProfiles(urlQuery);
-            console.log(JSON.stringify(urlQuery));
-        }
-    }
-});

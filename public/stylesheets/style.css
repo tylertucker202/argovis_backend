@@ -9,9 +9,18 @@ html, body {
   overflow: scroll;
 }
 #map {
-  width: 1200px;
+  width: 1000px;
   height: 800px;
   border: 1px solid #ccc
+}
+
+.info {
+  padding: 6px 8px;
+  font: 14px/16px Arial, Helvetica, sans-serif;
+  background: white;
+  background: rgba(255,255,255,0.8);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  border-radius: 5px;
 }
 
 body {
@@ -19,6 +28,7 @@ body {
   padding:0px;
   font:14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
+
 a {
   color:#00B7FF;
 }
@@ -36,6 +46,10 @@ a {
 #maxPresLabel {
   margin-top: 0px;
   width: 150px;
+}
+
+#downloadProfiles {
+  width: 200px;
 }
 
 #slider {
@@ -65,24 +79,25 @@ a {
   float: right;
 }
 
-table.tableSection {
+table.table-striped {
   display: table;
-  width: 50%;
   border: '1';
 }
-table.tableSection thead, table.tableSection tbody {
+
+table.table-striped thead, table.table-striped tbody {
   float: left;
   width: 100%;
 }
-table.tableSection tbody {
+table.table-striped tbody {
   overflow: auto;
   height: 150px;
 }
-table.tableSection tr {
+
+table.table-striped tr {
   width: 100%;
   display: table;
   text-align: left;
 }
-table.tableSection th, table.tableSection td {
-  width: 33%;
+table.table-striped th, table.table-striped td {
+  width: 15%;
 }

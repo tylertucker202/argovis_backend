@@ -15,7 +15,6 @@ exports.profile_list = function(req, res, next) {
     });
 };
 
-// Display profile delete form on GET
 exports.profile_detail = function (req, res, next) {
 
     req.checkParams('_id', 'Profile id should be specified.').notEmpty();
@@ -35,7 +34,7 @@ exports.profile_detail = function (req, res, next) {
             if (req.params.format==='page'){
                 if (profile === null) { res.send('profile not found'); }
                 else {
-                    res.render('profile_page', {title: req.params._id, profile: profile});
+                    res.render('profile_page', {title: req.params._id, profile: profile, platform_number: profile.platform_number, moment: moment});
                 }
             }
             else {
@@ -49,15 +48,26 @@ exports.selected_profile_list = function(req, res , next) {
 
     req.checkQuery('startDate', 'startDate should be specified.').notEmpty();
     req.checkQuery('endDate', 'endDate should be specified.').notEmpty();
-    req.checkQuery('shape', 'shape should not be empty.').notEmpty();
-    //req.checkQuery('maxPres', 'maxPres should not be empty.').notEmpty(); 
+    req.checkQuery('shape', 'shape should be specified.').notEmpty();
+    
+    req.sanitize('presRange').escape();
+    req.sanitize('presRange').trim();
+
 
     req.sanitize('_id').escape();
     req.sanitize('startDate').toDate();
     req.sanitize('endDate').toDate();
 
-    var shape = JSON.parse(req.query.shape);
-    const shapeJson = {"type": "Polygon", "coordinates": shape}
+    const shape = JSON.parse(req.query.shape);
+    var shapeJson = {"type": "Polygon", "coordinates": shape}
+    if (req.query.presRange) {
+        var presRange = JSON.parse(req.query.presRange);
+        var maxPres = Number(presRange[1]);
+        var minPres = Number(presRange[0]);
+    }
+
+    const startDate = moment(req.query.startDate, 'YYYY-MM-DD');
+    const endDate = moment(req.query.endDate, 'YYYY-MM-DD');
     GJV.valid(shapeJson);
     GJV.isPolygon(shapeJson);
 
@@ -66,32 +76,97 @@ exports.selected_profile_list = function(req, res , next) {
         res.send(errors)
     }
     else {
-        const startDate = moment(req.query.startDate, 'YYYY-MM-DD');
-        const endDate = moment(req.query.endDate, 'YYYY-MM-DD');
+        if (req.params.format === 'map' && req.query.presRange) {
+            var query = Profile.aggregate([
+                {$project: { //need to include all fields that you wish to keep.
+                    platform_number: 1, date: 1, geoLocation: 1, cycle_number: 1,
+                    measurements: {
+                        $filter: {
+                            input: '$measurements',
+                            as: 'item',
+                            cond: {
+                                $and: [
+                                    {$gt: ['$$item.pres', minPres]},
+                                    {$lt: ['$$item.pres', maxPres]}
+                                ]},
+                        },
+                    },
+                }},
+                {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
+                {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+                {$project: { // return profiles with measurements
+                    platform_number: 1, date: 1, geoLocation: 1, cycle_number: 1, measurements: 1,
+                    count: { $size:'$measurements' },
+                }},
+                {$match: {count: {$gt: 0}}}
+                ]);
+        }
+        else if (req.params.format === 'map' && !req.query.presRange) {
+            var query = Profile.aggregate([
+                {$project: { platform_number: 1, date: 1, geoLocation: 1, cycle_number: 1}},
+                {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
+                {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+            ]);
+        }
 
-        if (req.query.maxPres) {
-            const maxPres = req.query.maxPres;
-            console.log('maxPres');
-            console.log(maxPres);
-            var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()},
-            geoLocation: {$geoWithin: {$geometry: shapeJson}},
-            //maximum_pressure: {$gte: maxPres}
-        });
-
+        else if (req.params.format !== 'map' && req.query.presRange) {
+            var query = Profile.aggregate([
+                {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
+                {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+                {$project: { //need to include all fields that you wish to keep.
+                    nc_url: 1,
+                    position_qc: 1,
+                    cycle_number: 1,
+                    dac: 1,
+                    date:1,
+                    lat: 1,
+                    lon: 1,
+                    platform_number: 1,
+                    geoLocation: 1,
+                    station_parameters: 1,
+                    maximum_pressure: 1,
+                    measurements: {
+                        $filter: {
+                            input: '$measurements',
+                            as: 'item',
+                            cond: { 
+                                $and: [
+                                    {$gt: ['$$item.pres', minPres]},
+                                    {$lt: ['$$item.pres', maxPres]}
+                                ]},
+                        },
+                    },
+                }},
+                {$project: { // return profiles with measurements
+                    _id: 1,
+                    nc_url: 1,
+                    position_qc: 1,
+                    cycle_number: 1,
+                    dac: 1,
+                    date:1,
+                    lat: 1,
+                    lon: 1,
+                    platform_number: 1,
+                    geoLocation: 1,
+                    station_parameters: 1,
+                    maximum_pressure: 1,
+                    measurements: 1,
+                    count: { $size:'$measurements' },
+                }},
+                {$match: {count: {$gt: 0}}}
+                ]);
         }
         else {
-            var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()},
-            geoLocation: {$geoWithin: {$geometry: shapeJson}}});
-        }
-        if (req.params.format === 'map') {
-            query.select(mapParams);
+            var query = Profile.aggregate([
+                {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
+                {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}]);
         }
         query.exec( function (err, profiles) {
             if (err) { return next(err); }
             if (req.params.format==='page'){
                 if (profiles === null) { res.send('profile not found'); }
                 else {
-                    res.render('platform_page', {title:'Custom selection', profiles: JSON.stringify(profiles) })
+                    res.render('selected_profile_page', {title:'Custom selection', profiles: JSON.stringify(profiles), moment: moment })
                 }
             }
             else {
@@ -123,6 +198,7 @@ exports.latest_profile_list = function(req,res) {
     endDate = moment();
     var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()}});
     if (req.params.format === 'map') {
+        query.limit(1000);
         query.select(mapParams);
     }
     query.exec( function (err, profile) {

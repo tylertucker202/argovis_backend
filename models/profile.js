@@ -6,17 +6,18 @@ var ProfileSchema = Schema(
   {
     _id: {type: String, required: true, max: 100},
     nc_url: {type: String, required: true},
-    position_qc: {type: String, required: true},
-    cycle_number: {type: String, required: true},
+    position_qc: {type: Number, required: true},
+    cycle_number: {type: Number, required: true},
     dac: {type: String, required: true, max: 100},
     date: {type: Date, required: true},
-    measurements: {type: Schema.Types.Mixed, required: true},
+    //measurements: {type: Array, required: true},
+    measurements: [{ pres: Number, pres_qc: String, temp: Number, temp_qc: String, psal: Number, psal_qc: String }],
     lat: {type: Number, required: true},
     lon: {type: Number, required: true},
     platform_number: {type: String, required: true, max: 100},
     geoLocation: {type: Schema.Types.Mixed, required: true},
     station_parameters: {type: Schema.Types.Array, required: true},
-    maximum_pressure: {type: Number, required: false}
+    maximum_pressure: {type: Number, required: true}
   },
 );
 

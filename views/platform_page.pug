@@ -5,197 +5,281 @@ html(lang='en')
         meta(charset='utf-8')
         link(rel='stylesheet', href='/stylesheets/style.css')
         script(type="text/javascript", src='https://cdn.plot.ly/plotly-latest.min.js')
+        link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+        script(src='/javascripts/FileSaver.min.js')
+        script(src='/javascripts/jquery.min.js')
+        script(src='/javascripts/bootstrap.min.js')
+        script(src='/javascripts/tableexport.min.js')
+        link(rel='stylesheet', href='tableexport.min.css')
     body
 
     block content
+        div(class='top')
+            #pres_v_temp_plot
+        div(class='bottom')
+            #pres_v_psal_plot
+
+        button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download platform data
         div
-        table(class="tableSection")
+        table(class="table table-striped", id='profileTable')
             thead
                 tr
-                    th Platform Id
-                    th Date
+                    th Raw Data
+                    th Link to profile page
+                    th Date reported
                     th Cycle number
                     th Number of measurements
             tbody(overflow='auto', height='150px')
                 each profile, i in JSON.parse(profiles)
                     tr
                         td 
-                            a(href=profile.nc_url) #{profile._id}
-                        td #{profile.date}
+                            a(href=profile.nc_url) #{profile._id} data
+                        td 
+                            a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
+                        td #{moment(profile.date).format("YYYY-MM-DD HH:mm")}
                         td #{profile.cycle_number}
-                        td #{profile.measurements.temp.length}  
-        #TS_PROFILES
+                        td #{profile.measurements.length}
 
-        script(type='text/javascript').
-         
-            let psal = [];
-            let pres = [];
-            let temp = [];
-            let cycle = [];
-            let profiles = !{profiles};
-            let psal_max = 0;
-            let psal_min = 100;
-            let temp_max = 0;
-            let temp_min = 100;
-            for(var i=0; i < profiles.length; i++) {
-                let profile = profiles[i];
-                //convert nan to 0
-                let psal_array = profile.measurements.psal;
-                let pres_array = profile.measurements.pres;
-                let temp_array = profile.measurements.temp;
-                temp_array_max = Math.max.apply(null, temp_array.filter(Number));
-                temp_array_min = Math.min.apply(null, temp_array.filter(Number));
-                psal_array_max = Math.max.apply(null, psal_array.filter(Number));
-                psal_array_min = Math.min.apply(null, psal_array.filter(Number));
-                //console.log('temp_array_min: %s', temp_array_min);
-                //console.log('psal_array_min: %s', psal_array_min);
-                if (temp_array_max > temp_max) { temp_max = temp_array_max;}
-                if (temp_array_min < temp_min) { temp_min = temp_array_min;}
-                if (psal_array_max > psal_max) { psal_max = psal_array_max;}
-                if (psal_array_min < psal_min) { psal_min = psal_array_min;}
-                psal = psal.concat(psal_array);
-                pres = pres.concat(pres_array);
-                temp = temp.concat(temp_array);
+    script(type='text/javascript').
 
-                let meas_idx = [];
-                for (var j = 1; j <= pres_array.length; j++) {
-                meas_idx.push(i); //just an array of cycle number
-                }
-                cycle = cycle.concat(meas_idx);
-            };
-            
-            function round_array(x){return(x.toFixed(2))}
+        TableExport(document.getElementsByTagName("table"), {
+            headers: true,                              // (Boolean), display table headers (th or td elements) in the <thead>, (default: true)
+            footers: true,                              // (Boolean), display table footers (th or td elements) in the <tfoot>, (default: false)
+            formats: ['csv', 'xlsx', 'xls', 'txt'],             // (String[]), filetype(s) for the export, (default: ['xls', 'csv', 'txt'])
+            filename: !{title}+'_table',                             // (id, String), filename for the downloaded file, (default: 'id')
+            bootstrap: true,                           // (Boolean), style buttons using bootstrap, (default: true)
+            exportButtons: true,                        // (Boolean), automatically generate the built-in export buttons for each of the specified formats (default: true)
+            position: 'bottom',                         // (top, bottom), position of the caption element relative to table, (default: 'bottom')
+            ignoreRows: null,                           // (Number, Number[]), row indices to exclude from the exported file(s) (default: null)
+            ignoreCols: null,                           // (Number, Number[]), column indices to exclude from the exported file(s) (default: null)
+            trimWhitespace: true                        // (Boolean), remove all leading/trailing newlines, spaces, and tabs from cell text in the exported file(s) (default: false)
+        });
 
-            function scale_array(x, xmax, xmin){return( (x-xmin)/(xmax-xmin) )}
+        $('#downloadPlatform').on('click', function(){
+            console.log('downloadPlatform button pressed.')
+            const data = JSON.stringify(!{profiles});
+            const blob = new Blob([data], {type: "application/json"});
+            const saveAs = window.saveAs;
+            const filename = !{title}+'_profiles.json'
+            console.log('downloading file called')
+            saveAs(blob, filename);
+        });
+    
 
-            function normalize(min, max) {
-                var delta = max - min;
-                return function (val) {
-                    return (val - min) / delta;
-                };
+    script(type='text/javascript').
+        let psal = [];
+        let pres = [];
+        let temp = [];
+        let cycle = [];
+        let profiles = !{profiles};
+
+        function collateMeasurements(list) {
+                var map = {};
+            var keys = Object.keys(list[0]);
+            map.pres = [];
+            map.temp = [];
+            map.psal = [];
+
+            for (var i = 0; i < list.length; ++i) {
+                map.pres.push(list[i].pres);
+                map.temp.push(list[i].temp);
+                map.psal.push(list[i].psal);
+            }
+            return map;
+        }
+
+        for(var i=0; i < profiles.length; i++) {
+            let profile = profiles[i].measurements;
+
+            profile = collateMeasurements(profile);
+            psal = psal.concat(profile.psal);
+            pres = pres.concat(profile.pres);
+            temp = temp.concat(profile.temp);
+
+            let meas_idx = [];
+            for (var j = 1; j <= profile.psal.length; j++) {
+                meas_idx.push(profiles[i].cycle_number); //just an array of cycle number
+            }
+            cycle = cycle.concat(meas_idx);
+        };
+
+        var temp_scl = [[0, 'rgb(215,48,39)'],
+                            [.125, 'rgb(244,109,67)'],
+                            [.25, 'rgb(253,174,97)'],
+                            [.375, 'rgb(254,224,144)'],
+                            [.5, 'rgb(255,255,191)'],
+                            [.625, 'rgb(224,243,248)'],
+                            [.75, 'rgb(171,217,233)'],
+                            [.875, 'rgb(116,173,209)'],
+                            [1, 'rgb(69,117,180)']];
+
+        var psal_scl = [[0, 'rgb(166,97,26)'],
+                        [.25, 'rgb(223,194,125)'],
+                        [.5, 'rgb(245,245,245)'],
+                        [.75, 'rgb(128,205,193)'],
+                        [1, 'rgb(1,133,113)']];
+
+        const measurements = {'yvalues': pres,
+                                'xvalues': cycle,
+                                'pres_v_temp': {'cvalues': temp,
+                                                'text': 'temperature: ',
+                                                'yaxis': 'y2',
+                                                'xaxis': 'x1',
+                                                'colorscale': temp_scl,
+                                                'colorbar': {
+                                                        //y: 0.8, 
+                                                        //x: 1.02, 
+                                                        title: "Temperature [Celsius]", 
+                                                        len: 1, 
+                                                        yanchor: "middle"
+                                                        }},
+                                'pres_v_psal': {'cvalues': psal,
+                                                'text': 'salinity: ',
+                                                'yaxis': 'y1',
+                                                'xaxis': 'x1',
+                                                'colorscale': psal_scl,
+                                                'colorbar': {
+                                                        //y: 0.2, 
+                                                        //x: 1.02, 
+                                                        title: "Salinity [ppm]", 
+                                                        len: 1, 
+                                                        yanchor: "middle"
+                                                        }}
+                                };
+        //scatterGL has difficulty with long decimal points when distinguishing color
+        function roundArray(value){return(value.toFixed(0))}
+
+        const makeText = function(text, value) {
+                return("<br> " + text + value.toFixed(3).toString()
+                     + "<br>click to see profile page"
+                )
+        };
+
+        Array.prototype.max = function () {
+            return Math.max.apply(null, this);
+        };
+        Array.prototype.min = function () {
+            return Math.min.apply(null, this);
+        };
+        console.log(pres.max());
+        console.log(pres.min());
+
+        //console.log(psal);
+        //console.log(temp);
+
+        const makeTrace = function(key) {
+            let meas = measurements[key];
+            scatterGlTrace = {
+                y: measurements.yvalues,
+                x: measurements.xvalues,
+                text: meas.cvalues.map(function(value) { return makeText(meas.text, value); }),
+                showlegend: false,
+                type: 'scattergl',
+                mode: 'markers',
+                marker: { color: meas.cvalues.map(roundArray),
+                            size: 6,
+                            symbol: 'dot',
+                            opacity: 1,
+                            reversescale: true,
+                            colorscale: meas.colorscale,
+                            colorbar: meas.colorbar,
+                        },
+                name: key, 
             }
 
+            //scatterTrace = makeScatterTrace(key); //used to show axis labels
+            return [scatterGlTrace];
+        };
 
-
-
-            //noneCoords = pres.findIndex(getNoneCoords)
-
-            //console.log(temp.length)
-            //console.log(psal.length)
-            //console.log(pres.length)
-            //pres[ pres.map(getNoneCoords)]
-
-            temp_color = temp.map(normalize(temp_min, temp_max));
-            //temp_color = temp_color.map(unnormalize(temp_min, temp_max));
-            //temp_color = temp_color.map(round_array);
-
-            //console.log(temp_color);
-            
-            var temp_scl = [[0, 'rgb(215,48,39)'],
-                              [.125, 'rgb(244,109,67)'],
-                              [.25, 'rgb(253,174,97)'],
-                              [.375, 'rgb(254,224,144)'],
-                              [.5, 'rgb(255,255,191)'],
-                              [.625, 'rgb(224,243,248)'],
-                              [.75, 'rgb(171,217,233)'],
-                              [.875, 'rgb(116,173,209)'],
-                              [1, 'rgb(69,117,180)']];
-
-            var psal_scl = [[0, 'rgb(166,97,26)'],
-                            [.25, 'rgb(223,194,125)'],
-                            [.5, 'rgb(245,245,245)'],
-                            [.75, 'rgb(128,205,193)'],
-                            [1, 'rgb(1,133,113)']];
-
-            const measurements = {'yvalues': pres,
-                                  'xvalues': cycle,
-                                  'pres_v_temp': {'cvalues': temp,
-                                                  'yaxis': 'y2',
-                                                  'xaxis': 'x1',
-                                                  'cmin': 0,
-                                                  'cmax': 1,
-                                                  'colorscale': temp_scl,
-                                                  'colorbar': {
-                                                            y: 0.8, 
-                                                            x: 1.02, 
-                                                            title: "Temperature [Celsius]", 
-                                                            len: 0.35, 
-                                                            yanchor: "middle"
-                                                            }},
-                                  'pres_v_psal': {'cvalues': psal,
-                                                  'yaxis': 'y1',
-                                                  'xaxis': 'x1',
-                                                  'cmin': psal_min,
-                                                  'cmax': psal_max,
-                                                  'colorscale': psal_scl,
-                                                  'colorbar': {
-                                                            y: 0.2, 
-                                                            x: 1.02, 
-                                                            title: "Salinity [ppm]", 
-                                                            len: 0.35, 
-                                                            yanchor: "middle"
-                                                            }}
-                                 };
-
-            const makeTrace =function(key) {
-                let meas = measurements[key];
-                return {
-                    y: measurements.yvalues,
-                    x: measurements.xvalues,
-                    text: meas.cvalues,
-                    xaxis: meas.xaxis,
-                    yaxis: meas.yaxis,
-                    showlegend: false,
-                    type: 'scattergl',
-                    mode: 'markers',
-                    marker: { color: meas.cvalues,
-                              size: 8,
-                              symbol: 'dot',
-                              opacity: 1,
-                              reversescale: true,
-                              colorscale: meas.colorscale,
-                              colorbar: meas.colorbar,
-                            },
-                    name: key, 
-                };
+        //dirty hack that tries to show scale on reversed scattergl axis. Doesn't work...
+        const makeScatterTrace = function(key) {
+            let meas = measurements[key];
+            return {
+                y: [measurements.yvalues.min(), measurements.yvalues.max() ],
+                x: [measurements.xvalues.min(), measurements.xvalues.max() ],
+                //text: meas.cvalues.map(function(value) { return makeText(meas.text, value); }),
+                showlegend: false,
+                visible: false,
+                //type: 'scatter',
+                mode: 'markers',
+                marker: { color: meas.cvalues.map(roundArray),
+                            size: 6,
+                            symbol: 'dot',
+                            opacity: 0,
+                        },
+                name: key+'scatter', 
             };
+        };        
 
-            var layout = {
-                title: "Profile measurements", 
-                anchor: "y2", 
-                height: 800, 
-                width: 1200, 
-                autosize: false, 
-                yaxis: {
-                    autorange: 'reversed', 
-                    type: "linear", 
-                    domain: [
-                        0, 
-                        0.45
-                    ], 
-                    title: "Pressure [dbar]"
-                },
-                yaxis2: {
-                    autorange: 'reversed', 
-                    type: "linear",                     
-                    domain: [
-                        0.55, 
-                        1
-                    ], 
-                    title: "Pressure [dbar]", 
-                    side: "left",
-                }, 
-                xaxis: {
-                    autorange: true, 
-                    type: "linear", 
-                    anchor: "x", 
-                    title: "Cycle"
-                }, 
-                hovermode: "closest", 
-                showlegend: true
-            };
-            console.log('temp max: %s min: %s',temp_max, temp_min);
-            console.log('psal max: %s min: %s',psal_max, psal_min);
-            Plotly.plot('TS_PROFILES',
-                        ['pres_v_psal', 'pres_v_temp'].map(makeTrace),
-                        layout);
+        var temp_layout = {
+            title: "Profile measurements",  
+            height: 400, 
+            width: 1200, 
+            //autosize: false, 
+            yaxis: {
+                showticklabels: true,
+                //autorange: 'reversed', 
+                type: "linear", 
+                title: "Pressure [dbar]"
+            },
+            xaxis: {
+                autorange: true, 
+                type: "linear", 
+                title: "Cycle"
+            }, 
+            hovermode: "closest", 
+            showlegend: true
+        };
+
+        var psal_layout = {
+            title: "Profile measurements",  
+            height: 400, 
+            width: 1200, 
+            //autosize: false, 
+            yaxis: {
+                showticklabels: true, 
+                //autorange: 'reversed',
+                type: "linear", 
+                title: "Pressure [dbar]"
+            },
+            xaxis: {
+                autorange: true, 
+                type: "linear", 
+                title: "Cycle"
+            }, 
+            hovermode: "closest", 
+            showlegend: true
+        };
+        Plotly.plot('pres_v_temp_plot',
+                    makeTrace( 'pres_v_temp'),
+                    temp_layout);
+        Plotly.plot('pres_v_psal_plot', 
+                    makeTrace('pres_v_psal'),
+                    psal_layout);
+
+        // Upon click a new tab opens to the corresponding profile.
+        pres_v_temp_plot.on('plotly_click', function(data){
+            let xidx = data.points[0].pointNumber
+            var profile_id = !{title} + '_' + data.points[0].data.x[xidx];
+            var url = '/catalog/profiles/' + profile_id + '/page';
+            window.open(url,'_blank');
+            console.log(Object.keys(data.points[0].data));
+            console.log(Object.keys(data.points[0]));
+            console.log(Object.keys(data.points[0].curveNumber))
+            console.log(data.points[0].pointNumber);
+            console.log(profile_id);
+            console.log(url);
+        });
+        pres_v_psal_plot.on('plotly_click', function(data){
+            let xidx = data.points[0].pointNumber
+            var profile_id = !{title} + '_' + data.points[0].data.x[xidx];
+            var url = '/catalog/profiles/' + profile_id + '/page';
+            window.open(url,'_blank');
+            console.log(Object.keys(data.points[0].data));
+            console.log(Object.keys(data.points[0]));
+            console.log(Object.keys(data.points[0].curveNumber))
+            console.log(data.points[0].pointNumber);
+            console.log(profile_id);
+            console.log(url);
+        });
+        
