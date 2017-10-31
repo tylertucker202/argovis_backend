@@ -65,61 +65,89 @@ html(lang='en')
     
 
     script(type='text/javascript').
-        let psal = [];
-        let pres = [];
-        let temp = [];
-        let cycle = [];
+
+        let combinedProfiles = {};
+        combinedProfiles.psal = [];
+        combinedProfiles.pres = [];
+        combinedProfiles.temp = [];
+        combinedProfiles.cycle = [];
         let profiles = !{profiles};
 
-        function collateMeasurements(list) {
-                var map = {};
-            var keys = Object.keys(list[0]);
-            map.pres = [];
-            map.temp = [];
-            map.psal = [];
+        const collateProfileMeasurements = function(profile) {
+            var collatedProfiles = {};
+            let num_measurements = profile.length;
+            collatedProfiles.pres = new Array(num_measurements);
+            collatedProfiles.temp = new Array(num_measurements);
+            collatedProfiles.psal = new Array(num_measurements);
 
-            for (var i = 0; i < list.length; ++i) {
-                map.pres.push(list[i].pres);
-                map.temp.push(list[i].temp);
-                map.psal.push(list[i].psal);
+            for (var i = 0; i < num_measurements; ++i) {
+                collatedProfiles.pres[i] = profile[i].pres;
+                collatedProfiles.temp[i] = profile[i].temp;
+                collatedProfiles.psal[i] = profile[i].psal;
             }
-            return map;
+            return collatedProfiles;
         }
+
+        const reduceProfileMeasurements = function(combinedProfiles, n) {
+            var reducedProfiles = {}
+
+            reducedProfiles.pres = [];
+            reducedProfiles.temp = [];
+            reducedProfiles.psal = [];
+            reducedProfiles.cycle = [];
+
+            for(let i = 0; i < combinedProfiles.pres.length; i+=n) {
+                reducedProfiles.pres.push(combinedProfiles.pres[i]);
+                reducedProfiles.temp.push(combinedProfiles.temp[i]);
+                reducedProfiles.psal.push(combinedProfiles.psal[i]);
+                reducedProfiles.cycle.push(combinedProfiles.cycle[i]);
+            }
+            return reducedProfiles;
+            }
+
 
         for(var i=0; i < profiles.length; i++) {
             let profile = profiles[i].measurements;
 
-            profile = collateMeasurements(profile);
-            psal = psal.concat(profile.psal);
-            pres = pres.concat(profile.pres);
-            temp = temp.concat(profile.temp);
+            profile = collateProfileMeasurements(profile);
+            combinedProfiles.psal = combinedProfiles.psal.concat(profile.psal);
+            combinedProfiles.pres = combinedProfiles.pres.concat(profile.pres);
+            combinedProfiles.temp = combinedProfiles.temp.concat(profile.temp);
 
             let meas_idx = [];
             for (var j = 1; j <= profile.psal.length; j++) {
                 meas_idx.push(profiles[i].cycle_number); //just an array of cycle number
             }
-            cycle = cycle.concat(meas_idx);
+            combinedProfiles.cycle = combinedProfiles.cycle.concat(meas_idx);
         };
+        //plot no more that 3000 points. scattergl option can plot more points, but there is a but that makes the y-axis tick marks dissapear.
+        nFactor = Math.ceil(combinedProfiles.pres.length / 3000);
+        console.log(nFactor);
+        combinedProfiles = reduceProfileMeasurements(combinedProfiles, nFactor);
+        console.log(combinedProfiles.pres.length);
+        var temp_scl = [[0.0, 'rgb(3, 35, 51)'],
+                        [0.125, 'rgb(24, 51, 124)'],
+                        [0.25, 'rgb(86, 59, 156)'],
+                        [0.375, 'rgb(130, 79, 142)'],
+                        [0.5, 'rgb(176, 95, 129)'],
+                        [0.625, 'rgb(222, 112, 100)'],
+                        [0.75, 'rgb(249, 147, 65)'],
+                        [0.875, 'rgb(249, 198, 65)'],
+                        [1.0, 'rgb(231, 250, 90)']];
 
-        var temp_scl = [[0, 'rgb(215,48,39)'],
-                            [.125, 'rgb(244,109,67)'],
-                            [.25, 'rgb(253,174,97)'],
-                            [.375, 'rgb(254,224,144)'],
-                            [.5, 'rgb(255,255,191)'],
-                            [.625, 'rgb(224,243,248)'],
-                            [.75, 'rgb(171,217,233)'],
-                            [.875, 'rgb(116,173,209)'],
-                            [1, 'rgb(69,117,180)']];
+        var psal_scl = [[0.0, 'rgb(41, 24, 107)'],
+                        [0.125, 'rgb(31, 51, 161)'],
+                        [0.25, 'rgb(15, 91, 144)'],
+                        [0.375, 'rgb(40, 119, 137)'],
+                        [0.5, 'rgb(59, 147, 135)'],
+                        [0.625, 'rgb(79, 176, 125)'],
+                        [0.75, 'rgb(122, 203, 102)'],
+                        [0.875, 'rgb(195, 221, 100)'],
+                        [1.0, 'rgb(253, 238, 153)']];
 
-        var psal_scl = [[0, 'rgb(166,97,26)'],
-                        [.25, 'rgb(223,194,125)'],
-                        [.5, 'rgb(245,245,245)'],
-                        [.75, 'rgb(128,205,193)'],
-                        [1, 'rgb(1,133,113)']];
-
-        const measurements = {'yvalues': pres,
-                                'xvalues': cycle,
-                                'pres_v_temp': {'cvalues': temp,
+        const measurements = {'yvalues': combinedProfiles.pres,
+                                'xvalues': combinedProfiles.cycle,
+                                'pres_v_temp': {'cvalues': combinedProfiles.temp,
                                                 'text': 'temperature: ',
                                                 'yaxis': 'y2',
                                                 'xaxis': 'x1',
@@ -131,7 +159,7 @@ html(lang='en')
                                                         len: 1, 
                                                         yanchor: "middle"
                                                         }},
-                                'pres_v_psal': {'cvalues': psal,
+                                'pres_v_psal': {'cvalues': combinedProfiles.psal,
                                                 'text': 'salinity: ',
                                                 'yaxis': 'y1',
                                                 'xaxis': 'x1',
@@ -145,7 +173,7 @@ html(lang='en')
                                                         }}
                                 };
         //scatterGL has difficulty with long decimal points when distinguishing color
-        function roundArray(value){return(value.toFixed(0))}
+        function roundArray(value){return(value.toFixed(1))}
 
         const makeText = function(text, value) {
                 return("<br> " + text + value.toFixed(3).toString()
@@ -153,56 +181,29 @@ html(lang='en')
                 )
         };
 
-        Array.prototype.max = function () {
-            return Math.max.apply(null, this);
-        };
-        Array.prototype.min = function () {
-            return Math.min.apply(null, this);
-        };
 
         const makeTrace = function(key) {
             let meas = measurements[key];
-            scatterGlTrace = {
+            scatterTrace = {
                 y: measurements.yvalues,
                 x: measurements.xvalues,
                 text: meas.cvalues.map(function(value) { return makeText(meas.text, value); }),
                 showlegend: false,
-                type: 'scattergl',
+                type: 'scatter',
                 mode: 'markers',
-                marker: { color: meas.cvalues.map(roundArray),
-                            size: 6,
+                marker: { color: meas.cvalues,
+                            size: 5,
                             symbol: 'dot',
                             opacity: 1,
-                            reversescale: true,
+                            reversescale: false,
                             colorscale: meas.colorscale,
                             colorbar: meas.colorbar,
                         },
                 name: key, 
             }
-
-            //scatterTrace = makeScatterTrace(key); //used to show axis labels
-            return [scatterGlTrace];
+            return [scatterTrace];
         };
 
-        //dirty hack that tries to show scale on reversed scattergl axis. Doesn't work...
-        const makeScatterTrace = function(key) {
-            let meas = measurements[key];
-            return {
-                y: [measurements.yvalues.min(), measurements.yvalues.max() ],
-                x: [measurements.xvalues.min(), measurements.xvalues.max() ],
-                //text: meas.cvalues.map(function(value) { return makeText(meas.text, value); }),
-                showlegend: false,
-                visible: false,
-                //type: 'scatter',
-                mode: 'markers',
-                marker: { color: meas.cvalues.map(roundArray),
-                            size: 6,
-                            symbol: 'dot',
-                            opacity: 0,
-                        },
-                name: key+'scatter', 
-            };
-        };        
 
         var temp_layout = {
             title: "Profile measurements",  
@@ -211,7 +212,7 @@ html(lang='en')
             //autosize: false, 
             yaxis: {
                 showticklabels: true,
-                //autorange: 'reversed', 
+                autorange: 'reversed', 
                 type: "linear", 
                 title: "Pressure [dbar]"
             },
@@ -231,7 +232,7 @@ html(lang='en')
             //autosize: false, 
             yaxis: {
                 showticklabels: true, 
-                //autorange: 'reversed',
+                autorange: 'reversed',
                 type: "linear", 
                 title: "Pressure [dbar]"
             },

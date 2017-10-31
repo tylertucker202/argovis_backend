@@ -14,7 +14,12 @@ html(lang='en')
     body
 
     block content
-        #DISPLAY_SELECTION_PROFILES
+        div(class='left')
+            #PRES_V_TEMP_PLOT
+        div(class='middle')
+            #PRES_V_PSAL_PLOT
+        div(class='right')
+            #TEMP_V_PSAL_PLOT
         button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download selected data
         div
         table(class="table table-striped")
@@ -64,107 +69,126 @@ html(lang='en')
     script(type='text/javascript').
         
         let profiles = !{profiles};
-        let traces = [];
 
-        function collateMeasurements(list) {
-                var map = {};
-            var keys = Object.keys(list[0]);
-            map.pres = [];
-            map.temp = [];
-            map.psal = [];
-
-            for (var i = 0; i < list.length; ++i) {
-                map.pres.push(list[i].pres);
-                map.temp.push(list[i].temp);
-                map.psal.push(list[i].psal);
+        const collateProfileMeasurements = function(profile) {
+            var map = {};
+            let num_measurements = profile.length;
+            map.pres = new Array(num_measurements);
+            map.temp = new Array(num_measurements);
+            map.psal = new Array(num_measurements);
+            for (var i = 0; i < num_measurements; ++i) {
+                map.pres[i] = profile[i].pres;
+                map.temp[i] = profile[i].temp;
+                map.psal[i] = profile[i].psal;
             }
             return map;
         }
-        const reduceProfileMeasurements = function(combinedProfiles, n) {
-            var reducedProfiles = {}
 
-            reducedProfiles.pres = [];
-            reducedProfiles.temp = [];
-            reducedProfiles.psal = [];
-
-            for(let i = 0; i < combinedProfiles.pres.length; i+=n) {
-                reducedProfiles.pres.push(combinedProfiles.pres[i]);
-                reducedProfiles.temp.push(combinedProfiles.temp[i]);
-                reducedProfiles.psal.push(combinedProfiles.psal[i]);
-            }
-            return reducedProfiles;
-            }
-        const makeTrace =function(key, measurement) {
-            let trace_info = measurement[key];
-            return {
-                y: trace_info.yvalues,
-                x: trace_info.xvalues,
-                text: 'click to see profile page',
-                xaxis: trace_info.xaxis,
-                yaxis: trace_info.yaxis,
-                showlegend: true,
-                type: 'scatter',
-                name: 'ID: '+trace_info.platform_id,
-            };
+        const makeText = function(profile_id) {
+                return("<br> " + text + value.toFixed(3).toString()
+                     + "<br>click to see profile page"
+                )
         };
 
-        //todo: make scatter trace plot that isn't scatter gl to set y scale
+        const makeTrace = function(xvalues, yvalues, cvalues, profile_ids, plot_name) {
+            scatterGlTrace = {
+                y: yvalues,
+                x: xvalues,
+                text: profile_ids.map(makeText),
+                showlegend: false,
+                type: 'scattergl',
+                mode: 'markers',
+                profile_ids: profile_ids,
+                marker: { color: cvalues,
+                            size: 6,
+                            symbol: 'dot',
+                            opacity: 1,
+                        },
+                name: plot_name, 
+            }
+            return [scatterGlTrace]
+        };
+
+        let traces = [];
+        let temp = [];
+        let pres = [];
+        let psal = [];
+        let _ids = [];
+        let cvalues = [];
 
         for(var i=0; i < profiles.length; i++) {
             let profile = profiles[i].measurements;
-            const _id = profiles[i]._id
-            profile = collateMeasurements(profile); // collect points into arrays
-            profile = reduceProfileMeasurements(profile, 10);  // plot every n measurements
-            // prep arrays to be changed into traces
-            const measurement = {'temp_v_psal': {'yvalues': profile.temp, 'xvalues': profile.psal, 'yaxis': 'y1', 'xaxis': 'x1', 'platform_id': _id},
-                                 'pres_v_psal': {'yvalues': profile.pres, 'xvalues': profile.psal, 'yaxis': 'y2', 'xaxis': 'x2', 'platform_id': _id},
-                                 'pres_v_temp': {'yvalues': profile.pres, 'xvalues': profile.temp, 'yaxis': 'y3', 'xaxis': 'x3', 'platform_id': _id}
-                                };
-            //create traces.
-            meas_traces = ['pres_v_temp', 'pres_v_psal', 'temp_v_psal'].map(function(key) { return makeTrace(key, measurement)})
-            //add traces to array.
-            traces = traces.concat(meas_traces)
-        };
+            profile = collateProfileMeasurements(profile); // collect points into arrays
+            let _id = profiles[i]._id
+
+            id_array = new Array(profile.length);
+            color_array = new Array(profile.length)
+            for (j=0; j< profile.length; ++j) {
+                id_array[j] = _id;
+                color_array[j] = i;
+            }
+
+            temp.concat(profile.temp);
+            pres.concat(profile.pres);
+            pres.concat(profile.psal);
+            cvalues.concat(color_array);
+            _ids.concat(id_array);
+        }
+
+
+        //create traces.
+        pres_v_temp_trace = makeTrace(temp, pres, cvalues, cvalues, _ids, 'pres_v_temp')
+        pres_v_psal_trace = makeTrace(psal, pres, cvalues, cvalues, _ids, 'pres_v_temp')
+        temp_v_psal_trace = makeTrace(psal, temp, cvalues, cvalues, _ids, 'pres_v_temp')
         
-        const layout = {
-            title: "Profile measurements",
+        //create layouts.
+        const pres_v_temp_layout = {
+            title: "Pressure vs Temperature",
             autosize: true,
             height: 500, 
-            width: 1200, 
-
-            xaxis3: {
-                domain: [0, 0.266],
-                autorange: true,
-                title: "Temperature [Celsius]"
-            }, 
-            xaxis2: {
-                domain: [.366, 0.633],
-                autorange: true,
-                title: "Salinity [psi]"
-            }, 
+            width: 400,
             xaxis: {
-                domain: [.733, 1],
                 autorange: true, 
-                title: "Salinity [psi]"
+                title: "Temperature [Celsius]"
             },
-            
-            yaxis3: {
-                anchor: "x3",
+            yaxis: {
                 showticklabels: true,
-                autorange: 'reversed', //reversing axis causes tick labels to dissapear
+                autorange: true,
                 type: "linear",
                 title: "Pressure [dbar]"
-            },  
-            
-            yaxis2: {
-                autorange: 'reversed',
-                anchor: "x2",
-                type: "linear",
-                title: "Pressure [dbar]",
-                showticklabels: true,
-            }, 
+            },
+            hovermode: "closest", 
+            showlegend: false
+        };
+
+        const pres_v_psal_layout = {
+            title: "Pressure vs Salinity",
+            autosize: true,
+            height: 500, 
+            width: 400,
+            xaxis: {
+                autorange: true, 
+                title: "Salinity [ppm]"
+            },
             yaxis: {
-                anchor: "x1",
+                showticklabels: true,
+                autorange: true,
+                type: "linear",
+                title: "Pressure [dbar]"
+            },
+            hovermode: "closest", 
+            showlegend: false
+        };
+        const temp_v_psal_layout = {
+            title: "Temperature vs Salinity",
+            autosize: true,
+            height: 500, 
+            width: 400,
+            xaxis: {
+                autorange: true, 
+                title: "Salinity [ppm]"
+            },
+            yaxis: {
                 showticklabels: true,
                 autorange: true,
                 type: "linear",
@@ -173,15 +197,20 @@ html(lang='en')
             hovermode: "closest", 
             showlegend: false
         };
-
-        Plotly.plot('DISPLAY_SELECTION_PROFILES',
-                    traces,
-                    layout);
+        
+        Plotly.plot('PRES_V_TEMP_PLOT',
+                    pres_v_temp_trace,
+                    pres_v_temp_layout);
+        Plotly.plot('PRES_V_PSAL_PLOT',
+                    pres_v_psal_trace,
+                    pres_v_psal_layout);
+        Plotly.plot('TEMP_V_PSAL_PLOT',
+                    temp_v_psal_trace,
+                    temp_v_psal_layout);
 
          // Upon click a new tab opens to the corresponding profile.
-        DISPLAY_SELECTION_PROFILES.on('plotly_click', function(data){
-            let x_idx = data.points[0].pointNumber
-            var profile_id = data.points[0].data.name.replace('ID: ', '');
+        PRES_V_TEMP_PLOT.on('plotly_click', function(data){
+            var profile_id = data.points[0].data.profile_ids;
             var url = '/catalog/profiles/' + profile_id + '/page'
             window.open(url,'_blank');
         });

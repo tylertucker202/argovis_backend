@@ -68,7 +68,7 @@ function addToMarkersLayer(profile, markerIcon, markers) {
         markerIcon = argoIcon;
     }
     var profileLink = "<a href='/catalog/profiles/"+profile_id+"/page' target='_blank'> To profile page</a>";
-    const platformButton = "<input type='button' value='show all platform profiles' onclick='platformProfilesSelection("+selectedPlatform.toString()+")'>"
+    const platformButton = "<input type='button' value='Position history' onclick='platformProfilesSelection("+selectedPlatform.toString()+")'>"
     const platformLink = "<a href='/catalog/platforms/" + selectedPlatform + "/page' target='_blank' >To platform page</a>";
     const popupText = '<b>Hello, im ' + profile_id + '!</b>'
                     + '<br>lon: ' + lon + '</b>'
