@@ -1,6 +1,9 @@
 {
   "name": "argo-vis",
   "version": "0.0.1",
+  "engines": {
+    "node": "8.4.0"
+  },
   "private": true,
   "scripts": {
     "test": "set NODE_ENV=test && mocha",
