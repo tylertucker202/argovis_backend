@@ -15,8 +15,9 @@ exports.dac_list = function(req, res, next) {
                                  'number_of_profiles': {$sum:1},
                                  'most_recent_date': {$first: '$date'},
                                  'dac': {$first: '$dac'}
-                                }
-                        }
+                                }, 
+                        },
+                        {allowDiskUse: true},
     ]);
     query.exec( function (err, dacs) {
         if (err) return next(err);
