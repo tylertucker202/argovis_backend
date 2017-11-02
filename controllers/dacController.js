@@ -3,12 +3,12 @@ var async = require('async');
 
 
 // Display float detail form on GET
-exports.dac_detail = function(req, res) {
+exports.dac_detail = function(req, res, next) {
     res.send('NOT IMPLEMENTED: dac detail GET');
 };
 
 // Display list of all dacs
-exports.dac_list = function(req, res) {
+exports.dac_list = function(req, res, next) {
     var query = Profile.aggregate([
                         {$sort: { 'date':-1}},
                         {$group: {_id: '$dac',
