@@ -17,8 +17,7 @@ exports.dac_list = function(req, res, next) {
                                  'dac': {$first: '$dac'}
                                 }, 
                         },
-                        {allowDiskUse: true},
-    ]);
+    ], {allowDiskUse: true});
     query.exec( function (err, dacs) {
         if (err) return next(err);
         res.json(dacs);
