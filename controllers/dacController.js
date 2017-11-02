@@ -1,6 +1,7 @@
 var Profile = require('../models/profile');
 var async = require('async');
 
+
 // Display float detail form on GET
 exports.dac_detail = function(req, res) {
     res.send('NOT IMPLEMENTED: dac detail GET');
@@ -18,7 +19,7 @@ exports.dac_list = function(req, res) {
                         }
     ]);
     query.exec( function (err, dacs) {
-        if (err) return handleError(err);
+        if (err) return next(err);
         res.json(dacs);
     });
 };

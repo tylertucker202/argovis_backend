@@ -13,8 +13,8 @@ var catalog = require('./routes/catalog');  //Import routes for "catalog" area o
 var selection = require('./routes/selection');  //Import routes for "catalog" area of site
 var compression = require('compression'); //All routs are compressed
 var helmet = require('helmet'); //sets appropriate HTTP headers
-var app = express();
 
+var app = express();
 app.use(compression()); //Compress all routes
 app.use(helmet());
 
@@ -38,7 +38,6 @@ mongoose.connect(mongoDB, {useMongoClient: true},
     }
 });
 
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -47,7 +46,6 @@ app.set('view engine', 'pug');
 var db = mongoose.connection;
 //Bind connection to error event (to get notification of connection errors)
 db.on('error', debug.bind(console, 'MongoDB connection error:'));
-
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
