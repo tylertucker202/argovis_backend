@@ -8,12 +8,11 @@ html(lang='en')
         link(rel='stylesheet', href='/stylesheets/style.css')
         link(rel='stylesheet', href='/stylesheets/leaflet-draw.css')
         script(src='/javascripts/jquery.min.js')
+
         script(src="/javascripts/leaflet.js")
         script(src="/javascripts/leaflet.draw.js")
         link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
         script(src='/javascripts/bootstrap.min.js')
-        link(rel='stylesheet', href='/stylesheets/ion.rangeSlider.css')
-        script(type="text/javascript", href='/javascripts/ion.rangeSlider.js')
 
         //used for jquery date range
         script(type="text/javascript", src="javascripts/moment.min.js")
@@ -29,11 +28,15 @@ html(lang='en')
         script(src='/javascripts/leaflet.ajax.min.js')
     body
       script(type='text/javascript').
-        $(function() {
-          var start = moment().subtract(15, 'days');
-          var end = moment();
 
-          $('input[name="daterange"]').daterangepicker({
+        //var $j = jQuery.noConflict();
+
+        $( document ).ready(function() {
+          const start = moment().subtract(15, 'days');
+          const end = moment();
+          //define daterange picker
+          $('input[name="daterange"]').daterangepicker(
+            {
             startDate: start,
             endDate: end,
             locale: {
@@ -51,16 +54,30 @@ html(lang='en')
               'Last 30 Days': [moment().subtract(29, 'days'), moment()],
               'This Month': [moment().startOf('month'), moment().endOf('month')],
               'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+              }
             },
+            function(start, end, label) {
+                if (drawnItems) { shapeSelectionOnMap() }
+            }
+          );
+
+          var slider = document.getElementById('slider');
+          var minPres = document.getElementById('minPres');
+          var maxPres = document.getElementById('maxPres');
+          //define slider
+          noUiSlider.create(slider, {
+            start: [0, 2000],
+            range: { min: 0, max: 6000 },
+            step: 1,
+            connect: true,
+            orientation: 'vertical'
           });
-        });
 
-        $( document ).ready(function() {
-          let slider = document.getElementById('slider');
-          let minPres = document.getElementById('minPres');
-          let maxPres = document.getElementById('maxPres');
-
-          function bindValues(){
+          slider.noUiSlider.on('change', function(){
+            if (drawnItems) { shapeSelectionOnMap() }
+          });
+          //bind slider values to min and max pressure inputs
+          var bindValues = function() {
             slider.noUiSlider.on('update', function( values, handle ) {
               var value = values[handle];
               if ( handle ) {
@@ -76,39 +93,108 @@ html(lang='en')
               slider.noUiSlider.set([null, this.value]);
             });
           }
+          bindValues()
+          //define functions used to update map
+          var getDateRange = function() {
+            // Extract dates from daterange picker
+            let dates = {}
+            var startDate = $('#daterange').data('daterangepicker').startDate._d;
+            var endDate = $('#daterange').data('daterangepicker').endDate._d;
+            startDate = moment(startDate).format('YYYY-MM-DD');
+            endDate = moment(endDate).format('YYYY-MM-DD');
+            dates.startDate = startDate;
+            dates.endDate = endDate;
+            return(dates)
+            };
+          
+          var getPresRange = function() {
+            let maxPres = document.getElementById('maxPres').value;
+            let minPres = document.getElementById('minPres').value;
+            maxPres = Math.round(maxPres);
+            minPres = Math.round(minPres);
+            var presRange = [minPres, maxPres];
+            return(presRange);
+            };
 
-          noUiSlider.create(slider, {
-            start: [0, 2000],
-            range: { min: 0, max: 6000 },
-            step: 1,
-            connect: true,
-            orientation: 'vertical'
+          var shapeSelectionOnMap = function(){
+              const dates = getDateRange();
+              var presRange = getPresRange();
+              // Extract GeoJson from featureGroup
+              if (drawnItems) {
+                  let data = drawnItems.toGeoJSON();
+                  let features = data.features;
+                  platformProfileMarkersLayer.clearLayers(); //delete platform profiles
+                  markersLayer.clearLayers();
+                  let base = '/selection/profiles/map'
+                  for (let i = 0; i < features.length; i++) {
+                      const shape = features[i].geometry.coordinates;
+                      const transformedShape = getTransformedShape(shape)
+                      let urlQuery = base+'?startDate='+dates.startDate+'&endDate='+dates.endDate+'&presRange='+JSON.stringify(presRange)+'&shape='+JSON.stringify([transformedShape]);
+                      displayProfiles(urlQuery);
+                  }
+              }
+          }
+
+          map.on(L.Draw.Event.CREATED, function (event) {
+              var layer = event.layer;
+              popupWindowCreation(layer);
+              shapeSelectionOnMap()
           });
 
-          bindValues(slider)
+          map.on('draw:edited', function (e) {
+              var layers = e.layers;
+              layers.eachLayer(function (layer) {
+                  popupWindowCreation(layer)
+              });
+              shapeSelectionOnMap()
+          });
+
+          var shapeSelection = function(presQuery, shape) {
+              let base = '/selection/profiles/page'
+              let dates = getDateRange();
+              if (JSON.parse(presQuery)==true) {
+                  let presRange = getPresRange();
+                  var urlQuery = base+'?presRange='+JSON.stringify(presRange)+'&startDate='+dates.startDate+'&endDate='+dates.endDate+'&shape='+JSON.stringify([shape]);
+              }
+              else {
+                  var urlQuery = base+'?startDate='+dates.startDate+'&endDate='+dates.endDate+'&shape='+JSON.stringify([shape]);
+              }
+              window.open(urlQuery,'_blank');
+          }
+
+          const popupWindowCreation = function(layer){
+              let layerCoords = layer.toGeoJSON();
+              const shape = layerCoords.geometry.coordinates;
+              const transformedShape = getTransformedShape(shape);
+
+              const selectionButton = "<input type='button' value='To selection page' onclick='shapeSelection("+'false'+","+JSON.stringify(transformedShape)+")'>"
+              const presSelectionButton = "<input type='button' value='To selection page with pressure query' onclick='shapeSelection("+'true'+","+JSON.stringify(transformedShape)+")'>"    
+              const popupText = '<b> Hello, im a shape! </b>'
+                                  +'<br>' + selectionButton + '</b>'
+                                  +'<br>' + presSelectionButton + '</b>'
+              let container = $('<div />');
+              container.html(popupText);        
+              layer.bindPopup(container[0]);
+              layer.on('add', function() { layer.openPopup(); });
+              //layer.on('mouseout', function() { layer.closePopup(); });
+              drawnItems.addLayer(layer);
+          }
+
+          map.on('mousemove', function (e) {
+              info._div.innerHTML = 'Longitude: ' + e.latlng.lng.toFixed(2) + '<br />' +
+                                      'Latitude: ' + e.latlng.lat.toFixed(2);
+          });
+
+          var info = L.control({position: 'topright'});
+
+          info.onAdd = function (map) {
+              this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+              return this._div;
+          };
+
+
+          info.addTo(map);
         });
-
-        var getDateRange = function() {
-          // Extract dates from daterange picker
-          let dates = {}
-          let startDate = $('#daterange').data('daterangepicker').startDate._d;
-          let endDate = $('#daterange').data('daterangepicker').endDate._d;
-          startDate = moment(startDate).format('YYYY-MM-DD');
-          endDate = moment(endDate).format('YYYY-MM-DD');
-          dates.startDate = startDate;
-          dates.endDate = endDate;
-          return(dates)
-          };
-        
-        var getPresRange = function() {
-          let maxPres = document.getElementById('maxPres').value;
-          let minPres = document.getElementById('minPres').value;
-          maxPres = Math.round(maxPres);
-          minPres = Math.round(minPres);
-          var presRange = [minPres, maxPres];
-          return(presRange);
-          };
-
 
 
       div(class='container-fluid')
@@ -127,7 +213,7 @@ html(lang='en')
                 li
                   hr
                 li
-                  input(type="text", name="daterange", id="daterange")
+                  input(type="text", name="daterange", id="daterange", class='date')
                 li
                   a(href='/selection/lastProfiles') Last profiles reported 
                 li

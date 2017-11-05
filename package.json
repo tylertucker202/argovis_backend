@@ -27,7 +27,6 @@
     "geojson-validation": "^0.1.6",
     "graceful-fs": "^4.1.11",
     "helmet": "^3.9.0",
-    "ion-rangeslider": "^2.2.0",
     "jquery-ui": "^1.12.1",
     "leaflet": "^1.1.0",
     "leaflet-draw": "^0.4.12",

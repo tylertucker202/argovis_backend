@@ -161,8 +161,9 @@ exports.selected_profile_list = function(req, res , next) {
                 {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
                 {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}]);
         }
-        query.exec( function (err, profiles) {
-            if (err) { return next(err); }
+        var promise = query.exec();
+        promise
+        .then(function (profiles) {
             if (req.params.format==='page'){
                 if (profiles === null) { res.send('profile not found'); }
                 else {
@@ -172,7 +173,9 @@ exports.selected_profile_list = function(req, res , next) {
             else {
                 res.json(profiles);
             }
-        });     
+        })
+        .catch(function(err) { return next(err)})
+        
     }
 };
 

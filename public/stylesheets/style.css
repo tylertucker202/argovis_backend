@@ -90,7 +90,7 @@ table.table-striped thead, table.table-striped tbody {
 }
 table.table-striped tbody {
   overflow: auto;
-  height: 150px;
+  height: 300px;
 }
 
 table.table-striped tr {

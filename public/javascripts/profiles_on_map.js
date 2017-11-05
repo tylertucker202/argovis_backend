@@ -16,7 +16,6 @@ const argoIconBW = L.icon({
 var markersLayer = new L.layerGroup();
 var platformProfileMarkersLayer = new L.layerGroup();
 
-
 const displayProfiles = function(url) {
     $.getJSON(url, function(result){
         $.each(result, function(i, profile){
@@ -96,6 +95,9 @@ function addToMarkersLayer(profile, markerIcon, markers) {
 $('#latestProfileSelection').on('click', function(){
     platformProfileMarkersLayer.clearLayers(); //delete platform profiles
     markersLayer.clearLayers();
+    if(drawnItems){
+        drawnItems.clearLayers();
+    }
     displayProfiles('/selection/latestProfiles/map');
 })
 
