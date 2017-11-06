@@ -29,8 +29,9 @@ exports.profile_detail = function (req, res, next) {
         if (req.params.format==='map') {
             query.select(mapParams);
         }
-        query.exec( function (err, profile) {
-            if (err) { return next(err); }
+        var promise = query.exec();
+        promise
+        .then(function (profile) {
             if (req.params.format==='page'){
                 if (profile === null) { res.send('profile not found'); }
                 else {
@@ -40,7 +41,8 @@ exports.profile_detail = function (req, res, next) {
             else {
                 res.json(profile);
             }
-        });        
+        })
+        .catch(function(err) { return next(err)})
     }
 };
 
@@ -167,7 +169,7 @@ exports.selected_profile_list = function(req, res , next) {
             if (req.params.format==='page'){
                 if (profiles === null) { res.send('profile not found'); }
                 else {
-                    res.render('selected_profile_page', {title:'Custom selection', profiles: JSON.stringify(profiles), moment: moment })
+                    res.render('selected_profile_page', {title:'Custom selection', profiles: JSON.stringify(profiles), moment: moment, url: req.originalUrl })
                 }
             }
             else {
@@ -175,7 +177,6 @@ exports.selected_profile_list = function(req, res , next) {
             }
         })
         .catch(function(err) { return next(err)})
-        
     }
 };
 

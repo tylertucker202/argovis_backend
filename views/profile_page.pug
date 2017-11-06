@@ -22,7 +22,7 @@ html(lang='en')
         p
         a(href='/catalog/platforms/'+ platform_number + '/page' target='_blank') To platform #{profile.platform_number} page
         #TPS_CHART
-        button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download profile data
+        button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
 
     script(type='text/javascript').
 
@@ -43,12 +43,10 @@ html(lang='en')
         var meas = [!{profile.measurements}];
 
         $('#downloadProfiles').on('click', function(){
-            let data = JSON.stringify(!{profiles});
-            let blob = new Blob(data, {type: "application/json"});
-            let saveAs = window.saveAs;
-            let filename = 'profile.json';
-            saveAs(blob, filename);
+            var url = '/catalog/profiles/' + `#{title}`;
+            window.open(url,'_blank');
         });
+
         meas = collateMeasurements(meas);
         const measurements = {'temp_v_psal': {'yvalue': meas.temp, 'xvalue': meas.psal, 'yaxis': 'y1', 'xaxis': 'x1'},
                                 'pres_v_psal': {'yvalue': meas.pres, 'xvalue': meas.psal, 'yaxis': 'y2', 'xaxis': 'x2'},

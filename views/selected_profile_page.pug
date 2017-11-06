@@ -54,11 +54,11 @@ html(lang='en')
         });
 
         $('#downloadProfiles').on('click', function(){
-            const data = JSON.stringify(!{profiles});
-            const blob = new Blob([data], {type: "application/json"});
-            const saveAs = window.saveAs;
-            const filename = 'selected_profiles.json';
-            saveAs(blob, filename);
+            var url = `#{url}`;
+            url = url.replace(/&amp;/g, '&');
+            url = url.replace('page', 'json');
+            console.log(url);
+            window.open(url,'_blank');
         });
 
     script(type='text/javascript').
@@ -108,13 +108,11 @@ html(lang='en')
             };
         };
 
-        //todo: make scatter trace plot that isn't scatter gl to set y scale
-
         for(var i=0; i < profiles.length; i++) {
             let profile = profiles[i].measurements;
             const _id = profiles[i]._id
             profile = collateMeasurements(profile); // collect points into arrays
-            profile = reduceProfileMeasurements(profile, 10);  // plot every n measurements
+            profile = reduceProfileMeasurements(profile, 5);  // plot every n measurements
             // prep arrays to be changed into traces
             const measurement = {'temp_v_psal': {'yvalues': profile.temp, 'xvalues': profile.psal, 'yaxis': 'y1', 'xaxis': 'x1', 'platform_id': _id},
                                  'pres_v_psal': {'yvalues': profile.pres, 'xvalues': profile.psal, 'yaxis': 'y2', 'xaxis': 'x2', 'platform_id': _id},
@@ -125,7 +123,7 @@ html(lang='en')
             //add traces to array.
             traces = traces.concat(meas_traces)
         };
-        
+
         const layout = {
             title: "Profile measurements",
             autosize: true,

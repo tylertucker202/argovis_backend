@@ -57,7 +57,14 @@ function addToMarkersLayer(profile, markerIcon, markers) {
     const makeWrappedCoordinates = function (coordinates) {
         const lat = coordinates[1];
         const lon = coordinates[0];
-        const coords = [[lon, lat], [lon - 360, lat], [lon + 360, lat]];
+        if (0 > lon && lon > -180) {
+            var coords = [[lon, lat], [lon + 360, lat]]
+        }
+        else if (0 < lon && lon < 180) {
+            var coords = [[lon, lat], [lon - 360, lat]];
+        }
+        else{ var coords = [[lon, lat]]}
+
         return coords;
     };
 

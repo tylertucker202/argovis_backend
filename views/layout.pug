@@ -28,9 +28,6 @@ html(lang='en')
         script(src='/javascripts/leaflet.ajax.min.js')
     body
       script(type='text/javascript').
-
-        //var $j = jQuery.noConflict();
-
         $( document ).ready(function() {
           const start = moment().subtract(15, 'days');
           const end = moment();
@@ -73,27 +70,7 @@ html(lang='en')
             orientation: 'vertical'
           });
 
-          slider.noUiSlider.on('change', function(){
-            if (drawnItems) { shapeSelectionOnMap() }
-          });
-          //bind slider values to min and max pressure inputs
-          var bindValues = function() {
-            slider.noUiSlider.on('update', function( values, handle ) {
-              var value = values[handle];
-              if ( handle ) {
-                maxPres.value = value;
-              } else {
-                minPres.value = value;
-              }
-            });
-            minPres.addEventListener('change', function(){
-              slider.noUiSlider.set([this.value, null]);
-            });
-            maxPres.addEventListener('change', function(){
-              slider.noUiSlider.set([null, this.value]);
-            });
-          }
-          bindValues()
+
           //define functions used to update map
           var getDateRange = function() {
             // Extract dates from daterange picker
@@ -135,40 +112,30 @@ html(lang='en')
               }
           }
 
-          map.on(L.Draw.Event.CREATED, function (event) {
-              var layer = event.layer;
-              popupWindowCreation(layer);
-              shapeSelectionOnMap()
+          slider.noUiSlider.on('change', function(){
+            if (drawnItems) { shapeSelectionOnMap() }
           });
 
-          map.on('draw:edited', function (e) {
-              var layers = e.layers;
-              layers.eachLayer(function (layer) {
-                  popupWindowCreation(layer)
-              });
-              shapeSelectionOnMap()
-          });
-
-          var shapeSelection = function(presQuery, shape) {
-              let base = '/selection/profiles/page'
-              let dates = getDateRange();
-              if (JSON.parse(presQuery)==true) {
-                  let presRange = getPresRange();
-                  var urlQuery = base+'?presRange='+JSON.stringify(presRange)+'&startDate='+dates.startDate+'&endDate='+dates.endDate+'&shape='+JSON.stringify([shape]);
-              }
-              else {
-                  var urlQuery = base+'?startDate='+dates.startDate+'&endDate='+dates.endDate+'&shape='+JSON.stringify([shape]);
-              }
-              window.open(urlQuery,'_blank');
-          }
-
-          const popupWindowCreation = function(layer){
+          var popupWindowCreation = function(layer){
               let layerCoords = layer.toGeoJSON();
               const shape = layerCoords.geometry.coordinates;
               const transformedShape = getTransformedShape(shape);
 
-              const selectionButton = "<input type='button' value='To selection page' onclick='shapeSelection("+'false'+","+JSON.stringify(transformedShape)+")'>"
-              const presSelectionButton = "<input type='button' value='To selection page with pressure query' onclick='shapeSelection("+'true'+","+JSON.stringify(transformedShape)+")'>"    
+              shapeSelection = function(presQuery, shape) {
+                let base = '/selection/profiles/page'
+                let dates = getDateRange();
+                if (JSON.parse(presQuery)==true) {
+                    let presRange = getPresRange();
+                    var urlQuery = base+'?presRange='+JSON.stringify(presRange)+'&startDate='+dates.startDate+'&endDate='+dates.endDate+'&shape='+JSON.stringify([shape]);
+                }
+                else {
+                    var urlQuery = base+'?startDate='+dates.startDate+'&endDate='+dates.endDate+'&shape='+JSON.stringify([shape]);
+                }
+                window.open(urlQuery,'_blank');
+                }
+
+              const selectionButton = "<input type='button' value='To selection page' onclick='shapeSelection(false,"+JSON.stringify(transformedShape)+")'>"
+              const presSelectionButton = "<input type='button' value='To selection page with pressure query' onclick='shapeSelection(true,"+JSON.stringify(transformedShape)+")'>"    
               const popupText = '<b> Hello, im a shape! </b>'
                                   +'<br>' + selectionButton + '</b>'
                                   +'<br>' + presSelectionButton + '</b>'
@@ -183,6 +150,47 @@ html(lang='en')
           map.on('mousemove', function (e) {
               info._div.innerHTML = 'Longitude: ' + e.latlng.lng.toFixed(2) + '<br />' +
                                       'Latitude: ' + e.latlng.lat.toFixed(2);
+          });
+
+          map.on(L.Draw.Event.CREATED, function (event) {
+              var layer = event.layer;
+              popupWindowCreation(layer);
+              shapeSelectionOnMap()
+          });
+
+          //bind slider values to min and max pressure inputs
+          var bindValues = function() {
+            slider.noUiSlider.on('update', function( values, handle ) {
+              var value = values[handle];
+              if ( handle ) {
+                maxPres.value = value;
+              } else {
+                minPres.value = value;
+              }
+            });
+            minPres.addEventListener('change', function(){
+              slider.noUiSlider.set([this.value, null]);
+            });
+            maxPres.addEventListener('change', function(){
+              slider.noUiSlider.set([null, this.value]);
+            });
+          }
+          bindValues()
+
+          maxPres.addEventListener('update', function(){
+              shapeSelectionOnMap()
+            });
+
+          minPres.addEventListener('update', function(){
+              shapeSelectionOnMap()
+            });
+
+          map.on('draw:edited', function (e) {
+              var layers = e.layers;
+              layers.eachLayer(function (layer) {
+                  popupWindowCreation(layer)
+              });
+              shapeSelectionOnMap()
           });
 
           var info = L.control({position: 'topright'});

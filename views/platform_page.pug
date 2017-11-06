@@ -55,15 +55,6 @@ html(lang='en')
             trimWhitespace: true                        // (Boolean), remove all leading/trailing newlines, spaces, and tabs from cell text in the exported file(s) (default: false)
         });
 
-        $('#downloadPlatform').on('click', function(){
-            const data = JSON.stringify(!{profiles});
-            const blob = new Blob([data], {type: "application/json"});
-            const saveAs = window.saveAs;
-            const filename = !{title}+'_profiles.json'
-            saveAs(blob, filename);
-        });
-    
-
     script(type='text/javascript').
 
         let combinedProfiles = {};
@@ -72,6 +63,13 @@ html(lang='en')
         combinedProfiles.temp = [];
         combinedProfiles.cycle = [];
         let profiles = !{profiles};
+
+
+        $('#downloadProfiles').on('click', function(){
+            var url = '/catalog/platforms/' + `#{title}`;
+            console.log(url);
+            window.open(url,'_blank');
+        });
 
         const collateProfileMeasurements = function(profile) {
             var collatedProfiles = {};
@@ -121,7 +119,7 @@ html(lang='en')
             combinedProfiles.cycle = combinedProfiles.cycle.concat(meas_idx);
         };
         //plot no more that 3000 points. scattergl option can plot more points, but there is a but that makes the y-axis tick marks dissapear.
-        nFactor = Math.ceil(combinedProfiles.pres.length / 3000);
+        nFactor = Math.ceil(combinedProfiles.pres.length / 10000);
         console.log(nFactor);
         combinedProfiles = reduceProfileMeasurements(combinedProfiles, nFactor);
         console.log(combinedProfiles.pres.length);

@@ -28,5 +28,6 @@ const drawOptions = {
             }
 }
 var drawControl = new L.Control.Draw(drawOptions);
+
 map.addControl(drawControl);
 
