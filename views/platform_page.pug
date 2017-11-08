@@ -25,6 +25,8 @@ html(lang='en')
             thead
                 tr
                     th Raw Data
+                    th Dac
+                    th Parameters
                     th Link to profile page
                     th Date reported
                     th Cycle number
@@ -34,6 +36,8 @@ html(lang='en')
                     tr
                         td 
                             a(href=profile.nc_url) #{profile._id} data
+                        td #{profile.dac}
+                        td #{profile.station_parameters}
                         td 
                             a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
                         td #{moment(profile.date).format("YYYY-MM-DD HH:mm")}

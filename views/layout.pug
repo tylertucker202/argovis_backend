@@ -1,6 +1,13 @@
 doctype html
 html(lang='en')
     head
+        //<!-- Global site tag (gtag.js) - Google Analytics -->
+        script(async src="https://www.googletagmanager.com/gtag/js?id=UA-108248569-2")
+        script(type='text/javascript').
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'UA-108248569-2');
         title= title
         meta(charset='utf-8')
         meta(name='viewport', content='width=device-width, initial-scale=1')
@@ -26,6 +33,7 @@ html(lang='en')
         script(type="text/javascript", src="javascripts/proj4.js")
         script(type="text/javascript", src="javascripts/proj4leaflet.js")
         script(src='/javascripts/leaflet.ajax.min.js')
+
     body
       script(type='text/javascript').
         $( document ).ready(function() {
