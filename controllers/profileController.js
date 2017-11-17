@@ -203,7 +203,7 @@ exports.latest_profile_list = function(req,res, next) {
     endDate = moment();
     var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()}});
     if (req.params.format === 'map') {
-        query.limit(3000);
+        query.limit(1000);
         query.select(mapParams);
     }
     query.exec( function (err, profiles) {

@@ -24,38 +24,21 @@ var markersLayer = new L.layerGroup();
 var platformProfileMarkersLayer = new L.layerGroup();
 
 const displayProfiles = function(url, bwIcon, size) {
+    platformProfileMarkersLayer.clearLayers();
     $.getJSON(url, function(result){
         $.each(result, function(i, profile){
             if (bwIcon) {
-                addToMarkersLayer(profile, argoIconBW, markersLayer);
+                addToMarkersLayer(profile, argoIconBW, platformProfileMarkersLayer);
             }
             else if (size==='small') {
-                addToMarkersLayer(profile, argoIconSm, markersLayer);
+                addToMarkersLayer(profile, argoIconSm, platformProfileMarkersLayer);
             }
             else {
                 addToMarkersLayer(profile, argoIcon, markersLayer);
             }
         });
+        platformProfileMarkersLayer.addTo(map);
         markersLayer.addTo(map);
-    });
-};
-
-const displaySmProfiles = function(url) {
-    $.getJSON(url, function(result){
-        $.each(result, function(i, profile){
-            addToMarkersLayer(profile, argoIcon, markersLayer);
-        });
-        markersLayer.addTo(map);
-    });
-};
-
-const displayBWProfiles = function(url, colorIcon) {
-    platformProfileMarkersLayer.clearLayers();
-    $.getJSON(url, function(result){
-        $.each(result, function(i, profile){
-            addToMarkersLayer(profile, argoIconBW, platformProfileMarkersLayer);
-        });
-        platformProfileMarkersLayer.addTo(map);            
     });
 };
 
