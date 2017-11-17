@@ -37,7 +37,7 @@ html(lang='en')
     body
       script(type='text/javascript').
         $( document ).ready(function() {
-          const start = moment().subtract(15, 'days');
+          const start = moment().subtract(60, 'days');
           const end = moment();
           //define daterange picker
           $('input[name="daterange"]').daterangepicker(
@@ -69,6 +69,8 @@ html(lang='en')
           var slider = document.getElementById('slider');
           var minPres = document.getElementById('minPres');
           var maxPres = document.getElementById('maxPres');
+          var queryPlatform = document.getElementById('queryPlatform');
+
           //define slider
           noUiSlider.create(slider, {
             start: [0, 2000],
@@ -185,13 +187,20 @@ html(lang='en')
           }
           bindValues()
 
-          maxPres.addEventListener('update', function(){
+          maxPres.addEventListener('input', function(){
               shapeSelectionOnMap()
             });
 
-          minPres.addEventListener('update', function(){
+          minPres.addEventListener('input', function(){
               shapeSelectionOnMap()
             });
+
+          queryPlatform.addEventListener('input', function(){
+              var platformNum = this.value;
+              const bwIcon = false;
+              const size = 'small';
+              platformProfilesSelection(platformNum, bwIcon, size);
+          })
 
           map.on('draw:edited', function (e) {
               var layers = e.layers;
@@ -225,13 +234,17 @@ html(lang='en')
                 li
                   a(href='/mapSPS') Southern Polar Stereo Map
                 li
+                  hr
+                li
                   a(href='/catalog/dacs') Database summary
+                  hr
+                li
+                  label(id='queryFloatLabel', for='queryPlatform') Search by platform number:
+                  input(type="text", name="queryPlatform", id="queryPlatform") 
                 li
                   hr
                 li
                   input(type="text", name="daterange", id="daterange", class='date')
-                li
-                  a(href='/selection/lastProfiles') Last profiles reported 
                 li
                   div(class='col-sm-2', id='slider-div')
                     div(id='slider')

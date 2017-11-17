@@ -5,6 +5,13 @@ const argoIcon = L.icon({
     popupAnchor:  [20, 20]
 });
 
+const argoIconSm = L.icon({
+    iconUrl: '../images/Argo_Logo_VS.gif',
+    iconSize:     [10, 10], 
+    iconAnchor:   [0, 0],
+    popupAnchor:  [20, 20]
+});
+
 const argoIconBW = L.icon({
     iconUrl: '../images/Argo_Logo_VS_BW.gif',
     iconSize:     [10, 10],
@@ -16,7 +23,24 @@ const argoIconBW = L.icon({
 var markersLayer = new L.layerGroup();
 var platformProfileMarkersLayer = new L.layerGroup();
 
-const displayProfiles = function(url) {
+const displayProfiles = function(url, bwIcon, size) {
+    $.getJSON(url, function(result){
+        $.each(result, function(i, profile){
+            if (bwIcon) {
+                addToMarkersLayer(profile, argoIconBW, markersLayer);
+            }
+            else if (size==='small') {
+                addToMarkersLayer(profile, argoIconSm, markersLayer);
+            }
+            else {
+                addToMarkersLayer(profile, argoIcon, markersLayer);
+            }
+        });
+        markersLayer.addTo(map);
+    });
+};
+
+const displaySmProfiles = function(url) {
     $.getJSON(url, function(result){
         $.each(result, function(i, profile){
             addToMarkersLayer(profile, argoIcon, markersLayer);
@@ -25,7 +49,7 @@ const displayProfiles = function(url) {
     });
 };
 
-const displayPlatformProfiles = function(url) {
+const displayBWProfiles = function(url, colorIcon) {
     platformProfileMarkersLayer.clearLayers();
     $.getJSON(url, function(result){
         $.each(result, function(i, profile){
@@ -38,10 +62,10 @@ const displayPlatformProfiles = function(url) {
 //displayProfiles('/selection/lastProfiles');
 displayProfiles('/selection/latestProfiles/map');
 
-const platformProfilesSelection = function(selectedPlatform){
+const platformProfilesSelection = function(selectedPlatform, bwIcon, size){
     if (selectedPlatform) {
         var url = '/catalog/platforms/'+selectedPlatform;
-        displayPlatformProfiles(url);
+        displayProfiles(url, bwIcon, size);
     }
 };
 
@@ -74,7 +98,7 @@ function addToMarkersLayer(profile, markerIcon, markers) {
         markerIcon = argoIcon;
     }
     var profileLink = "<a href='/catalog/profiles/"+profile_id+"/page' target='_blank'> To profile page</a>";
-    const platformButton = "<input type='button' value='Position history' onclick='platformProfilesSelection("+selectedPlatform.toString()+")'>"
+    const platformButton = "<input type='button' value='Position history' onclick='platformProfilesSelection("+selectedPlatform.toString()+", true)'>"
     const platformLink = "<a href='/catalog/platforms/" + selectedPlatform + "/page' target='_blank' >To platform page</a>";
     const popupText = '<b>Hello, im ' + profile_id + '!</b>'
                     + '<br>lon: ' + lon + '</b>'

@@ -189,6 +189,7 @@ exports.last_profile_list = function(req, res, next) {
                                  'geoLocation': {$first: '$geoLocation'}}}]);
     if (req.params.format === 'map') {
         query.select(mapParams);
+        query.limit(3000);
     }
     query.exec( function (err, profiles) {
         if (err) { return next(err); }
@@ -196,18 +197,18 @@ exports.last_profile_list = function(req, res, next) {
         });
 };
 
-exports.latest_profile_list = function(req,res) {
+exports.latest_profile_list = function(req,res, next) {
     //get startDate, endDate
-    startDate = moment().subtract(15, 'days');
+    startDate = moment().subtract(60, 'days');
     endDate = moment();
     var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()}});
     if (req.params.format === 'map') {
-        query.limit(1000);
+        query.limit(3000);
         query.select(mapParams);
     }
-    query.exec( function (err, profile) {
+    query.exec( function (err, profiles) {
         if (err) { return next(err); }
-        res.json(profile);
+        res.json(profiles);
     });        
 
 };
