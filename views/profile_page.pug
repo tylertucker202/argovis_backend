@@ -26,6 +26,11 @@ html(lang='en')
 
     script(type='text/javascript').
 
+        $('#downloadProfiles').on('click', function(){
+            var url = '/catalog/profiles/' + `#{title}`;
+            window.open(url,'_blank');
+        });
+
         function collateMeasurements(list) {
                 var map = {};
             var keys = Object.keys(list[0]);
@@ -40,13 +45,35 @@ html(lang='en')
             }
             return map;
         }
+
+        const filterQCMeasurements = function(profile, qcThresh) {
+            var filteredProfile = [];
+            let num_measurements = profile.length;
+            for (var i = 0; i < num_measurements; ++i) {
+                var row = {};
+                if (profile[i].pres_qc === qcThresh) {
+
+                    row.pres = profile[i].pres;
+                    if (profile[i].temp_qc === qcThresh) {
+                        row.temp = profile[i].temp
+                    }
+                    else {
+                        row.temp = ''
+                    }
+                    if (profile[i].psal_qc === qcThresh) {
+                        row.psal = profile[i].psal
+                    }
+                    else {
+                        row.psal = ''
+                    }
+                    filteredProfile.push(row)
+                }
+            }
+            return filteredProfile;
+        }
+
         var meas = [!{profile.measurements}];
-
-        $('#downloadProfiles').on('click', function(){
-            var url = '/catalog/profiles/' + `#{title}`;
-            window.open(url,'_blank');
-        });
-
+        meas = filterQCMeasurements(meas, '1');
         meas = collateMeasurements(meas);
         const measurements = {'temp_v_psal': {'yvalue': meas.temp, 'xvalue': meas.psal, 'yaxis': 'y1', 'xaxis': 'x1'},
                                 'pres_v_psal': {'yvalue': meas.pres, 'xvalue': meas.psal, 'yaxis': 'y2', 'xaxis': 'x2'},

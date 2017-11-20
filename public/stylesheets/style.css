@@ -23,6 +23,10 @@ html, body {
   border-radius: 5px;
 }
 
+.plotContainer{
+  float:left;
+}
+
 body {
   margin:0;
   padding:0px;
@@ -101,3 +105,4 @@ table.table-striped tr {
 table.table-striped th, table.table-striped td {
   width: 15%;
 }
+

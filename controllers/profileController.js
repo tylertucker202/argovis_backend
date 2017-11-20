@@ -169,7 +169,7 @@ exports.selected_profile_list = function(req, res , next) {
             if (req.params.format==='page'){
                 if (profiles === null) { res.send('profile not found'); }
                 else {
-                    res.render('selected_profile_page', {title:'Custom selection', profiles: JSON.stringify(profiles), moment: moment, url: req.originalUrl })
+                    res.render('selected_profile_page_collated', {title:'Custom selection', profiles: JSON.stringify(profiles), moment: moment, url: req.originalUrl })
                 }
             }
             else {

@@ -14,11 +14,11 @@ html(lang='en')
     body
 
     block content
-        div(class='left')
+        div(class='plotContainer')
             #PRES_V_TEMP_PLOT
-        div(class='middle')
+        div(class='plotContainer')
             #PRES_V_PSAL_PLOT
-        div(class='right')
+        div(class='plotContainer')
             #TEMP_V_PSAL_PLOT
         button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download selected data
         div
@@ -44,7 +44,7 @@ html(lang='en')
                         td #{profile.measurements.length}
 
     script(type='text/javascript').
-
+        
         TableExport(document.getElementsByTagName("table"), {
             headers: true,                              // (Boolean), display table headers (th or td elements) in the <thead>, (default: true)
             footers: true,                              // (Boolean), display table footers (th or td elements) in the <tfoot>, (default: false)
@@ -68,29 +68,98 @@ html(lang='en')
 
     script(type='text/javascript').
         
-        let profiles = !{profiles};
+        var profiles = !{profiles};
 
         const collateProfileMeasurements = function(profile) {
-            var map = {};
+            var collatedProfiles = {};
             let num_measurements = profile.length;
-            map.pres = new Array(num_measurements);
-            map.temp = new Array(num_measurements);
-            map.psal = new Array(num_measurements);
+            collatedProfiles.pres = new Array(num_measurements);
+            collatedProfiles.temp = new Array(num_measurements);
+            collatedProfiles.psal = new Array(num_measurements);
+
             for (var i = 0; i < num_measurements; ++i) {
-                map.pres[i] = profile[i].pres;
-                map.temp[i] = profile[i].temp;
-                map.psal[i] = profile[i].psal;
+                collatedProfiles.pres[i] = profile[i].pres;
+                collatedProfiles.temp[i] = profile[i].temp;
+                collatedProfiles.psal[i] = profile[i].psal;
             }
-            return map;
+            return collatedProfiles;
         }
 
-        const makeText = function(profile_id) {
-                return("<br> " + text + value.toFixed(3).toString()
+        const filterQCMeasurements = function(profile, qcThresh) {
+            var filteredProfile = [];
+            let num_measurements = profile.length;
+            for (var i = 0; i < num_measurements; ++i) {
+                var row = {};
+                if (profile[i].pres_qc === qcThresh) {
+
+                    row.pres = profile[i].pres;
+                    if (profile[i].temp_qc === qcThresh) {
+                        row.temp = profile[i].temp
+                    }
+                    else {
+                        row.temp = ''
+                    }
+                    if (profile[i].psal_qc === qcThresh) {
+                        row.psal = profile[i].psal
+                    }
+                    else {
+                        row.psal = ''
+                    }
+                    filteredProfile.push(row)
+                }
+            }
+            return filteredProfile;
+        }
+
+        const makeText = function(text) {
+                return("<br> " + text
                      + "<br>click to see profile page"
                 )
         };
 
-        const makeTrace = function(xvalues, yvalues, cvalues, profile_ids, plot_name) {
+        var traces = [];
+        var temp = [];
+        var pres = [];
+        var psal = [];
+        var _ids = [];
+        var cvalues = [];
+
+        for(var i=0; i<profiles.length; i++) {
+            var profileMeas = profiles[i].measurements;
+            profileMeas = filterQCMeasurements(profileMeas, '1') // replaces qc values higher than the qcThresh values with ''
+            profileMeas = collateProfileMeasurements(profileMeas); // collect points into arrays
+            var _id = profiles[i]._id
+            var color_array = Array.apply(null, Array(profileMeas.pres.length)).map(Number.prototype.valueOf,i);
+            var id_array = Array.apply(null, Array(profileMeas.pres.length)).map(String.prototype.valueOf,_id)
+            temp = temp.concat(profileMeas.temp);
+            pres = pres.concat(profileMeas.pres);
+            psal = psal.concat(profileMeas.psal);
+            cvalues = cvalues.concat(color_array);
+            _ids = _ids.concat(id_array);
+        }
+
+        //create traces.
+        var profileScl1 = [[0.0, 'rgb(140,81,10)'],
+                          [0.125, 'rgb(191,129,45)'],
+                          [0.25, 'rgb(223,194,125)'],
+                          [0.375, 'rgb(246,232,195)'],
+                          [0.5, 'rgb(245,245,245)'],
+                          [0.625, 'rgb(199,234,229)'],
+                          [0.75, 'rgb(128,205,193)'],
+                          [0.875, 'rgb(53,151,143)'],
+                          [1.0, 'rgb(1,102,94)']];
+
+        var profileScl2 = [[0.0,   'rgb(166,206,227)'],
+                           [0.125, 'rgb(31,120,180)'],
+                           [0.25,  'rgb(178,223,138)'],
+                           [0.375, 'rgb(51,160,44)'],
+                           [0.5,   'rgb(251,154,153)'],
+                           [0.625, 'rgb(227,26,28)'],
+                           [0.75,  'rgb(253,191,111)'],
+                           [0.875, 'rgb(255,127,0)'],
+                           [1.0,   'rgb(202,178,214)']];
+
+        const makeTrace = function(xvalues, yvalues, cvalues, profile_ids, plot_name, colorscale) {
             scatterGlTrace = {
                 y: yvalues,
                 x: xvalues,
@@ -100,53 +169,28 @@ html(lang='en')
                 mode: 'markers',
                 profile_ids: profile_ids,
                 marker: { color: cvalues,
-                            size: 6,
+                            size: 5,
                             symbol: 'dot',
                             opacity: 1,
+                            colorscale: colorscale
                         },
                 name: plot_name, 
+                
             }
             return [scatterGlTrace]
         };
 
-        let traces = [];
-        let temp = [];
-        let pres = [];
-        let psal = [];
-        let _ids = [];
-        let cvalues = [];
+        pres = pres.map(function(value) { return value * -1}); //scattergl has trouble with flipped axes. Instead, negative pressure is plotted.
+        pres_v_temp_trace = makeTrace(temp, pres, cvalues, _ids, 'pres_v_temp', profileScl2)
+        pres_v_psal_trace = makeTrace(psal, pres, cvalues, _ids, 'pres_v_psal', profileScl2)
+        temp_v_psal_trace = makeTrace(psal, temp, cvalues, _ids, 'temp_v_psal', profileScl2)
 
-        for(var i=0; i < profiles.length; i++) {
-            let profile = profiles[i].measurements;
-            profile = collateProfileMeasurements(profile); // collect points into arrays
-            let _id = profiles[i]._id
-
-            id_array = new Array(profile.length);
-            color_array = new Array(profile.length)
-            for (j=0; j< profile.length; ++j) {
-                id_array[j] = _id;
-                color_array[j] = i;
-            }
-
-            temp.concat(profile.temp);
-            pres.concat(profile.pres);
-            pres.concat(profile.psal);
-            cvalues.concat(color_array);
-            _ids.concat(id_array);
-        }
-
-
-        //create traces.
-        pres_v_temp_trace = makeTrace(temp, pres, cvalues, cvalues, _ids, 'pres_v_temp')
-        pres_v_psal_trace = makeTrace(psal, pres, cvalues, cvalues, _ids, 'pres_v_temp')
-        temp_v_psal_trace = makeTrace(psal, temp, cvalues, cvalues, _ids, 'pres_v_temp')
-        
         //create layouts.
         const pres_v_temp_layout = {
             title: "Pressure vs Temperature",
             autosize: true,
             height: 500, 
-            width: 400,
+            width: 500,
             xaxis: {
                 autorange: true, 
                 title: "Temperature [Celsius]"
@@ -155,7 +199,7 @@ html(lang='en')
                 showticklabels: true,
                 autorange: true,
                 type: "linear",
-                title: "Pressure [dbar]"
+                title: "-Pressure [dbar]"
             },
             hovermode: "closest", 
             showlegend: false
@@ -165,7 +209,7 @@ html(lang='en')
             title: "Pressure vs Salinity",
             autosize: true,
             height: 500, 
-            width: 400,
+            width: 500,
             xaxis: {
                 autorange: true, 
                 title: "Salinity [ppm]"
@@ -174,7 +218,7 @@ html(lang='en')
                 showticklabels: true,
                 autorange: true,
                 type: "linear",
-                title: "Pressure [dbar]"
+                title: "-Pressure [dbar]"
             },
             hovermode: "closest", 
             showlegend: false
@@ -183,7 +227,7 @@ html(lang='en')
             title: "Temperature vs Salinity",
             autosize: true,
             height: 500, 
-            width: 400,
+            width: 500,
             xaxis: {
                 autorange: true, 
                 title: "Salinity [ppm]"
@@ -208,9 +252,22 @@ html(lang='en')
                     temp_v_psal_trace,
                     temp_v_psal_layout);
 
+        const linkToPage = function(data) {
+            let xidx = data.points[0].pointNumber
+            let profile_id = data.points[0].data.profile_ids[xidx];
+            let url = '/catalog/profiles/' + profile_id + '/page'
+            window.open(url,'_blank');
+        };
+
          // Upon click a new tab opens to the corresponding profile.
         PRES_V_TEMP_PLOT.on('plotly_click', function(data){
-            var profile_id = data.points[0].data.profile_ids;
-            var url = '/catalog/profiles/' + profile_id + '/page'
-            window.open(url,'_blank');
+            linkToPage(data);
+        });
+                 // Upon click a new tab opens to the corresponding profile.
+        PRES_V_PSAL_PLOT.on('plotly_click', function(data){
+            linkToPage(data);
+        });
+                 // Upon click a new tab opens to the corresponding profile.
+        TEMP_V_PSAL_PLOT.on('plotly_click', function(data){
+            linkToPage(data);
         });

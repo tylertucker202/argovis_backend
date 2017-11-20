@@ -106,27 +106,48 @@ html(lang='en')
             return reducedProfiles;
             }
 
+        const filterQCMeasurements = function(profile, qcThresh) {
+            var filteredProfile = [];
+            let num_measurements = profile.length;
+            for (var i = 0; i < num_measurements; ++i) {
+                var row = {};
+                if (profile[i].pres_qc === qcThresh) {
+
+                    row.pres = profile[i].pres;
+                    if (profile[i].temp_qc === qcThresh) {
+                        row.temp = profile[i].temp
+                    }
+                    else {
+                        row.temp = -999
+                    }
+                    if (profile[i].psal_qc === qcThresh) {
+                        row.psal = profile[i].psal
+                    }
+                    else {
+                        row.psal = -999
+                    }
+                    filteredProfile.push(row)
+                }
+            }
+            return filteredProfile;
+        }
 
         for(var i=0; i < profiles.length; i++) {
-            let profile = profiles[i].measurements;
-
-            profile = collateProfileMeasurements(profile);
-            combinedProfiles.psal = combinedProfiles.psal.concat(profile.psal);
-            combinedProfiles.pres = combinedProfiles.pres.concat(profile.pres);
-            combinedProfiles.temp = combinedProfiles.temp.concat(profile.temp);
+            let profileMeas = profiles[i].measurements;
+            profileMeas = filterQCMeasurements(profileMeas, '1') // replaces qc values higher than the qcThresh values with ''
+            profileMeas = collateProfileMeasurements(profileMeas);
+            combinedProfiles.psal = combinedProfiles.psal.concat(profileMeas.psal);
+            combinedProfiles.pres = combinedProfiles.pres.concat(profileMeas.pres);
+            combinedProfiles.temp = combinedProfiles.temp.concat(profileMeas.temp);
 
             let meas_idx = [];
-            for (var j = 1; j <= profile.psal.length; j++) {
+            for (var j = 1; j <= profileMeas.psal.length; j++) {
                 meas_idx.push(profiles[i].cycle_number); //just an array of cycle number
             }
             combinedProfiles.cycle = combinedProfiles.cycle.concat(meas_idx);
         };
-        //plot no more that 3000 points. scattergl option can plot more points, but there is a but that makes the y-axis tick marks dissapear.
-        nFactor = Math.ceil(combinedProfiles.pres.length / 10000);
-        console.log(nFactor);
-        combinedProfiles = reduceProfileMeasurements(combinedProfiles, nFactor);
-        console.log(combinedProfiles.pres.length);
-        var temp_scl = [[0.0, 'rgb(3, 35, 51)'],
+
+        var tempScl = [[0.0, 'rgb(3, 35, 51)'],
                         [0.125, 'rgb(24, 51, 124)'],
                         [0.25, 'rgb(86, 59, 156)'],
                         [0.375, 'rgb(130, 79, 142)'],
@@ -136,7 +157,7 @@ html(lang='en')
                         [0.875, 'rgb(249, 198, 65)'],
                         [1.0, 'rgb(231, 250, 90)']];
 
-        var psal_scl = [[0.0, 'rgb(41, 24, 107)'],
+        var psalScl = [[0.0, 'rgb(41, 24, 107)'],
                         [0.125, 'rgb(31, 51, 161)'],
                         [0.25, 'rgb(15, 91, 144)'],
                         [0.375, 'rgb(40, 119, 137)'],
@@ -145,14 +166,70 @@ html(lang='en')
                         [0.75, 'rgb(122, 203, 102)'],
                         [0.875, 'rgb(195, 221, 100)'],
                         [1.0, 'rgb(253, 238, 153)']];
+        //scatterGL has difficulty with long decimal points when distinguishing color
+        function roundArray(value){return(Number(value).toFixed(1))}
 
-        const measurements = {'yvalues': combinedProfiles.pres,
-                                'xvalues': combinedProfiles.cycle,
-                                'pres_v_temp': {'cvalues': combinedProfiles.temp,
+        const getEmptyIdx = function(array) {
+            var indices = [];
+            var element = -999;
+            var idx = array.indexOf(element);
+            while (idx != -1) {
+                indices.push(idx);
+                idx = array.indexOf(element, idx + 1);
+            }
+            return(indices);
+        }
+
+        //zeros signify empty values. These need to be removed from the arrays that will be used to make traces.
+        var temp = combinedProfiles.temp;
+        var psal = combinedProfiles.psal;
+        presForTemp = combinedProfiles.pres.map(function(element) { return (element * -1) });
+        presForPsal = presForTemp;
+        var cycleForTemp = combinedProfiles.cycle;
+        var cycleForPsal = combinedProfiles.cycle;
+
+        tempEmptyIdx = getEmptyIdx(temp);
+        psalEmptyIdx = getEmptyIdx(psal);
+        //tempZeroIdx = [];
+        //psalZeroIdx = [];
+
+        //drop instances from arrays where temp is -999.
+        var i = tempEmptyIdx.length
+        while(i--) {
+            idx = tempEmptyIdx[i];
+            presForTemp.splice(idx, 1, -999);
+            cycleForTemp.splice(idx, 1,-999);
+        }
+
+        temp = temp.filter(function(value){ if (value != -999) {return(value)}})
+        presForTemp = presForTemp.filter(function(value){ if (value != -999) {return(value)}})
+        cycleForTemp = cycleForTemp.filter(function(value){ if (value != -999) {return(value)}})
+        /*
+        console.log(tempEmptyIdx)
+        console.log(presForTemp.length)
+        console.log(cycleForTemp.length)
+        console.log(temp.length)
+        console.log(temp[94])
+        */
+
+        //drop instances from arrays where psal is -999.
+        var i = tempEmptyIdx.length
+        while(i--) {
+            idx = psalEmptyIdx[i];
+            presForPsal.splice(idx, 1, -999);
+            cycleForPsal.splice(idx, 1, -999);
+        }
+        psal = psal.filter(function(value){ if (value != -999) {return(value)}})
+        presForPsal = presForPsal.filter(function(value){ if (value != -999) {return(value)}})
+        cycleForPsal = cycleForPsal.filter(function(value){ if (value != -999) {return(value)}})
+
+        const measurements = {'pres_v_temp': {'xvalues': cycleForTemp,
+                                                'yvalues': presForTemp.map(roundArray),
+                                                'cvalues': temp.map(roundArray),
                                                 'text': 'temperature: ',
                                                 'yaxis': 'y2',
                                                 'xaxis': 'x1',
-                                                'colorscale': temp_scl,
+                                                'colorscale': tempScl,
                                                 'colorbar': {
                                                         //y: 0.8, 
                                                         //x: 1.02, 
@@ -160,11 +237,13 @@ html(lang='en')
                                                         len: 1, 
                                                         yanchor: "middle"
                                                         }},
-                                'pres_v_psal': {'cvalues': combinedProfiles.psal,
+                                'pres_v_psal': {'xvalues': cycleForPsal,
+                                                'yvalues': presForPsal.map(roundArray),
+                                                'cvalues': psal.map(roundArray),
                                                 'text': 'salinity: ',
                                                 'yaxis': 'y1',
                                                 'xaxis': 'x1',
-                                                'colorscale': psal_scl,
+                                                'colorscale': psalScl,
                                                 'colorbar': {
                                                         //y: 0.2, 
                                                         //x: 1.02, 
@@ -173,24 +252,21 @@ html(lang='en')
                                                         yanchor: "middle"
                                                         }}
                                 };
-        //scatterGL has difficulty with long decimal points when distinguishing color
-        function roundArray(value){return(value.toFixed(1))}
 
         const makeText = function(text, value) {
-                return("<br> " + text + value.toFixed(3).toString()
+                return("<br> " + text + value.toString()
                      + "<br>click to see profile page"
                 )
         };
 
-
         const makeTrace = function(key) {
             let meas = measurements[key];
             scatterTrace = {
-                y: measurements.yvalues,
-                x: measurements.xvalues,
+                y: meas.yvalues,
+                x: meas.xvalues,
                 text: meas.cvalues.map(function(value) { return makeText(meas.text, value); }),
                 showlegend: false,
-                type: 'scatter',
+                type: 'scattergl',
                 mode: 'markers',
                 marker: { color: meas.cvalues,
                             size: 5,
@@ -205,17 +281,16 @@ html(lang='en')
             return [scatterTrace];
         };
 
-
         var temp_layout = {
-            title: "Profile measurements",  
+            title: "Temperature measurements",  
             height: 400, 
             width: 1200, 
             //autosize: false, 
             yaxis: {
                 showticklabels: true,
-                autorange: 'reversed', 
+                //autorange: 'reversed', 
                 type: "linear", 
-                title: "Pressure [dbar]"
+                title: "-Pressure [dbar]"
             },
             xaxis: {
                 autorange: true, 
@@ -227,15 +302,15 @@ html(lang='en')
         };
 
         var psal_layout = {
-            title: "Profile measurements",  
+            title: "Salinity measurements",  
             height: 400, 
             width: 1200, 
             //autosize: false, 
             yaxis: {
                 showticklabels: true, 
-                autorange: 'reversed',
+                //autorange: 'reversed',
                 type: "linear", 
-                title: "Pressure [dbar]"
+                title: "-Pressure [dbar]"
             },
             xaxis: {
                 autorange: true, 
@@ -259,6 +334,7 @@ html(lang='en')
             var url = '/catalog/profiles/' + profile_id + '/page';
             window.open(url,'_blank');
         });
+
         pres_v_psal_plot.on('plotly_click', function(data){
             let xidx = data.points[0].pointNumber
             var profile_id = !{title} + '_' + data.points[0].data.x[xidx];
