@@ -109,7 +109,7 @@ html(lang='en')
         const filterQCMeasurements = function(profile, qcThresh) {
             var filteredProfile = [];
             let num_measurements = profile.length;
-            for (var i = 0; i < num_measurements; ++i) {
+            for (var i = 0; i < num_measurements; i++) {
                 var row = {};
                 if (profile[i].pres_qc === qcThresh) {
 
@@ -134,14 +134,14 @@ html(lang='en')
 
         for(var i=0; i < profiles.length; i++) {
             let profileMeas = profiles[i].measurements;
-            profileMeas = filterQCMeasurements(profileMeas, '1') // replaces qc values higher than the qcThresh values with ''
+            profileMeas = filterQCMeasurements(profileMeas, '1'); // replaces qc values higher than the qcThresh values with ''
             profileMeas = collateProfileMeasurements(profileMeas);
             combinedProfiles.psal = combinedProfiles.psal.concat(profileMeas.psal);
             combinedProfiles.pres = combinedProfiles.pres.concat(profileMeas.pres);
             combinedProfiles.temp = combinedProfiles.temp.concat(profileMeas.temp);
 
             let meas_idx = [];
-            for (var j = 1; j <= profileMeas.psal.length; j++) {
+            for (var j=0; j<profileMeas.pres.length; j++) {
                 meas_idx.push(profiles[i].cycle_number); //just an array of cycle number
             }
             combinedProfiles.cycle = combinedProfiles.cycle.concat(meas_idx);
@@ -219,6 +219,7 @@ html(lang='en')
             presForPsal.splice(idx, 1, -999);
             cycleForPsal.splice(idx, 1, -999);
         }
+
         psal = psal.filter(function(value){ if (value != -999) {return(value)}})
         presForPsal = presForPsal.filter(function(value){ if (value != -999) {return(value)}})
         cycleForPsal = cycleForPsal.filter(function(value){ if (value != -999) {return(value)}})
