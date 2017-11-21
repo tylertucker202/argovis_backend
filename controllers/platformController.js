@@ -2,6 +2,8 @@ var Profile = require('../models/profile');
 var async = require('async');
 var moment = require('moment');
 
+const mapParams = 'platform_number date geoLocation cycle_number';
+
 // Display list of all platforms
 exports.index = function(req, res) {   
     async.parallel({
@@ -47,12 +49,21 @@ exports.platform_detail = function (req, res, next) {
     }
     else {
         var query = Profile.find({platform_number: req.params.platform_number});
+        if (req.params.format==='map') {
+            query.select(mapParams);
+        }
         query.exec(function (err, profiles) {
             if (err) return next(err);
             if (req.params.format==='page'){
                 if (profiles.length === 0) { res.send('platform not found'); }
                 else {
                     res.render('platform_page', {title:req.params.platform_number, profiles: JSON.stringify(profiles), moment: moment })
+                }
+            }
+            else if (req.params.format==='page2'){
+                if (profiles.length === 0) { res.send('platform not found'); }
+                else {
+                    res.render('selected_profile_page_collated', {title:req.params.platform_number, profiles: JSON.stringify(profiles), moment: moment })
                 }
             }
             else{

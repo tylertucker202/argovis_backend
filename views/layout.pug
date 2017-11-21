@@ -199,7 +199,9 @@ html(lang='en')
               var platformNum = this.value;
               const bwIcon = false;
               const size = 'small';
-              platformProfilesSelection(platformNum, bwIcon, size);
+              if (platformNum.length === 7) {
+                platformProfilesSelection(platformNum, bwIcon, size);
+              }
           })
 
           map.on('draw:edited', function (e) {

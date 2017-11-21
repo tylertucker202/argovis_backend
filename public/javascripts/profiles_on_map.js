@@ -47,7 +47,7 @@ displayProfiles('/selection/latestProfiles/map');
 
 const platformProfilesSelection = function(selectedPlatform, bwIcon, size){
     if (selectedPlatform) {
-        var url = '/catalog/platforms/'+selectedPlatform;
+        var url = '/catalog/platforms/'+selectedPlatform+'/map';
         displayProfiles(url, bwIcon, size);
     }
 };
