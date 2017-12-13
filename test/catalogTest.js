@@ -42,7 +42,7 @@ describe('/GET catalog platform', function() {
 
 describe('/GET catalog dacs', function() {
   this.timeout(200);
-  it('it should GET all the dacs', (done) => {
+  it('it should GET the dac summary', (done) => {
     chai.request(app)
     .get('/catalog/dacs')
     .end((err, res) => {
@@ -66,7 +66,7 @@ describe('/GET catalog dacs', function() {
 describe('/GET profile render', function() {
   this.timeout(500);
   it('it should GET the selected profile.', (done) => {
-    const urlQuery = '/catalog/profiles/3900587_370'
+    const urlQuery = '/catalog/profiles/3901857_44'
     chai.request(app)
     .get(urlQuery)
     .end((err, res) => {
@@ -84,17 +84,24 @@ describe('/GET profile render', function() {
                                       'cycle_number', 
                                       'measurements', 
                                       'geoLocation', 
-                                      'station_parameters');
+                                      'station_parameters', 
+                                      'PI_NAME',
+                                      'POSITIONING_SYSTEM',
+                                      'PLATFORM_TYPE',
+                                      );
         a_profile._id.should.be.a('string');
         a_profile.platform_number.should.be.a('string');
         a_profile.dac.should.be.a('string');
         a_profile.nc_url.should.be.a('string');
         moment(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
-        a_profile.position_qc.should.be.a('string');
+        a_profile.position_qc.should.be.a('number');
         a_profile.lat.should.be.a('number');
         a_profile.lon.should.be.a('number');
-        a_profile.cycle_number.should.be.a('string');
+        a_profile.cycle_number.should.be.a('number');
         a_profile.geoLocation.type.should.eql('Point');
+        a_profile.PI_NAME.should.be.a('string');
+        a_profile.POSITIONING_SYSTEM.should.be.a('string');
+        a_profile.PLATFORM_TYPE.should.be.a('string');
         done();
     });
   });

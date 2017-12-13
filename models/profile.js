@@ -32,7 +32,9 @@ var ProfileSchema = Schema(
     platform_number: {type: String, required: true, max: 100},
     geoLocation: {type: Schema.Types.Mixed, required: true},
     station_parameters: {type: Schema.Types.Array, required: true},
-    maximum_pressure: {type: Number, required: true}
+    PI_NAME: {type: String, required: false, max: 100},
+    POSITIONING_SYSTEM: {type: String, required: false, max: 100},
+    PLATFORM_TYPE: {type: String, required: false, max: 100},
   },
 );
 

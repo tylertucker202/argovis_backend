@@ -22,7 +22,7 @@ describe('/GET last reported profiles', function() {
               //test overall response
               res.should.have.status(200);
               res.body.should.be.a('array');
-              res.body.length.should.be.eql(395);
+              res.body.length.should.be.eql(955);
               //test an element of the response
               a_profile = res.body[0];
               //console.log('A profile is: ' + JSON.stringify(a_profile));
@@ -58,7 +58,7 @@ describe('/GET atlantic selection', function() {
               //test overall response
               res.should.have.status(200);
               res.body.should.be.a('array');
-              res.body.length.should.be.eql(12);
+              res.body.length.should.be.eql(38);
               //test an element of the response
               a_profile = res.body[0];
               //console.log('A profile is: ' + JSON.stringify(a_profile));

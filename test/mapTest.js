@@ -34,8 +34,6 @@ describe('/GET map', function() {
           .end((err, res) => {
               //test overall response
               res.should.have.status(200);
-              //console.log('this is the response');
-              //console.log(res.text);
               done();
           });
     });

@@ -21,6 +21,8 @@ html(lang='en')
         a(href=profile.nc_url) #{profile.nc_url}
         p
         a(href='/catalog/platforms/'+ platform_number + '/page' target='_blank') To platform #{profile.platform_number} page
+        div
+        a(href='/map' ) To main page
         #TPS_CHART
         button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
 

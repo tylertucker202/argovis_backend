@@ -19,7 +19,7 @@ const argoIconBW = L.icon({
     popupAnchor:  [20, 20] 
 });
 
-//populate map with most recent profiles
+
 var markersLayer = new L.layerGroup();
 var platformProfileMarkersLayer = new L.layerGroup();
 
@@ -42,6 +42,7 @@ const displayProfiles = function(url, bwIcon, size) {
     });
 };
 
+//populate map with most recent profiles
 //displayProfiles('/selection/lastProfiles');
 displayProfiles('/selection/latestProfiles/map');
 

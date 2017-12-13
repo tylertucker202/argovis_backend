@@ -181,7 +181,7 @@ exports.selected_profile_list = function(req, res , next) {
 };
 
 exports.last_profile_list = function(req, res, next) {
-    var query = Profile.aggregate([{$sort: { 'date':-1}},
+    var query = Profile.aggregate([{$sort: { 'date': -1}},
                        {$group: {_id: '$platform_number',
                                  'platform_number': {$first: '$platform_number'},
                                  'date': {$first: '$date'},
@@ -189,7 +189,7 @@ exports.last_profile_list = function(req, res, next) {
                                  'geoLocation': {$first: '$geoLocation'}}}]);
     if (req.params.format === 'map') {
         query.select(mapParams);
-        query.limit(3000);
+        query.limit(1000);
     }
     query.exec( function (err, profiles) {
         if (err) { return next(err); }
@@ -201,10 +201,17 @@ exports.latest_profile_list = function(req,res, next) {
     //get startDate, endDate
     startDate = moment().subtract(60, 'days');
     endDate = moment();
-    var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()}});
+    //var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()}});
+    var query = Profile.aggregate([ {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+                                    {$sort: { 'date': -1}},
+                                    {$group: {_id: '$platform_number',
+                                            'platform_number': {$first: '$platform_number'},
+                                            'date': {$first: '$date'},
+                                            'cycle_number': {$first: '$cycle_number'},
+                                            'geoLocation': {$first: '$geoLocation'}}}]);
     if (req.params.format === 'map') {
         query.limit(1000);
-        query.select(mapParams);
+        //query.select(mapParams);
     }
     query.exec( function (err, profiles) {
         if (err) { return next(err); }

@@ -18,9 +18,11 @@ html(lang='en')
         div(class='bottom')
             #pres_v_psal_plot
 
-        button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download platform data
+        button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
         div
         a(href='/catalog/platforms/'+ title + '/page2' target='_blank') To platform PT, PS, and TS plot pages
+        div
+        a(href='/map' ) To main page
         table(class="table table-striped", id='profileTable')
             thead
                 tr
