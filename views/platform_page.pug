@@ -73,7 +73,6 @@ html(lang='en')
 
         $('#downloadProfiles').on('click', function(){
             var url = '/catalog/platforms/' + `#{title}`;
-            console.log(url);
             window.open(url,'_blank');
         });
 
@@ -112,6 +111,7 @@ html(lang='en')
         const filterQCMeasurements = function(profile, qcThresh) {
             var filteredProfile = [];
             let num_measurements = profile.length;
+            console.log(profile);
             for (var i = 0; i < num_measurements; i++) {
                 var row = {};
                 if (profile[i].pres_qc === qcThresh) {
@@ -186,15 +186,13 @@ html(lang='en')
         //zeros signify empty values. These need to be removed from the arrays that will be used to make traces.
         var temp = combinedProfiles.temp;
         var psal = combinedProfiles.psal;
-        presForTemp = combinedProfiles.pres.map(function(element) { return (element * -1) });
-        presForPsal = presForTemp;
+        presForTemp = combinedProfiles.pres.map(function(element) { return (element * -1) }); //flipping pres axis
+        presForPsal = presForTemp; //initialize
         var cycleForTemp = combinedProfiles.cycle;
         var cycleForPsal = combinedProfiles.cycle;
 
         tempEmptyIdx = getEmptyIdx(temp);
         psalEmptyIdx = getEmptyIdx(psal);
-        //tempZeroIdx = [];
-        //psalZeroIdx = [];
 
         //drop instances from arrays where temp is -999.
         var i = tempEmptyIdx.length
@@ -216,7 +214,7 @@ html(lang='en')
         */
 
         //drop instances from arrays where psal is -999.
-        var i = tempEmptyIdx.length
+        var i = psalEmptyIdx.length
         while(i--) {
             idx = psalEmptyIdx[i];
             presForPsal.splice(idx, 1, -999);
@@ -235,8 +233,6 @@ html(lang='en')
                                                 'xaxis': 'x1',
                                                 'colorscale': tempScl,
                                                 'colorbar': {
-                                                        //y: 0.8, 
-                                                        //x: 1.02, 
                                                         title: "Temperature [Celsius]", 
                                                         len: 1, 
                                                         yanchor: "middle"
@@ -249,8 +245,6 @@ html(lang='en')
                                                 'xaxis': 'x1',
                                                 'colorscale': psalScl,
                                                 'colorbar': {
-                                                        //y: 0.2, 
-                                                        //x: 1.02, 
                                                         title: "Salinity [ppm]", 
                                                         len: 1, 
                                                         yanchor: "middle"
