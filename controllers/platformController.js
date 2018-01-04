@@ -40,12 +40,14 @@ exports.platform_list = function(req, res, next) {
 
 // Display platform detail form on GET
 exports.platform_detail = function (req, res, next) {
-    req.checkParams('platform_number', 'platform_number should be specified.').notEmpty();
     req.sanitize('platform_number').escape();
 
-    var errors = req.validationErrors();
-    if (errors) {
-        res.send(errors)
+    req.getValidationResult().then(function (result) {
+    if (!result.isEmpty()) {
+        var errors = result.array().map(function (elem) {
+            return elem.msg;
+        });
+        res.render('register', { errors: errors });
     }
     else {
         var query = Profile.find({platform_number: req.params.platform_number});
@@ -70,5 +72,5 @@ exports.platform_detail = function (req, res, next) {
                 res.json(profiles)
             }
         });
-    }
+    }})
 };

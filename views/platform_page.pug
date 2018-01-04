@@ -5,11 +5,11 @@ html(lang='en')
         meta(charset='utf-8')
         link(rel='stylesheet', href='/stylesheets/style.css')
         script(type="text/javascript", src='https://cdn.plot.ly/plotly-latest.min.js')
-        script(src='/javascripts/FileSaver.min.js')
-        script(src='/javascripts/jquery.min.js')
-        script(src='/javascripts/bootstrap.min.js')
-        script(src='/javascripts/tableexport.min.js')
-        link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+        link(rel='stylesheet', href='/stylesheets/external-css/bootstrap.css')
+        script(src='/javascripts/external-js/FileSaver.min.js')
+        script(src='/javascripts/external-js/jquery.min.js')
+        script(src='/javascripts/external-js/bootstrap.min.js')
+        script(src='/javascripts/external-js/tableexport.min.js')
     body
 
     block content
@@ -17,6 +17,7 @@ html(lang='en')
             #pres_v_temp_plot
         div(class='bottom')
             #pres_v_psal_plot
+        p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
 
         button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
         div
@@ -29,6 +30,7 @@ html(lang='en')
                     th Raw Data
                     th Dac
                     th Parameters
+                    th Positioning System
                     th Link to profile page
                     th Date reported
                     th Cycle number
@@ -40,6 +42,7 @@ html(lang='en')
                             a(href=profile.nc_url) #{profile._id} data
                         td #{profile.dac}
                         td #{profile.station_parameters}
+                        td #{profile.POSITIONING_SYSTEM}
                         td 
                             a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
                         td #{moment(profile.date).format("YYYY-MM-DD HH:mm")}
@@ -111,11 +114,9 @@ html(lang='en')
         const filterQCMeasurements = function(profile, qcThresh) {
             var filteredProfile = [];
             let num_measurements = profile.length;
-            console.log(profile);
             for (var i = 0; i < num_measurements; i++) {
                 var row = {};
                 if (profile[i].pres_qc === qcThresh) {
-
                     row.pres = profile[i].pres;
                     if (profile[i].temp_qc === qcThresh) {
                         row.temp = profile[i].temp
@@ -135,8 +136,30 @@ html(lang='en')
             return filteredProfile;
         }
 
+        const reduceGPSMeasurements = function(profile, maxLength) {
+            if (profile.POSITIONING_SYSTEM === 'GPS') {
+                mLen = profile.measurements.length;
+                if (mLen > maxLength) {
+                    //reduce array length to so that only every delta element is plotted
+                    var delta = Math.floor( mLen / maxLength );
+                    var reducedMeasurements = [];
+                    for (var j = 0; j < mLen; j=j+delta) {
+                        reducedMeasurements.push(profile.measurements[j])
+                    }
+                    return reducedMeasurements
+                }
+                else {
+                    return profile.measurements;
+                }
+            }
+            else {
+                return profile.measurements;
+            }
+        }
+
         for(var i=0; i < profiles.length; i++) {
-            let profileMeas = profiles[i].measurements;
+            var profileMeas = reduceGPSMeasurements(profiles[i], 200);
+            //let profileMeas = profiles[i].measurements;
             profileMeas = filterQCMeasurements(profileMeas, '1'); // replaces qc values higher than the qcThresh values with ''
             profileMeas = collateProfileMeasurements(profileMeas);
             combinedProfiles.psal = combinedProfiles.psal.concat(profileMeas.psal);

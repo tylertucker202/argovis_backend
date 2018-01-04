@@ -5,11 +5,11 @@ html(lang='en')
         meta(charset='utf-8')
         link(rel='stylesheet', href='/stylesheets/style.css')
         script(type="text/javascript", src='https://cdn.plot.ly/plotly-latest.min.js')
-        link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
-        script(src='/javascripts/FileSaver.min.js')
-        script(src='/javascripts/jquery.min.js')
-        script(src='/javascripts/bootstrap.min.js')
-        script(src='/javascripts/tableexport.min.js')
+        link(rel='stylesheet', href='/stylesheets/external-css/bootstrap.css')
+        script(src='/javascripts/external-js/FileSaver.min.js')
+        script(src='/javascripts/external-js/jquery.min.js')
+        script(src='/javascripts/external-js/bootstrap.min.js')
+        script(src='/javascripts/external-js/tableexport.min.js')
     body
 
     block content
@@ -19,6 +19,7 @@ html(lang='en')
             #PRES_V_PSAL_PLOT
         div(class='plotContainer')
             #TEMP_V_PSAL_PLOT
+        p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
         button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
         div
         a(href='/map' ) To main page
@@ -118,6 +119,27 @@ html(lang='en')
                 )
         };
 
+        const reduceGPSMeasurements = function(profile, maxLength) {
+            if (profile.POSITIONING_SYSTEM === 'GPS') {
+                mLen = profile.measurements.length;
+                if (mLen > maxLength) {
+                    //reduce array length to so that only every delta element is plotted
+                    var delta = Math.floor( mLen / maxLength );
+                    var reducedMeasurements = [];
+                    for (var j = 0; j < mLen; j=j+delta) {
+                        reducedMeasurements.push(profile.measurements[j])
+                    }
+                    return reducedMeasurements
+                }
+                else {
+                    return profile.measurements;
+                }
+            }
+            else {
+                return profile.measurements;
+            }
+        }
+
         var traces = [];
         var temp = [];
         var pres = [];
@@ -126,7 +148,8 @@ html(lang='en')
         var cvalues = [];
 
         for(var i=0; i<profiles.length; i++) {
-            var profileMeas = profiles[i].measurements;
+            var profileMeas = reduceGPSMeasurements(profiles[i], 200);
+            //var profileMeas = profiles[i].measurements;
             profileMeas = filterQCMeasurements(profileMeas, '1') // replaces qc values higher than the qcThresh values with ''
             profileMeas = collateProfileMeasurements(profileMeas); // collect points into arrays
             var _id = profiles[i]._id

@@ -5,10 +5,10 @@ html(lang='en')
         meta(charset='utf-8')
         link(rel='stylesheet', href='/stylesheets/style.css')
         script(type="text/javascript", src='https://cdn.plot.ly/plotly-latest.min.js')
-        link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
-        script(src='/javascripts/FileSaver.min.js')
-        script(src='/javascripts/jquery.min.js')
-        script(src='/javascripts/bootstrap.min.js')
+        link(rel='stylesheet', href='/stylesheets/external-css/bootstrap.css')
+        script(src='/javascripts/external-js/FileSaver.min.js')
+        script(src='/javascripts/external-js/jquery.min.js')
+        script(src='/javascripts/external-js/bootstrap.min.js')
     body
 
     block content
@@ -17,6 +17,7 @@ html(lang='en')
         p Cycle number: #{profile.cycle_number}
         p Dac: #{profile.dac}
         p Parameters: #{profile.station_parameters}
+        p Positioning System: #{profile.POSITIONING_SYSTEM}
         p Data source:
         a(href=profile.nc_url) #{profile.nc_url}
         p

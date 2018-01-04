@@ -51,11 +51,8 @@ exports.selected_profile_list = function(req, res , next) {
     req.checkQuery('startDate', 'startDate should be specified.').notEmpty();
     req.checkQuery('endDate', 'endDate should be specified.').notEmpty();
     req.checkQuery('shape', 'shape should be specified.').notEmpty();
-    
     req.sanitize('presRange').escape();
     req.sanitize('presRange').trim();
-
-
     req.sanitize('_id').escape();
     req.sanitize('startDate').toDate();
     req.sanitize('endDate').toDate();
@@ -73,9 +70,12 @@ exports.selected_profile_list = function(req, res , next) {
     GJV.valid(shapeJson);
     GJV.isPolygon(shapeJson);
 
-    var errors = req.validationErrors();
-    if (errors) {
-        res.send(errors)
+    req.getValidationResult().then(function (result) {
+    if (!result.isEmpty()) {
+        var errors = result.array().map(function (elem) {
+            return elem.msg;
+        });
+        res.render('register', { errors: errors });
     }
     else {
         if (req.params.format === 'map' && req.query.presRange) {
@@ -177,7 +177,7 @@ exports.selected_profile_list = function(req, res , next) {
             }
         })
         .catch(function(err) { return next(err)})
-    }
+    }})
 };
 
 exports.last_profile_list = function(req, res, next) {
@@ -199,7 +199,7 @@ exports.last_profile_list = function(req, res, next) {
 
 exports.latest_profile_list = function(req,res, next) {
     //get startDate, endDate
-    startDate = moment().subtract(60, 'days');
+    startDate = moment().subtract(90, 'days');
     endDate = moment();
     //var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()}});
     var query = Profile.aggregate([ {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},

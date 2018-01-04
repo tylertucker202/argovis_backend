@@ -40,6 +40,7 @@
     "pug": "^2.0.0-rc.2",
     "pug-lexer": "^3.1.0",
     "readdirp": "^2.1.0",
+    "requirejs": "^2.3.5",
     "serve-favicon": "~2.4.2",
     "tableexport": "^4.0.11",
     "undefsafe": "^2.0.1"

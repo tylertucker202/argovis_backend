@@ -11,31 +11,31 @@ html(lang='en')
         title= title
         meta(charset='utf-8')
         meta(name='viewport', content='width=device-width, initial-scale=1')
-        link(rel='stylesheet', href='/stylesheets/leaflet.css')
+        link(rel='stylesheet', href='/stylesheets/external-css/leaflet.css')
         link(rel='stylesheet', href='/stylesheets/style.css')
-        link(rel='stylesheet', href='/stylesheets/leaflet-draw.css')
-        script(src='/javascripts/jquery.min.js')
-
-        script(src="/javascripts/leaflet.js")
-        script(src="/javascripts/leaflet.draw.js")
-        link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
-        script(src='/javascripts/bootstrap.min.js')
-
+        link(rel='stylesheet', href='/stylesheets/external-css/leaflet-draw.css')
+        script(src='/javascripts/external-js/jquery.min.js')
+        script(src="/javascripts/external-js/leaflet.js")
+        script(src="/javascripts/external-js/leaflet.draw.js")
+        link(rel='stylesheet', href='/stylesheets/external-css/bootstrap.css')
+        script(src='/javascripts/external-js/bootstrap.min.js')
         //used for jquery date range
-        script(type="text/javascript", src="javascripts/moment.min.js")
-        script(type="text/javascript", src="javascripts/daterangepicker.js")
-        link(rel="stylesheet" type="text/css", href="stylesheets/daterangepicker.css")
+        script(type="text/javascript", src="javascripts/external-js/moment.min.js")
+        script(type="text/javascript", src="javascripts/external-js/daterangepicker.js")
+        link(rel="stylesheet" type="text/css", href="stylesheets/external-css/daterangepicker.css")
         
-        script(type="text/javascript", src="javascripts/nouislider.js")
-        link(rel="stylesheet" type="text/css", href="stylesheets/nouislider.css")
+        script(type="text/javascript", src="javascripts/external-js/nouislider.js")
+        link(rel="stylesheet" type="text/css", href="stylesheets/external-css/nouislider.css")
 
         //used for map projections
-        script(type="text/javascript", src="javascripts/proj4.js")
-        script(type="text/javascript", src="javascripts/proj4leaflet.js")
-        script(src='/javascripts/leaflet.ajax.min.js')
+        script(type="text/javascript", src="javascripts/external-js/proj4.js")
+        script(type="text/javascript", src="javascripts/external-js/proj4leaflet.js")
+        script(src='/javascripts/external-js/leaflet.ajax.min.js')
 
+        script(type="text/javascript", src="javascripts/external-js/require.js")
     body
       script(type='text/javascript').
+
         $( document ).ready(function() {
           const start = moment().subtract(60, 'days');
           const end = moment();
@@ -79,7 +79,6 @@ html(lang='en')
             connect: true,
             orientation: 'vertical'
           });
-
 
           //define functions used to update map
           var getDateRange = function() {
@@ -218,11 +217,8 @@ html(lang='en')
               this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
               return this._div;
           };
-
-
           info.addTo(map);
         });
-
 
       div(class='container-fluid')
         div(class='row')
