@@ -210,6 +210,7 @@ html(lang='en')
         var temp = combinedProfiles.temp;
         var psal = combinedProfiles.psal;
         presForTemp = combinedProfiles.pres.map(function(element) { return (element * -1) }); //flipping pres axis
+        //presForTemp = combinedProfiles.pres
         presForPsal = presForTemp; //initialize
         var cycleForTemp = combinedProfiles.cycle;
         var cycleForPsal = combinedProfiles.cycle;
@@ -309,7 +310,7 @@ html(lang='en')
             //autosize: false, 
             yaxis: {
                 showticklabels: true,
-                //autorange: 'reversed', 
+                //autorange: 'reversed', //scattergl currently does not show tick labels when axis is reversed
                 type: "linear", 
                 title: "-Pressure [dbar]"
             },
@@ -329,7 +330,7 @@ html(lang='en')
             //autosize: false, 
             yaxis: {
                 showticklabels: true, 
-                //autorange: 'reversed',
+                //autorange: 'reversed', //scattergl currently does not show tick labels when axis is reversed
                 type: "linear", 
                 title: "-Pressure [dbar]"
             },

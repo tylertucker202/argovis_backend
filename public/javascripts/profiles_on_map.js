@@ -1,24 +1,44 @@
-const argoIcon = L.icon({
-    iconUrl: '../images/Argo_Logo_VS.gif',
-    iconSize:     [25, 25], 
-    iconAnchor:   [0, 0],
-    popupAnchor:  [20, 20]
-});
-
-const argoIconSm = L.icon({
+const argoIconOld = L.icon({
     iconUrl: '../images/Argo_Logo_VS.gif',
     iconSize:     [10, 10], 
     iconAnchor:   [0, 0],
     popupAnchor:  [20, 20]
 });
 
-const argoIconBW = L.icon({
+const argoIcon = L.icon({
+    iconUrl: '../images/dot_yellow.png',
+    iconSize:     [12, 12], 
+    iconAnchor:   [0, 0],
+    popupAnchor:  [6, 6]
+});
+
+const argoIconSmOld = L.icon({
+    iconUrl: '../images/Argo_Logo_VS.gif',
+    iconSize:     [10, 10], 
+    iconAnchor:   [0, 0],
+    popupAnchor:  [20, 20]
+});
+
+const argoIconSm = L.icon({
+    iconUrl: '../images/dot_yellow.png',
+    iconSize:     [6, 6], 
+    iconAnchor:   [0, 0],
+    popupAnchor:  [20, 20]
+});
+
+const argoIconBWOld = L.icon({
     iconUrl: '../images/Argo_Logo_VS_BW.gif',
     iconSize:     [10, 10],
     iconAnchor:   [0, 0],
-    popupAnchor:  [20, 20] 
+    popupAnchor:  [5, 5] 
 });
 
+const argoIconBW = L.icon({
+    iconUrl: '../images/dot_grey.png',
+    iconSize:     [6, 6],
+    iconAnchor:   [0, 0],
+    popupAnchor:  [3, 3] 
+});
 
 var markersLayer = new L.layerGroup();
 var platformProfileMarkersLayer = new L.layerGroup();
@@ -84,7 +104,7 @@ function addToMarkersLayer(profile, markerIcon, markers) {
     var profileLink = "<a href='/catalog/profiles/"+profile_id+"/page' target='_blank'> To profile page</a>";
     const platformButton = "<input type='button' value='Position history' onclick='platformProfilesSelection("+selectedPlatform.toString()+", true)'>"
     const platformLink = "<a href='/catalog/platforms/" + selectedPlatform + "/page' target='_blank' >To platform page</a>";
-    const popupText = '<b>Hello, im ' + profile_id + '!</b>'
+    const popupText = '<b>Hello, I\'m ' + profile_id + '!</b>'
                     + '<br>lon: ' + lon + '</b>'
                     + '<br>lat: ' + lat + '</b>'
                     + '<br>cycle: ' + cycle.toString() + '</b>'
