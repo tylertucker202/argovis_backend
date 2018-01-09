@@ -196,10 +196,9 @@ html(lang='en')
 
           queryPlatform.addEventListener('input', function(){
               var platformNum = this.value;
-              const bwIcon = false;
-              const size = 'small';
+              const markerType = 'platform';
               if (platformNum.length === 7) {
-                platformProfilesSelection(platformNum, bwIcon, size);
+                platformProfilesSelection(platformNum, markerType);
               }
           })
 
@@ -253,5 +252,7 @@ html(lang='en')
                     input(type="number" value="2000" min="0" max="6000" id='maxPres')
                 li
                   button.btn.btn-primary.btn-block(type='submit', id='latestProfileSelection') Reset to Last 1000 profiles
+                li
+                  button.btn.btn-primary.btn-block(type='submit', id='clearProfiles') Clear profiles from map
           div(class='col-sm-10')
             block content

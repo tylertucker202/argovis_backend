@@ -10,6 +10,7 @@ var ProfileSchema = Schema(
     cycle_number: {type: Number, required: true},
     dac: {type: String, required: true, max: 100},
     date: {type: Date, required: true},
+    max_pres: {type: Number, required: true},
     measurements: [{ pres: {type: Number, required: true},
                      pres_qc: {type: String, required: true},
                      temp: {type: Number, required: true},

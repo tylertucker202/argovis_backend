@@ -81,7 +81,7 @@ exports.selected_profile_list = function(req, res , next) {
         if (req.params.format === 'map' && req.query.presRange) {
             var query = Profile.aggregate([
                 {$project: { //need to include all fields that you wish to keep.
-                    platform_number: 1, date: 1, geoLocation: 1, cycle_number: 1,
+                    platform_number: -1, date: -1, geoLocation: 1, cycle_number: -1,
                     measurements: {
                         $filter: {
                             input: '$measurements',
@@ -97,15 +97,16 @@ exports.selected_profile_list = function(req, res , next) {
                 {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
                 {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
                 {$project: { // return profiles with measurements
-                    platform_number: 1, date: 1, geoLocation: 1, cycle_number: 1, measurements: 1,
+                    platform_number: -1, date: -1, geoLocation: 1, cycle_number: -1, measurements: 1,
                     count: { $size:'$measurements' },
                 }},
-                {$match: {count: {$gt: 0}}}
+                {$match: {count: {$gt: 0}}},
+                {$limit: 1001},
                 ]);
         }
         else if (req.params.format === 'map' && !req.query.presRange) {
             var query = Profile.aggregate([
-                {$project: { platform_number: 1, date: 1, geoLocation: 1, cycle_number: 1}},
+                {$project: { platform_number: -1, date: -1, geoLocation: 1, cycle_number: -1}},
                 {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
                 {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
             ]);

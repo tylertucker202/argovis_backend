@@ -27,13 +27,14 @@ html(lang='en')
         table(class="table table-striped", id='profileTable')
             thead
                 tr
-                    th Raw Data
+                    th Link to GDAC data
                     th Dac
                     th Parameters
                     th Positioning System
                     th Link to profile page
                     th Date reported
                     th Cycle number
+                    th Data mode
                     th Number of measurements
             tbody(overflow='auto', height='150px')
                 each profile, i in JSON.parse(profiles)
@@ -47,6 +48,7 @@ html(lang='en')
                             a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
                         td #{moment(profile.date).format("YYYY-MM-DD HH:mm")}
                         td #{profile.cycle_number}
+                        td #{profile.DATA_MODE}
                         td #{profile.measurements.length}
 
     script(type='text/javascript').

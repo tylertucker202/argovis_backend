@@ -1,10 +1,3 @@
-const argoIconOld = L.icon({
-    iconUrl: '../images/Argo_Logo_VS.gif',
-    iconSize:     [10, 10], 
-    iconAnchor:   [0, 0],
-    popupAnchor:  [20, 20]
-});
-
 const argoIcon = L.icon({
     iconUrl: '../images/dot_yellow.png',
     iconSize:     [12, 12], 
@@ -12,25 +5,11 @@ const argoIcon = L.icon({
     popupAnchor:  [6, 6]
 });
 
-const argoIconSmOld = L.icon({
-    iconUrl: '../images/Argo_Logo_VS.gif',
-    iconSize:     [10, 10], 
-    iconAnchor:   [0, 0],
-    popupAnchor:  [20, 20]
-});
-
-const argoIconSm = L.icon({
-    iconUrl: '../images/dot_yellow.png',
+const platformIcon = L.icon({
+    iconUrl: '../images/dot_orange.png',
     iconSize:     [6, 6], 
     iconAnchor:   [0, 0],
-    popupAnchor:  [20, 20]
-});
-
-const argoIconBWOld = L.icon({
-    iconUrl: '../images/Argo_Logo_VS_BW.gif',
-    iconSize:     [10, 10],
-    iconAnchor:   [0, 0],
-    popupAnchor:  [5, 5] 
+    popupAnchor:  [3, 3]
 });
 
 const argoIconBW = L.icon({
@@ -43,15 +22,18 @@ const argoIconBW = L.icon({
 var markersLayer = new L.layerGroup();
 var platformProfileMarkersLayer = new L.layerGroup();
 
-const displayProfiles = function(url, bwIcon, size) {
+const displayProfiles = function(url, markerType) {
     platformProfileMarkersLayer.clearLayers();
     $.getJSON(url, function(result){
+        if (result.length > 1000) {
+            alert("Whoa, thats a big query! The first 1000 points are plotted. JSON did not load, try reducing the polygon size or date range.");
+        }
         $.each(result, function(i, profile){
-            if (bwIcon) {
+            if (markerType==='history') {
                 addToMarkersLayer(profile, argoIconBW, platformProfileMarkersLayer);
             }
-            else if (size==='small') {
-                addToMarkersLayer(profile, argoIconSm, platformProfileMarkersLayer);
+            else if (markerType==='platform') {
+                addToMarkersLayer(profile, platformIcon, platformProfileMarkersLayer);
             }
             else {
                 addToMarkersLayer(profile, argoIcon, markersLayer);
@@ -59,17 +41,17 @@ const displayProfiles = function(url, bwIcon, size) {
         });
         platformProfileMarkersLayer.addTo(map);
         markersLayer.addTo(map);
-    });
+    }).fail(function(){alert('Points did not load, try reducing the polygon size or date range.')});
 };
 
 //populate map with most recent profiles
 //displayProfiles('/selection/lastProfiles');
 displayProfiles('/selection/latestProfiles/map');
 
-const platformProfilesSelection = function(selectedPlatform, bwIcon, size){
+const platformProfilesSelection = function(selectedPlatform, markerType){
     if (selectedPlatform) {
         var url = '/catalog/platforms/'+selectedPlatform+'/map';
-        displayProfiles(url, bwIcon, size);
+        displayProfiles(url, markerType);
     }
 };
 
@@ -102,7 +84,8 @@ function addToMarkersLayer(profile, markerIcon, markers) {
         markerIcon = argoIcon;
     }
     var profileLink = "<a href='/catalog/profiles/"+profile_id+"/page' target='_blank'> To profile page</a>";
-    const platformButton = "<input type='button' value='Position history' onclick='platformProfilesSelection("+selectedPlatform.toString()+", true)'>"
+    const markerType='history';
+    const platformButton = "<input type='button' value='Position history' onclick=platformProfilesSelection("+selectedPlatform.toString()+",'history')>"
     const platformLink = "<a href='/catalog/platforms/" + selectedPlatform + "/page' target='_blank' >To platform page</a>";
     const popupText = '<b>Hello, I\'m ' + profile_id + '!</b>'
                     + '<br>lon: ' + lon + '</b>'
@@ -134,6 +117,14 @@ $('#latestProfileSelection').on('click', function(){
         drawnItems.clearLayers();
     }
     displayProfiles('/selection/latestProfiles/map');
+})
+
+$('#clearProfiles').on('click', function(){
+    platformProfileMarkersLayer.clearLayers(); //delete platform profiles
+    markersLayer.clearLayers();
+    if(drawnItems){
+        drawnItems.clearLayers();
+    }
 })
 
 const getTransformedShape = function(shape) {
