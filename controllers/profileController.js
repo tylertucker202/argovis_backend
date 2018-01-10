@@ -153,6 +153,7 @@ exports.selected_profile_list = function(req, res , next) {
                     station_parameters: 1,
                     maximum_pressure: 1,
                     POSITIONING_SYSTEM: 1,
+                    DATA_MODE: 1,
                     measurements: {
                         $filter: {
                             input: '$measurements',
@@ -180,6 +181,7 @@ exports.selected_profile_list = function(req, res , next) {
                     maximum_pressure: 1,
                     measurements: 1,
                     POSITIONING_SYSTEM: 1,
+                    DATA_MODE: 1,
                     count: { $size:'$measurements' },
                 }},
                 {$match: {count: {$gt: 0}}}

@@ -33,6 +33,7 @@ html(lang='en')
                     th Date reported
                     th Cycle number
                     th Positioning system
+                    th Data mode
                     th Number of measurements
             tbody(overflow='auto', height='150px')
                 each profile, i in JSON.parse(profiles)
@@ -45,6 +46,7 @@ html(lang='en')
                         td #{moment(profile.date).format("YYYY-MM-DD HH:mm")}
                         td #{profile.cycle_number}
                         td #{profile.POSITIONING_SYSTEM}
+                        td #{profile.DATA_MODE}
                         td #{profile.measurements.length}
 
     script(type='text/javascript').
