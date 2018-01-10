@@ -23,6 +23,11 @@ html, body {
   border-radius: 5px;
 }
 
+.horizContainer{
+  float:left;
+  width:100%
+}
+
 .plotContainer{
   float:left;
 }

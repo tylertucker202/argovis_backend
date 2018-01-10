@@ -13,12 +13,12 @@ html(lang='en')
     body
 
     block content
-        div(class='top')
-            #pres_v_temp_plot
-        div(class='bottom')
-            #pres_v_psal_plot
+        div(class='horizContainer')
+            div(class='top')
+                #pres_v_temp_plot
+            div(class='bottom')
+                #pres_v_psal_plot
         p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
-
         button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
         div
         a(href='/catalog/platforms/'+ title + '/page2' target='_blank') To platform PT, PS, and TS plot pages

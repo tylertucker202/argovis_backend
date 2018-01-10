@@ -13,15 +13,15 @@ html(lang='en')
     body
 
     block content
-        div(class='plotContainer')
-            #PRES_V_TEMP_PLOT
-        div(class='plotContainer')
-            #PRES_V_PSAL_PLOT
-        div(class='plotContainer')
-            #TEMP_V_PSAL_PLOT
+        div(class='horizContainer')
+            div(class='plotContainer')
+                #PRES_V_TEMP_PLOT
+            div(class='plotContainer')
+                #PRES_V_PSAL_PLOT
+            div(class='plotContainer')
+                #TEMP_V_PSAL_PLOT
         p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
         button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
-        div
         a(href='/map' ) To main page
         div
         table(class="table table-striped")
@@ -32,6 +32,7 @@ html(lang='en')
                     th Link to profile page
                     th Date reported
                     th Cycle number
+                    th Positioning system
                     th Number of measurements
             tbody(overflow='auto', height='150px')
                 each profile, i in JSON.parse(profiles)
@@ -43,6 +44,7 @@ html(lang='en')
                           a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
                         td #{moment(profile.date).format("YYYY-MM-DD HH:mm")}
                         td #{profile.cycle_number}
+                        td #{profile.POSITIONING_SYSTEM}
                         td #{profile.measurements.length}
 
     script(type='text/javascript').

@@ -15,8 +15,32 @@ exports.profile_list = function(req, res, next) {
     });
 };
 
-exports.profile_detail = function (req, res, next) {
+exports.month_year_profile_list = function(req, res, next) {
+    req.checkQuery('month', 'month should be specified.').notEmpty();
+    req.checkQuery('year', 'year should be specified.').notEmpty();
+    req.checkQuery('year', 'year should be four digit number.').isNumeric();
+    req.checkQuery('month', 'month should be two digit number.').isNumeric();
+    req.sanitize('month').escape();
+    req.sanitize('month').trim();
+    req.sanitize('year').escape();
+    req.sanitize('year').trim();
 
+    const year = JSON.parse(req.params.year);
+    const month = JSON.parse(req.params.month);
+    const startDate = moment(year + '-' + month + '-' + 01,'YYYY-MM-DD');
+    const endDate = startDate.clone().endOf('month');
+    const query = Profile.aggregate([
+        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+        {$project: { platform_number: -1, date: -1, geoLocation: 1, cycle_number: -1}}
+    ]);
+    const promise = query.exec();
+    promise.then(function (profiles) {
+        res.json(profiles);
+    })
+    .catch(function(err) { return next(err)});
+}
+
+exports.profile_detail = function (req, res, next) {
     req.checkParams('_id', 'Profile id should be specified.').notEmpty();
     var errors = req.validationErrors();
     req.sanitize('_id').escape();
@@ -75,7 +99,7 @@ exports.selected_profile_list = function(req, res , next) {
         var errors = result.array().map(function (elem) {
             return elem.msg;
         });
-        res.render('register', { errors: errors });
+        res.render('error', { errors: errors });
     }
     else {
         if (req.params.format === 'map' && req.query.presRange) {
@@ -128,6 +152,7 @@ exports.selected_profile_list = function(req, res , next) {
                     geoLocation: 1,
                     station_parameters: 1,
                     maximum_pressure: 1,
+                    POSITIONING_SYSTEM: 1,
                     measurements: {
                         $filter: {
                             input: '$measurements',
@@ -154,6 +179,7 @@ exports.selected_profile_list = function(req, res , next) {
                     station_parameters: 1,
                     maximum_pressure: 1,
                     measurements: 1,
+                    POSITIONING_SYSTEM: 1,
                     count: { $size:'$measurements' },
                 }},
                 {$match: {count: {$gt: 0}}}
