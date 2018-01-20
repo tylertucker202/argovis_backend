@@ -208,7 +208,7 @@ html(lang='en')
             return [scatterGlTrace]
         };
 
-        pres = pres.map(function(value) { return value * -1}); //scattergl has trouble with flipped axes. Instead, negative pressure is plotted.
+        //pres = pres.map(function(value) { return value * -1}); //scattergl has trouble with flipped axes. Instead, negative pressure is plotted.
         pres_v_temp_trace = makeTrace(temp, pres, cvalues, _ids, 'pres_v_temp', profileScl2)
         pres_v_psal_trace = makeTrace(psal, pres, cvalues, _ids, 'pres_v_psal', profileScl2)
         temp_v_psal_trace = makeTrace(psal, temp, cvalues, _ids, 'temp_v_psal', profileScl2)
@@ -220,14 +220,14 @@ html(lang='en')
             height: 500, 
             width: 500,
             xaxis: {
-                autorange: true, 
+                autorange: true,
                 title: "Temperature [Celsius]"
             },
             yaxis: {
                 showticklabels: true,
-                autorange: true,
+                autorange: 'reversed',
                 type: "linear",
-                title: "-Pressure [dbar]"
+                title: "Pressure [dbar]"
             },
             hovermode: "closest", 
             showlegend: false
@@ -244,9 +244,9 @@ html(lang='en')
             },
             yaxis: {
                 showticklabels: true,
-                autorange: true,
+                autorange: 'reversed',
                 type: "linear",
-                title: "-Pressure [dbar]"
+                title: "Pressure [dbar]"
             },
             hovermode: "closest", 
             showlegend: false

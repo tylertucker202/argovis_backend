@@ -197,7 +197,7 @@ html(lang='en')
           queryPlatform.addEventListener('input', function(){
               var platformNum = this.value;
               const markerType = 'platform';
-              if (platformNum.length === 7) {
+              if (platformNum.length >= 5) {
                 platformProfilesSelection(platformNum, markerType);
               }
           })
@@ -224,14 +224,14 @@ html(lang='en')
           div(class='col-sm-2')
             block sidebar
               ul(class='sidebar-nav')
+                li
+                  a(href='http://www.argo.ucsd.edu/RG2009_climatology.html') Link to gridded Argo climatology
                 li 
                   a(href='/map') Web Mercator Map
                 li
                   a(href='/mapNPS') Northern Polar Stereo Map
                 li
                   a(href='/mapSPS') Southern Polar Stereo Map
-                li
-                  a(href='http://www.argo.ucsd.edu/RG2009_climatology.html') Gridding page
                 li
                   hr
                 li

@@ -7,26 +7,40 @@ const argoIcon = L.icon({
 
 const platformIcon = L.icon({
     iconUrl: '../images/dot_orange.png',
-    iconSize:     [6, 6], 
+    iconSize:     [12, 12], 
     iconAnchor:   [0, 0],
-    popupAnchor:  [3, 3]
+    popupAnchor:  [6, 6]
 });
 
 const argoIconBW = L.icon({
     iconUrl: '../images/dot_grey.png',
-    iconSize:     [6, 6],
+    iconSize:     [12, 12], 
     iconAnchor:   [0, 0],
-    popupAnchor:  [3, 3] 
+    popupAnchor:  [6, 6]
 });
 
 var markersLayer = new L.layerGroup();
 var platformProfileMarkersLayer = new L.layerGroup();
 
+//close popups from all drawn items
+const closeDrawnItemPopups = function() {
+    //close popups from all drawn items
+    if (drawnItems){
+        console.log('closing drawn items');
+        drawnItems.eachLayer(function (layer) {
+            layer.closePopup();
+        });
+    }    
+}
+
 const displayProfiles = function(url, markerType) {
     platformProfileMarkersLayer.clearLayers();
     $.getJSON(url, function(result){
         if (result.length > 1000) {
-            alert("Whoa, thats a big query! The first 1000 points are plotted. JSON did not load, try reducing the polygon size or date range.");
+            closeDrawnItemPopups()
+            alert("This query is too large."
+                  + "Only 1000 profiles will appear in the selection region."
+                  + " Try reducing the polygon size or date range");
         }
         $.each(result, function(i, profile){
             if (markerType==='history') {
@@ -41,7 +55,9 @@ const displayProfiles = function(url, markerType) {
         });
         platformProfileMarkersLayer.addTo(map);
         markersLayer.addTo(map);
-    }).fail(function(){alert('Points did not load, try reducing the polygon size or date range.')});
+    }).fail(function(){
+        closeDrawnItemPopups(); 
+        alert('Points did not load, try reducing the polygon size or date range.')});
 };
 
 //populate map with most recent profiles
