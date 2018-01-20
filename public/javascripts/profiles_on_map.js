@@ -42,19 +42,21 @@ const displayProfiles = function(url, markerType) {
                   + "Only 1000 profiles will appear in the selection region."
                   + " Try reducing the polygon size or date range");
         }
-        $.each(result, function(i, profile){
-            if (markerType==='history') {
-                addToMarkersLayer(profile, argoIconBW, platformProfileMarkersLayer);
-            }
-            else if (markerType==='platform') {
-                addToMarkersLayer(profile, platformIcon, platformProfileMarkersLayer);
-            }
-            else {
-                addToMarkersLayer(profile, argoIcon, markersLayer);
-            }
-        });
-        platformProfileMarkersLayer.addTo(map);
-        markersLayer.addTo(map);
+        else {
+            $.each(result, function(i, profile){
+                if (markerType==='history') {
+                    addToMarkersLayer(profile, argoIconBW, platformProfileMarkersLayer);
+                }
+                else if (markerType==='platform') {
+                    addToMarkersLayer(profile, platformIcon, platformProfileMarkersLayer);
+                }
+                else {
+                    addToMarkersLayer(profile, argoIcon, markersLayer);
+                }
+            });
+            platformProfileMarkersLayer.addTo(map);
+            markersLayer.addTo(map);
+        }
     }).fail(function(){
         closeDrawnItemPopups(); 
         alert('Points did not load, try reducing the polygon size or date range.')});
