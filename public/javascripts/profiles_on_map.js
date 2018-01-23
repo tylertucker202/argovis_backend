@@ -33,31 +33,48 @@ const closeDrawnItemPopups = function() {
     }    
 }
 
+//close popups from all drawn items
+const openDrawnItemPopups = function() {
+    //close popups from all drawn items
+    if (drawnItems){
+        console.log('closing drawn items');
+        drawnItems.eachLayer(function (layer) {
+            layer.openPopup();
+        });
+    }    
+}
+
 const displayProfiles = function(url, markerType) {
     platformProfileMarkersLayer.clearLayers();
+    console.log(url);
     $.getJSON(url, function(result){
         if (result.length > 1000) {
             closeDrawnItemPopups()
             alert("This query is too large."
-                  + "Only 1000 profiles will appear in the selection region."
-                  + " Try reducing the polygon size or date range");
+            + " Only 1000 profiles will appear in the selection region."
+            + " Try reducing the polygon size or date range."
+            + " Another option is to use an API. See www.itsonlyamodel.us/argovis-python-api.html for more details.");
         }
         else {
             $.each(result, function(i, profile){
                 if (markerType==='history') {
                     addToMarkersLayer(profile, argoIconBW, platformProfileMarkersLayer);
+                    openDrawnItemPopups();
                 }
                 else if (markerType==='platform') {
                     addToMarkersLayer(profile, platformIcon, platformProfileMarkersLayer);
+                    openDrawnItemPopups();
                 }
                 else {
                     addToMarkersLayer(profile, argoIcon, markersLayer);
+                    openDrawnItemPopups();
                 }
             });
             platformProfileMarkersLayer.addTo(map);
             markersLayer.addTo(map);
         }
     }).fail(function(){
+        //console.log(result.length);
         closeDrawnItemPopups(); 
         alert('Points did not load, try reducing the polygon size or date range.')});
 };

@@ -13,43 +13,43 @@ html(lang='en')
     body
 
     block content
-        div(class='horizContainer')
-            div(class='top')
-                #pres_v_temp_plot
-            div(class='bottom')
-                #pres_v_psal_plot
-        p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
-        button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
-        div
-        a(href='/catalog/platforms/'+ title + '/page2' target='_blank') To platform PT, PS, and TS plot pages
-        div
-        a(href='/map' ) To main page
-        table(class="table table-striped", id='profileTable')
-            thead
-                tr
-                    th Link to GDAC data
-                    th Dac
-                    th Parameters
-                    th Positioning system
-                    th Link to profile page
-                    th Date reported
-                    th Cycle number
-                    th Data mode
-                    th Number of measurements
-            tbody(overflow='auto', height='150px')
-                each profile, i in JSON.parse(profiles)
+        div(class='selection_and_catalog_page')
+            div(class='horizContainer')
+                div(class='top')
+                    #pres_v_temp_plot
+                div(class='bottom')
+                    #pres_v_psal_plot
+            p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
+            button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
+            div
+            a(href='/catalog/platforms/'+ title + '/page2' target='_blank') To platform PT, PS, and TS plot pages
+            a(href='/map' ) To main page
+            table(class="table table-striped", id='profileTable')
+                thead
                     tr
-                        td 
-                            a(href=profile.nc_url) #{profile._id} data
-                        td #{profile.dac}
-                        td #{profile.station_parameters}
-                        td #{profile.POSITIONING_SYSTEM}
-                        td 
-                            a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
-                        td #{moment(profile.date).format("YYYY-MM-DD HH:mm")}
-                        td #{profile.cycle_number}
-                        td #{profile.DATA_MODE}
-                        td #{profile.measurements.length}
+                        th Link to GDAC data
+                        th Dac
+                        th Parameters
+                        th Positioning system
+                        th Link to profile page
+                        th Date reported
+                        th Cycle number
+                        th Data mode
+                        th Number of measurements
+                tbody(overflow='auto', height='150px')
+                    each profile, i in JSON.parse(profiles)
+                        tr
+                            td 
+                                a(href=profile.nc_url) #{profile._id} data
+                            td #{profile.dac}
+                            td #{profile.station_parameters}
+                            td #{profile.POSITIONING_SYSTEM}
+                            td 
+                                a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
+                            td #{moment(profile.date).format("YYYY-MM-DD HH:mm")}
+                            td #{profile.cycle_number}
+                            td #{profile.DATA_MODE}
+                            td #{profile.measurements.length}
 
     script(type='text/javascript').
 

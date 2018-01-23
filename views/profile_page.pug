@@ -12,22 +12,23 @@ html(lang='en')
     body
 
     block content
-        h1 Profile Id: #{title}
-        p Date: #{moment(profile.date).format("YYYY-MM-DD HH:mm")}
-        p Cycle number: #{profile.cycle_number}
-        p Dac: #{profile.dac}
-        p Parameters: #{profile.station_parameters}
-        p Positioning system: #{profile.POSITIONING_SYSTEM}
-        p Platform type: #{profile.PLATFORM_TYPE}
-        p Data mode: #{profile.DATA_MODE}
-        p Data source:
-        a(href=profile.nc_url) #{profile.nc_url}
-        p
-        a(href='/catalog/platforms/'+ platform_number + '/page' target='_blank') To platform #{profile.platform_number} page
-        div
-        a(href='/map' ) To main page
-        #TPS_CHART
-        button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
+        div(class='selection_and_catalog_page')
+            h1 Profile Id: #{title}
+            p Date: #{moment(profile.date).format("YYYY-MM-DD HH:mm")}
+            p Cycle number: #{profile.cycle_number}
+            p Dac: #{profile.dac}
+            p Parameters: #{profile.station_parameters}
+            p Positioning system: #{profile.POSITIONING_SYSTEM}
+            p Platform type: #{profile.PLATFORM_TYPE}
+            p Data mode: #{profile.DATA_MODE}
+            p Data source:
+            a(href=profile.nc_url) #{profile.nc_url}
+            p
+            a(href='/catalog/platforms/'+ platform_number + '/page' target='_blank') To platform #{profile.platform_number} page
+            div
+            a(href='/map' ) To main page
+            #TPS_CHART
+            button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
 
     script(type='text/javascript').
 

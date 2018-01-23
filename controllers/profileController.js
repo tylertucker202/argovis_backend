@@ -118,21 +118,25 @@ exports.selected_profile_list = function(req, res , next) {
                         },
                     },
                 }},
-                {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
-                {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-                {$project: { // return profiles with measurements
+                { $match: { $and: [ {geoLocation: {$geoWithin: {$geometry: shapeJson}}},
+                                    {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} ] } },
+                {$project: { // return profiles that have measurements falling within pressure Ranges
                     platform_number: -1, date: -1, geoLocation: 1, cycle_number: -1, measurements: 1,
                     count: { $size:'$measurements' },
                 }},
                 {$match: {count: {$gt: 0}}},
+                {$project: { // only need these fields to plot on map.
+                    platform_number: -1, date: -1, geoLocation: 1, cycle_number: -1
+                }},
                 {$limit: 1001},
                 ]);
         }
         else if (req.params.format === 'map' && !req.query.presRange) {
             var query = Profile.aggregate([
                 {$project: { platform_number: -1, date: -1, geoLocation: 1, cycle_number: -1}},
-                {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
-                {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+                { $match: { $and: [ {geoLocation: {$geoWithin: {$geometry: shapeJson}}},
+                    {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} ] } },
+                {$limit: 1001},
             ]);
         }
 
@@ -154,6 +158,7 @@ exports.selected_profile_list = function(req, res , next) {
                     maximum_pressure: 1,
                     POSITIONING_SYSTEM: 1,
                     DATA_MODE: 1,
+                    PLATFORM_TYPE: 1,
                     measurements: {
                         $filter: {
                             input: '$measurements',
@@ -182,6 +187,7 @@ exports.selected_profile_list = function(req, res , next) {
                     measurements: 1,
                     POSITIONING_SYSTEM: 1,
                     DATA_MODE: 1,
+                    PLATFORM_TYPE: 1,
                     count: { $size:'$measurements' },
                 }},
                 {$match: {count: {$gt: 0}}}
