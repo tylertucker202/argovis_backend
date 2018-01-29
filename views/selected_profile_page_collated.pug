@@ -22,8 +22,10 @@ html(lang='en')
                 div(class='plotContainer')
                     #TEMP_V_PSAL_PLOT
             p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
-            button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
-            a(href='/map' ) To main page
+            div(class='top')
+                button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
+            div(class='bottom')
+                a(href='/map' ) To main page
             table(class="table table-striped")
                 thead
                     tr
@@ -91,32 +93,6 @@ html(lang='en')
             return collatedProfiles;
         }
 
-        const filterQCMeasurements = function(profile, qcThresh) {
-            var filteredProfile = [];
-            let num_measurements = profile.length;
-            for (var i = 0; i < num_measurements; ++i) {
-                var row = {};
-                if (profile[i].pres_qc === qcThresh) {
-
-                    row.pres = profile[i].pres;
-                    if (profile[i].temp_qc === qcThresh) {
-                        row.temp = profile[i].temp
-                    }
-                    else {
-                        row.temp = ''
-                    }
-                    if (profile[i].psal_qc === qcThresh) {
-                        row.psal = profile[i].psal
-                    }
-                    else {
-                        row.psal = ''
-                    }
-                    filteredProfile.push(row)
-                }
-            }
-            return filteredProfile;
-        }
-
         const makeText = function(text) {
                 return("<br> " + text
                      + "<br>click to see profile page"
@@ -153,8 +129,6 @@ html(lang='en')
 
         for(var i=0; i<profiles.length; i++) {
             var profileMeas = reduceGPSMeasurements(profiles[i], 200);
-            //var profileMeas = profiles[i].measurements;
-            profileMeas = filterQCMeasurements(profileMeas, '1') // replaces qc values higher than the qcThresh values with ''
             profileMeas = collateProfileMeasurements(profileMeas); // collect points into arrays
             var _id = profiles[i]._id
             var color_array = Array.apply(null, Array(profileMeas.pres.length)).map(Number.prototype.valueOf,i);
@@ -165,6 +139,65 @@ html(lang='en')
             cvalues = cvalues.concat(color_array);
             _ids = _ids.concat(id_array);
         }
+
+        //remove -999 values
+        const getEmptyIdx = function(array) {
+            var indices = [];
+            var element = -999;
+            var idx = array.indexOf(element);
+            while (idx != -1) {
+                indices.push(idx);
+                idx = array.indexOf(element, idx + 1);
+            }
+            return(indices);
+        }
+
+        presForTemp = pres
+        presForPsal = pres;
+        tempForPsal = temp;
+        psalForTemp = psal;
+        cvaluesForTemp = cvalues;
+        cvaluesForPsal = cvalues;
+        cvaluesForTempVsPsal = cvalues;
+
+        tempEmptyIdx = getEmptyIdx(temp);
+        psalEmptyIdx = getEmptyIdx(psal);
+
+        //replace entries whose temp[idx] = -999 with -999.
+        var i = tempEmptyIdx.length
+        while(i--) {
+            idx = tempEmptyIdx[i];
+            presForTemp.splice(idx, 1, -999);
+            cvaluesForTemp.splice(idx, 1, -999);
+            psalForTemp.splice(idx, 1, -999); // for temp vs psal
+            tempForPsal.splice(idx, 1, -999); // for temp vs psal
+            cvaluesForTempVsPsal.splice(idx, 1, -999); // for temp vs psal
+        }
+
+        //drop all values of -999
+        temp = temp.filter(function(value){ if (value != -999) {return(value)}})
+        presForTemp = presForTemp.filter(function(value){ if (value != -999) {return(value)}})
+        cvaluesForTemp = cvaluesForTemp.filter(function(value){ if (value != -999) {return(value)}})
+
+        //replace entries whose psal[idx] = -999 with -999.
+        var i = psalEmptyIdx.length
+        while(i--) {
+            idx = psalEmptyIdx[i];
+            presForPsal.splice(idx, 1, -999);
+            cvaluesForPsal.splice(idx, 1, -999);
+            psalForTemp.splice(idx, 1, -999); // for temp vs psal
+            tempForPsal.splice(idx, 1, -999); // for temp vs psal
+            cvaluesForTempVsPsal.splice(idx, 1, -999); // for temp vs psal
+        }
+
+        //drop all values of -999
+        psal = psal.filter(function(value){ if (value != -999) {return(value)}})
+        presForPsal = presForPsal.filter(function(value){ if (value != -999) {return(value)}})
+        cvaluesForPsal = cvaluesForPsal.filter(function(value){ if (value != -999) {return(value)}})
+
+        tempForPsal = tempForPsal.filter(function(value){ if (value != -999) {return(value)}})
+        psalForTemp = psalForTemp.filter(function(value){ if (value != -999) {return(value)}})
+        cvaluesForTempVsPsal = cvaluesForTempVsPsal.filter(function(value){ if (value != -999) {return(value)}})
 
         //create traces.
         var profileScl1 = [[0.0, 'rgb(140,81,10)'],
@@ -209,9 +242,9 @@ html(lang='en')
         };
 
         //pres = pres.map(function(value) { return value * -1}); //scattergl has trouble with flipped axes. Instead, negative pressure is plotted.
-        pres_v_temp_trace = makeTrace(temp, pres, cvalues, _ids, 'pres_v_temp', profileScl2)
-        pres_v_psal_trace = makeTrace(psal, pres, cvalues, _ids, 'pres_v_psal', profileScl2)
-        temp_v_psal_trace = makeTrace(psal, temp, cvalues, _ids, 'temp_v_psal', profileScl2)
+        pres_v_temp_trace = makeTrace(temp, presForTemp, cvaluesForTemp, _ids, 'pres_v_temp', profileScl2)
+        pres_v_psal_trace = makeTrace(psal, presForPsal, cvaluesForPsal, _ids, 'pres_v_psal', profileScl2)
+        temp_v_psal_trace = makeTrace(psalForTemp, tempForPsal, cvaluesForTempVsPsal, _ids, 'temp_v_psal', profileScl2)
 
         //create layouts.
         const pres_v_temp_layout = {

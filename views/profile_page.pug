@@ -52,38 +52,63 @@ html(lang='en')
             return map;
         }
 
-        const filterQCMeasurements = function(profile, qcThresh) {
-            var filteredProfile = [];
-            let num_measurements = profile.length;
-            for (var i = 0; i < num_measurements; ++i) {
-                var row = {};
-                if (profile[i].pres_qc === qcThresh) {
+        var meas = [!{profile.measurements}];
+        meas = collateMeasurements(meas);
 
-                    row.pres = profile[i].pres;
-                    if (profile[i].temp_qc === qcThresh) {
-                        row.temp = profile[i].temp
-                    }
-                    else {
-                        row.temp = ''
-                    }
-                    if (profile[i].psal_qc === qcThresh) {
-                        row.psal = profile[i].psal
-                    }
-                    else {
-                        row.psal = ''
-                    }
-                    filteredProfile.push(row)
-                }
+        const getEmptyIdx = function(array) {
+            var indices = [];
+            var element = -999;
+            var idx = array.indexOf(element);
+            while (idx != -1) {
+                indices.push(idx);
+                idx = array.indexOf(element, idx + 1);
             }
-            return filteredProfile;
+            return(indices);
         }
 
-        var meas = [!{profile.measurements}];
-        meas = filterQCMeasurements(meas, '1');
-        meas = collateMeasurements(meas);
-        const measurements = {'temp_v_psal': {'yvalue': meas.temp, 'xvalue': meas.psal, 'yaxis': 'y1', 'xaxis': 'x1'},
-                                'pres_v_psal': {'yvalue': meas.pres, 'xvalue': meas.psal, 'yaxis': 'y2', 'xaxis': 'x2'},
-                                'pres_v_temp': {'yvalue': meas.pres, 'xvalue': meas.temp, 'yaxis': 'y3', 'xaxis': 'x3'}
+        //zeros signify empty values. These need to be removed from the arrays that will be used to make traces.
+        var temp = meas.temp;
+        var psal = meas.psal;
+        //presForTemp = combinedProfiles.pres.map(function(element) { return (element * -1) }); //flipping pres axis
+        presForTemp = meas.pres
+        presForPsal = meas.pres; //initialize
+        tempForPsal = temp;
+        psalForTemp = psal;
+
+        tempEmptyIdx = getEmptyIdx(temp);
+        psalEmptyIdx = getEmptyIdx(psal);
+
+        //drop instances from arrays where temp is -999.
+        var i = tempEmptyIdx.length
+        while(i--) {
+            idx = tempEmptyIdx[i];
+            presForTemp.splice(idx, 1, -999);
+            psalForTemp.splice(idx, 1, -999); // for temp vs psal
+            tempForPsal.splice(idx, 1, -999); // for temp vs psal
+        }
+
+        //drop all values of -999
+        temp = temp.filter(function(value){ if (value != -999) {return(value)}})
+        presForTemp = presForTemp.filter(function(value){ if (value != -999) {return(value)}})
+
+        //drop instances from arrays where psal is -999.
+        var i = psalEmptyIdx.length
+        while(i--) {
+            idx = psalEmptyIdx[i];
+            presForPsal.splice(idx, 1, -999);
+            psalForTemp.splice(idx, 1, -999); // for temp vs psal
+            tempForPsal.splice(idx, 1, -999); // for temp vs psal
+        }
+
+        psal = psal.filter(function(value){ if (value != -999) {return(value)}})
+        presForPsal = presForPsal.filter(function(value){ if (value != -999) {return(value)}})
+
+        tempForPsal = tempForPsal.filter(function(value){ if (value != -999) {return(value)}})
+        psalForTemp = psalForTemp.filter(function(value){ if (value != -999) {return(value)}})
+
+        const measurements = {'temp_v_psal': {'yvalue': tempForPsal, 'xvalue': psalForTemp, 'yaxis': 'y1', 'xaxis': 'x1'},
+                                'pres_v_psal': {'yvalue': presForPsal, 'xvalue': psal, 'yaxis': 'y2', 'xaxis': 'x2'},
+                                'pres_v_temp': {'yvalue': presForTemp, 'xvalue': temp, 'yaxis': 'y3', 'xaxis': 'x3'}
                                 };
 
         const makeTrace =function(key) {

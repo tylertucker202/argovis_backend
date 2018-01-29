@@ -21,9 +21,10 @@ html(lang='en')
                     #pres_v_psal_plot
             p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
             button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
-            div
-            a(href='/catalog/platforms/'+ title + '/page2' target='_blank') To platform PT, PS, and TS plot pages
-            a(href='/map' ) To main page
+            div(class='top')
+                a(href='/catalog/platforms/'+ title + '/page2' target='_blank') To platform PT, PS, and TS plot pages
+            div(class='bottom')
+                a(href='/map' ) To main page
             table(class="table table-striped", id='profileTable')
                 thead
                     tr
@@ -113,31 +114,6 @@ html(lang='en')
             return reducedProfiles;
             }
 
-        const filterQCMeasurements = function(profile, qcThresh) {
-            var filteredProfile = [];
-            let num_measurements = profile.length;
-            for (var i = 0; i < num_measurements; i++) {
-                var row = {};
-                if (profile[i].pres_qc === qcThresh) {
-                    row.pres = profile[i].pres;
-                    if (profile[i].temp_qc === qcThresh) {
-                        row.temp = profile[i].temp
-                    }
-                    else {
-                        row.temp = -999
-                    }
-                    if (profile[i].psal_qc === qcThresh) {
-                        row.psal = profile[i].psal
-                    }
-                    else {
-                        row.psal = -999
-                    }
-                    filteredProfile.push(row)
-                }
-            }
-            return filteredProfile;
-        }
-
         const reduceGPSMeasurements = function(profile, maxLength) {
             if (profile.POSITIONING_SYSTEM === 'GPS') {
                 mLen = profile.measurements.length;
@@ -161,8 +137,6 @@ html(lang='en')
 
         for(var i=0; i < profiles.length; i++) {
             var profileMeas = reduceGPSMeasurements(profiles[i], 200);
-            //let profileMeas = profiles[i].measurements;
-            profileMeas = filterQCMeasurements(profileMeas, '1'); // replaces qc values higher than the qcThresh values with ''
             profileMeas = collateProfileMeasurements(profileMeas);
             combinedProfiles.psal = combinedProfiles.psal.concat(profileMeas.psal);
             combinedProfiles.pres = combinedProfiles.pres.concat(profileMeas.pres);
@@ -175,25 +149,6 @@ html(lang='en')
             combinedProfiles.cycle = combinedProfiles.cycle.concat(meas_idx);
         };
 
-        var tempScl = [[0.0, 'rgb(3, 35, 51)'],
-                        [0.125, 'rgb(24, 51, 124)'],
-                        [0.25, 'rgb(86, 59, 156)'],
-                        [0.375, 'rgb(130, 79, 142)'],
-                        [0.5, 'rgb(176, 95, 129)'],
-                        [0.625, 'rgb(222, 112, 100)'],
-                        [0.75, 'rgb(249, 147, 65)'],
-                        [0.875, 'rgb(249, 198, 65)'],
-                        [1.0, 'rgb(231, 250, 90)']];
-
-        var psalScl = [[0.0, 'rgb(41, 24, 107)'],
-                        [0.125, 'rgb(31, 51, 161)'],
-                        [0.25, 'rgb(15, 91, 144)'],
-                        [0.375, 'rgb(40, 119, 137)'],
-                        [0.5, 'rgb(59, 147, 135)'],
-                        [0.625, 'rgb(79, 176, 125)'],
-                        [0.75, 'rgb(122, 203, 102)'],
-                        [0.875, 'rgb(195, 221, 100)'],
-                        [1.0, 'rgb(253, 238, 153)']];
         //scatterGL has difficulty with long decimal points when distinguishing color
         function roundArray(value){return(Number(value).toFixed(1))}
 
@@ -231,13 +186,6 @@ html(lang='en')
         temp = temp.filter(function(value){ if (value != -999) {return(value)}})
         presForTemp = presForTemp.filter(function(value){ if (value != -999) {return(value)}})
         cycleForTemp = cycleForTemp.filter(function(value){ if (value != -999) {return(value)}})
-        /*
-        console.log(tempEmptyIdx)
-        console.log(presForTemp.length)
-        console.log(cycleForTemp.length)
-        console.log(temp.length)
-        console.log(temp[94])
-        */
 
         //drop instances from arrays where psal is -999.
         var i = psalEmptyIdx.length
@@ -250,6 +198,26 @@ html(lang='en')
         psal = psal.filter(function(value){ if (value != -999) {return(value)}})
         presForPsal = presForPsal.filter(function(value){ if (value != -999) {return(value)}})
         cycleForPsal = cycleForPsal.filter(function(value){ if (value != -999) {return(value)}})
+
+        var tempScl = [[0.0, 'rgb(3, 35, 51)'],
+                        [0.125, 'rgb(24, 51, 124)'],
+                        [0.25, 'rgb(86, 59, 156)'],
+                        [0.375, 'rgb(130, 79, 142)'],
+                        [0.5, 'rgb(176, 95, 129)'],
+                        [0.625, 'rgb(222, 112, 100)'],
+                        [0.75, 'rgb(249, 147, 65)'],
+                        [0.875, 'rgb(249, 198, 65)'],
+                        [1.0, 'rgb(231, 250, 90)']];
+
+        var psalScl = [[0.0, 'rgb(41, 24, 107)'],
+                        [0.125, 'rgb(31, 51, 161)'],
+                        [0.25, 'rgb(15, 91, 144)'],
+                        [0.375, 'rgb(40, 119, 137)'],
+                        [0.5, 'rgb(59, 147, 135)'],
+                        [0.625, 'rgb(79, 176, 125)'],
+                        [0.75, 'rgb(122, 203, 102)'],
+                        [0.875, 'rgb(195, 221, 100)'],
+                        [1.0, 'rgb(253, 238, 153)']];
 
         const measurements = {'pres_v_temp': {'xvalues': cycleForTemp,
                                                 'yvalues': presForTemp.map(roundArray),
