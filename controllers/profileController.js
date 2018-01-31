@@ -31,7 +31,16 @@ exports.month_year_profile_list = function(req, res, next) {
     const endDate = startDate.clone().endOf('month');
     const query = Profile.aggregate([
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-        {$project: { platform_number: -1, date: -1, geoLocation: 1, cycle_number: -1}}
+        {$project: { platform_number: -1,
+                     date: -1,
+                     geoLocation: 1,
+                     cycle_number: -1,
+                     PLATFORM_TYPE: -1,
+                     POSITIONING_SYSTEM: -1,
+                     DATA_MODE: -1,
+                     station_parameters: -1, 
+                     cycle_number: -1, 
+                     dac: -1}}
     ]);
     const promise = query.exec();
     promise.then(function (profiles) {

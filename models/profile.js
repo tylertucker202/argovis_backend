@@ -29,8 +29,7 @@ var ProfileSchema = Schema(
     POSITIONING_SYSTEM: {type: String, required: false, max: 100},
     DATA_MODE: {type: String, required: false, max: 100},
     PLATFORM_TYPE: {type: String, required: false, max: 100},
-  },
-);
+  });
 
 // Virtual for profile's URL
 ProfileSchema
