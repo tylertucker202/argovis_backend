@@ -159,14 +159,13 @@ html(lang='en')
             let indices = [];
             const element = -999;
             for(let idx=0; idx < arrayOne.length; idx++){
-                if (arrayOne[idx] == element || arrayTwo[idx] == element){
+
+                if (arrayOne[idx] === element || arrayTwo[idx] === element){
                     indices.push(idx);
                 }
             }
             return(indices);
         }
-
-        const dropNegNineNineNine = function(value){ if (value != -999) {return(value)}}
 
         tempForPres = temp.slice(0);
         tempForPsal = temp.slice(0);
@@ -220,6 +219,7 @@ html(lang='en')
         }
 
         // drop all values of -999
+        const dropNegNineNineNine = function(value){ if (value != -999) {return(value)}}
         tempForPres = tempForPres.filter(dropNegNineNineNine);
         presForTemp = presForTemp.filter(dropNegNineNineNine);
         cvaluesForTempVsPres = cvaluesForTempVsPres.filter(dropNegNineNineNine);
