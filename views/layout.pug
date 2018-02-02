@@ -217,6 +217,10 @@ html(lang='en')
               return this._div;
           };
           info.addTo(map);
+
+          $('#aboutPopup').on('click', function(){
+            alert('An interactive app for the Argo dataset.')
+            })
         });
 
       div(class='container-fluid')
@@ -226,6 +230,10 @@ html(lang='en')
               ul(class='sidebar-nav')
                 li
                   a(href='http://www.argo.ucsd.edu/RG2009_climatology.html') Link to gridded Argo climatology
+                li
+                  a(href='http://www.itsonlyamodel.us/argovis-python-api.html', target='_blank') Link to API tutorial
+                li
+                  button.btn.btn-block(type='submit', id='aboutPopup') About Argovis
                   hr
                 li 
                   a(href='/map') Web Mercator Map

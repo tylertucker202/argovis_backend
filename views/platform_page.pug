@@ -69,7 +69,7 @@ html(lang='en')
 
     script(type='text/javascript').
 
-        let combinedProfiles = {};
+        var combinedProfiles = {};
         combinedProfiles.psal = [];
         combinedProfiles.pres = [];
         combinedProfiles.temp = [];
@@ -122,9 +122,9 @@ html(lang='en')
                     var delta = Math.floor( mLen / maxLength );
                     var reducedMeasurements = [];
                     for (var j = 0; j < mLen; j=j+delta) {
-                        reducedMeasurements.push(profile.measurements[j])
+                        reducedMeasurements.push(profile.measurements[j]);
                     }
-                    return reducedMeasurements
+                    return reducedMeasurements;
                 }
                 else {
                     return profile.measurements;
@@ -134,6 +134,10 @@ html(lang='en')
                 return profile.measurements;
             }
         }
+
+        const dropNegNineNineNine = function(value){ if (value != -999) {return(value)}};
+        const roundArray = function (value){ return(Number(value).toFixed(3)) };
+
 
         for(var i=0; i < profiles.length; i++) {
             var profileMeas = reduceGPSMeasurements(profiles[i], 200);
@@ -149,13 +153,10 @@ html(lang='en')
             combinedProfiles.cycle = combinedProfiles.cycle.concat(meas_idx);
         };
 
-        //scatterGL has difficulty with long decimal points when distinguishing color
-        function roundArray(value){return(Number(value).toFixed(1))}
-
         const getEmptyIdx = function(array) {
-            var indices = [];
-            var element = -999;
-            var idx = array.indexOf(element);
+            let indices = [];
+            let element = -999;
+            let idx = array.indexOf(element);
             while (idx != -1) {
                 indices.push(idx);
                 idx = array.indexOf(element, idx + 1);
@@ -163,41 +164,55 @@ html(lang='en')
             return(indices);
         }
 
-        //zeros signify empty values. These need to be removed from the arrays that will be used to make traces.
-        var temp = combinedProfiles.temp;
-        var psal = combinedProfiles.psal;
-        //presForTemp = combinedProfiles.pres.map(function(element) { return (element * -1) }); //flipping pres axis
-        presForTemp = combinedProfiles.pres
-        presForPsal = presForTemp; //initialize
-        var cycleForTemp = combinedProfiles.cycle;
-        var cycleForPsal = combinedProfiles.cycle;
+        // -999 are 'NaN'. These need to be removed from the arrays that will be used to make traces.
+        // initialize copies of arrays require the .slice(0).
+        var temp = combinedProfiles.temp.slice(0);
+        var psal = combinedProfiles.psal.slice(0);
+        var presForTemp = combinedProfiles.pres.slice(0);
+        var presForPsal = combinedProfiles.pres.slice(0);
+        var cycleForTemp = combinedProfiles.cycle.slice(0);
+        var cycleForPsal = combinedProfiles.cycle.slice(0);
 
-        tempEmptyIdx = getEmptyIdx(temp);
-        psalEmptyIdx = getEmptyIdx(psal);
+        // get a list of indicies for -999.
+        let presEmptyIdxArray = getEmptyIdx(combinedProfiles.pres);
+        let tempEmptyIdxArray = getEmptyIdx(temp);
+        let psalEmptyIdxArray = getEmptyIdx(psal);
 
-        //drop instances from arrays where temp is -999.
-        var i = tempEmptyIdx.length
+        // replace values from arrays where pres is -999 with -999.
+        var i = presEmptyIdxArray.length;
         while(i--) {
-            idx = tempEmptyIdx[i];
-            presForTemp.splice(idx, 1, -999);
-            cycleForTemp.splice(idx, 1,-999);
+            presEmptyIdx = presEmptyIdxArray[i];
+            temp.splice(presEmptyIdx, 1, -999);
+            psal.splice(presEmptyIdx, 1, -999);
+            presForTemp.splice(presEmptyIdx, 1, -999);
+            presForPsal.splice(presEmptyIdx, 1, -999);
+            cycleForTemp.splice(presEmptyIdx, 1, -999);
+            cycleForPsal.splice(presEmptyIdx, 1, -999);
         }
 
-        temp = temp.filter(function(value){ if (value != -999) {return(value)}})
-        presForTemp = presForTemp.filter(function(value){ if (value != -999) {return(value)}})
-        cycleForTemp = cycleForTemp.filter(function(value){ if (value != -999) {return(value)}})
-
-        //drop instances from arrays where psal is -999.
-        var i = psalEmptyIdx.length
-        while(i--) {
-            idx = psalEmptyIdx[i];
-            presForPsal.splice(idx, 1, -999);
-            cycleForPsal.splice(idx, 1, -999);
+        // replace values from arrays where temp is -999 with -999.
+        var j = tempEmptyIdxArray.length;
+        while(j--) {
+            tempEmptyIdx = tempEmptyIdxArray[j];
+            presForTemp.splice(tempEmptyIdx, 1, -999);
+            cycleForTemp.splice(tempEmptyIdx, 1,-999);
         }
 
-        psal = psal.filter(function(value){ if (value != -999) {return(value)}})
-        presForPsal = presForPsal.filter(function(value){ if (value != -999) {return(value)}})
-        cycleForPsal = cycleForPsal.filter(function(value){ if (value != -999) {return(value)}})
+        temp = temp.filter(dropNegNineNineNine);
+        presForTemp = presForTemp.filter(dropNegNineNineNine);
+        cycleForTemp = cycleForTemp.filter(dropNegNineNineNine);
+
+        // replace values from arrays where psal is -999 with -999.
+        var k = psalEmptyIdxArray.length
+        while(k--) {
+            psalEmptyIdx = psalEmptyIdxArray[k];
+            psal.splice(psalEmptyIdx, 1, -999); //try this... shouln't be needed...
+            presForPsal.splice(psalEmptyIdx, 1, -999);
+            cycleForPsal.splice(psalEmptyIdx, 1, -999);
+        }
+        psal = psal.filter(dropNegNineNineNine);
+        presForPsal = presForPsal.filter(dropNegNineNineNine);
+        cycleForPsal = cycleForPsal.filter(dropNegNineNineNine);
 
         var tempScl = [[0.0, 'rgb(3, 35, 51)'],
                         [0.125, 'rgb(24, 51, 124)'],
@@ -246,7 +261,7 @@ html(lang='en')
                                 };
 
         const makeText = function(text, value) {
-                return("<br> " + text + value.toString()
+                return("<br>" + text + value.toString()
                      + "<br>click to see profile page"
                 )
         };

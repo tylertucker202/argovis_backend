@@ -46,7 +46,7 @@ a {
   margin-left: 25px;
 }
 
-#latestProfileSelection, #clearProfiles {
+#latestProfileSelection, #clearProfiles, #aboutPopup {
   width: 150px;
   padding:4px;
   margin:4px;
