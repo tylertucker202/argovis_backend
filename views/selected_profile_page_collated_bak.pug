@@ -158,8 +158,8 @@ html(lang='en')
         const getEmptyIdxForPair = function(arrayOne, arrayTwo) {
             let indices = [];
             const element = -999;
-            for(let idx=0; idx < arrayOne.length; idx++){
-                if (arrayOne[idx] == element || arrayTwo[idx] == element){
+            for( let idx=0; idx < arrayOne.length; i++){
+                if arrayOne[idx] === element || arrayTwo[idx] === element {
                     indices.push(idx);
                 }
             }
@@ -177,63 +177,83 @@ html(lang='en')
         psalForPres = psal.slice(0);
         psalForTemp = psal.slice(0);
 
-        cvaluesForTempVsPres = cvalues.slice(0);
-        cvaluesForPsalVsPres = cvalues.slice(0);
+        cvaluesForTemp = cvalues.slice(0);
+        cvaluesForPsal = cvalues.slice(0);
         cvaluesForTempVsPsal = cvalues.slice(0);
 
-        _idsForTempVsPres = _ids.slice(0);
-        _idsForPsalVsPres = _ids.slice(0);
+        _idsForTemp = _ids.slice(0);
+        _idsForPsal = _ids.slice(0);
         _idsForTempVsPsal = _ids.slice(0);
 
-        tempVsPresEmptyIdxArray = getEmptyIdxForPair(temp, pres);
-        psalVsPresEmptyIdxArray = getEmptyIdxForPair(psal, pres);
-        psalVsTempEmptyIdxArray = getEmptyIdxForPair(psal, temp);
+        tempEmptyIdxArray = getEmptyIdx(temp);
+        psalEmptyIdxArray = getEmptyIdx(psal);
+        presEmptyIdxArray = getEmptyIdx(pres);
 
-        // replace entries whose pres[idx] or temp[idx] = -999 with -999.
-        var i = tempVsPresEmptyIdxArray.length
+        // replace entries whose pres[idx] = -999 with -999.
+        var i = presEmptyIdxArray.length
         while(i--) {
-            buffer = tempVsPresEmptyIdxArray[i];
-            tempForPres.splice(buffer, 1, -999);
-            presForTemp.splice(buffer, 1, -999);
-            cvaluesForTempVsPres.splice(buffer, 1, -999);
-            _idsForTempVsPres.splice(buffer, 1, -999);
+            presEmptyIdx = presEmptyIdxArray[k];
+            // for pres vs psal
+            presForPsal.splice(presEmptyIdx, 1, -999);
+            cvaluesForPsal.splice(presEmptyIdx, 1, -999);
+            _idsForPsal.splice(presEmptyIdx, 1, -999);
+            // for pres vs temp
+            presForTemp.splice(presEmptyIdx, 1, -999);
+            cvaluesForTemp.splice(presEmptyIdx, 1, -999);
+            _idsForTemp.splice(presEmptyIdx, 1, -999);
+            // for temp vs psal
+            psalForTemp.splice(presEmptyIdx, 1, -999);
+            tempForPsal.splice(presEmptyIdx, 1, -999);
+            cvaluesForTempVsPsal.splice(presEmptyIdx, 1, -999);
+            _idsForTempVsPsal.splice(presEmptyIdx, 1, -999);
         }
 
-        // replace entries whose psal[idx] or pres[idx] = -999 with -999.
-        var i = psalVsPresEmptyIdxArray.length
-        while(i--) {
-            buffer = psalVsPresEmptyIdxArray[i];
-            psalForPres.splice(buffer, 1, -999);
-            presForPsal.splice(buffer, 1, -999);
-            cvaluesForPsalVsPres.splice(buffer, 1, -999);
-            _idsForPsalVsPres.splice(buffer, 1, -999);
-        }
-
-        // replace entries whose psal[idx] or temp[idx] = -999 with -999.
-        var i = psalVsTempEmptyIdxArray.length
-        while(i--) {
-            buffer = psalVsTempEmptyIdxArray[i];
-            tempForPsal.splice(buffer, 1, -999);
-            psalForTemp.splice(buffer, 1, -999);
-            cvaluesForTempVsPsal.splice(buffer, 1, -999);
-            _idsForTempVsPsal.splice(buffer, 1, -999);
+        // replace entries whose temp[idx] = -999 with -999.
+        var j = tempEmptyIdxArray.length
+        while(j--) {
+            // for pres vs temp
+            tempEmptyIdx = tempEmptyIdxArray[j];
+            presForTemp.splice(tempEmptyIdx, 1, -999);
+            cvaluesForTemp.splice(tempEmptyIdx, 1, -999);
+            _idsForTemp.splice(tempEmptyIdx, 1, -999);
+            // for temp vs psal
+            psalForTemp.splice(tempEmptyIdx, 1, -999);
+            tempForPsal.splice(tempEmptyIdx, 1, -999);
+            cvaluesForTempVsPsal.splice(tempEmptyIdx, 1, -999);
+            _idsForTempVsPsal.splice(tempEmptyIdx, 1, -999);
         }
 
         // drop all values of -999
-        tempForPres = tempForPres.filter(dropNegNineNineNine);
+        temp = temp.filter(dropNegNineNineNine);
         presForTemp = presForTemp.filter(dropNegNineNineNine);
-        cvaluesForTempVsPres = cvaluesForTempVsPres.filter(dropNegNineNineNine);
-        _idsForTempVsPres = _idsForTempVsPres.filter(dropNegNineNineNine);
+        cvaluesForTemp = cvaluesForTemp.filter(dropNegNineNineNine);
+        _idsForTemp = _idsForTemp.filter(dropNegNineNineNine);
 
-        psalForPres = psalForPres.filter(dropNegNineNineNine);
-        presForPsal = presForPsal.filter(dropNegNineNineNine);
-        cvaluesForPsalVsPres = cvaluesForPsalVsPres.filter(dropNegNineNineNine);
-        _idsForPsalVsPres = _idsForPsalVsPres.filter(dropNegNineNineNine);
+        //replace entries whose psal[idx] = -999 with -999.
+        var k = psalEmptyIdxArray.length
+        while(k--) {
+            // for pres vs psal
+            psalEmptyIdx = psalEmptyIdxArray[k];
+            presForPsal.splice(psalEmptyIdx, 1, -999);
+            cvaluesForPsal.splice(psalEmptyIdx, 1, -999);
+            _idsForPsal.splice(psalEmptyIdx, 1, -999);
+            // for temp vs psal
+            psalForTemp.splice(psalEmptyIdx, 1, -999);
+            tempForPsal.splice(psalEmptyIdx, 1, -999);
+            cvaluesForTempVsPsal.splice(psalEmptyIdx, 1, -999);
+            _idsForTempVsPsal.splice(psalEmptyIdx, 1, -999);
+        }
 
-        tempForPsal = tempForPsal.filter(dropNegNineNineNine);
-        psalForTemp = psalForTemp.filter(dropNegNineNineNine);
-        cvaluesForTempVsPsal = cvaluesForTempVsPsal.filter(dropNegNineNineNine);
-        _idsForTempVsPsal = _idsForTempVsPsal.filter(dropNegNineNineNine);
+        //drop all values of -999
+        psal = psal.filter(dropNegNineNineNine)
+        presForPsal = presForPsal.filter(dropNegNineNineNine)
+        cvaluesForPsal = cvaluesForPsal.filter(dropNegNineNineNine)
+        _idsForPsal = _idsForPsal.filter(dropNegNineNineNine);
+
+        tempForPsal = tempForPsal.filter(dropNegNineNineNine)
+        psalForTemp = psalForTemp.filter(dropNegNineNineNine)
+        cvaluesForTempVsPsal = cvaluesForTempVsPsal.filter(dropNegNineNineNine)
+        _idsForTempVsPsal = _idsForTempVsPsal.filter(dropNegNineNineNine)
 
         //create traces.
         var profileScl1 = [[0.0, 'rgb(140,81,10)'],
@@ -278,8 +298,8 @@ html(lang='en')
         };
 
         //pres = pres.map(function(value) { return value * -1}); //scattergl has trouble with flipped axes. Instead, negative pressure is plotted.
-        pres_v_temp_trace = makeTrace(tempForPres, presForTemp, cvaluesForTempVsPres, _idsForTempVsPres, 'pres_v_temp', profileScl2)
-        pres_v_psal_trace = makeTrace(psalForPres, presForPsal, cvaluesForPsalVsPres, _idsForPsalVsPres, 'pres_v_psal', profileScl2)
+        pres_v_temp_trace = makeTrace(temp, presForTemp, cvaluesForTemp, _idsForTemp, 'pres_v_temp', profileScl2)
+        pres_v_psal_trace = makeTrace(psal, presForPsal, cvaluesForPsal, _idsForPsal, 'pres_v_psal', profileScl2)
         temp_v_psal_trace = makeTrace(psalForTemp, tempForPsal, cvaluesForTempVsPsal, _idsForTempVsPsal, 'temp_v_psal', profileScl2)
 
         //create layouts.
