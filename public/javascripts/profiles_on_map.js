@@ -76,7 +76,7 @@ const displayProfiles = function(url, markerType) {
     }).fail(function(){
         //console.log(result.length);
         closeDrawnItemPopups(); 
-        alert('Points did not load, try reducing the polygon size or date range.')});
+        alert('Points did not load, try reducing the polygon size or date range...or try restarting Argovis')});
 };
 
 //populate map with most recent profiles
