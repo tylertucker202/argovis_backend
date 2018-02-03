@@ -67,20 +67,18 @@ html(lang='en')
             trimWhitespace: true                        // (Boolean), remove all leading/trailing newlines, spaces, and tabs from cell text in the exported file(s) (default: false)
         });
 
-    script(type='text/javascript').
-
-        var combinedProfiles = {};
-        combinedProfiles.psal = [];
-        combinedProfiles.pres = [];
-        combinedProfiles.temp = [];
-        combinedProfiles.cycle = [];
-        let profiles = !{profiles};
-
-
         $('#downloadProfiles').on('click', function(){
             var url = '/catalog/platforms/' + `#{title}`;
             window.open(url,'_blank');
         });
+
+    script(type='text/javascript').
+
+        let psal = [];
+        let pres = [];
+        let temp = [];
+        let cycle = [];
+        let profiles = !{profiles};
 
         const collateProfileMeasurements = function(profile) {
             var collatedProfiles = {};
@@ -96,23 +94,6 @@ html(lang='en')
             }
             return collatedProfiles;
         }
-
-        const reduceProfileMeasurements = function(combinedProfiles, n) {
-            var reducedProfiles = {}
-
-            reducedProfiles.pres = [];
-            reducedProfiles.temp = [];
-            reducedProfiles.psal = [];
-            reducedProfiles.cycle = [];
-
-            for(let i = 0; i < combinedProfiles.pres.length; i+=n) {
-                reducedProfiles.pres.push(combinedProfiles.pres[i]);
-                reducedProfiles.temp.push(combinedProfiles.temp[i]);
-                reducedProfiles.psal.push(combinedProfiles.psal[i]);
-                reducedProfiles.cycle.push(combinedProfiles.cycle[i]);
-            }
-            return reducedProfiles;
-            }
 
         const reduceGPSMeasurements = function(profile, maxLength) {
             if (profile.POSITIONING_SYSTEM === 'GPS') {
@@ -142,77 +123,52 @@ html(lang='en')
         for(var i=0; i < profiles.length; i++) {
             var profileMeas = reduceGPSMeasurements(profiles[i], 200);
             profileMeas = collateProfileMeasurements(profileMeas);
-            combinedProfiles.psal = combinedProfiles.psal.concat(profileMeas.psal);
-            combinedProfiles.pres = combinedProfiles.pres.concat(profileMeas.pres);
-            combinedProfiles.temp = combinedProfiles.temp.concat(profileMeas.temp);
+            psal = psal.concat(profileMeas.psal);
+            pres = pres.concat(profileMeas.pres);
+            temp = temp.concat(profileMeas.temp);
 
             let meas_idx = [];
             for (var j=0; j<profileMeas.pres.length; j++) {
                 meas_idx.push(profiles[i].cycle_number); //just an array of cycle number
             }
-            combinedProfiles.cycle = combinedProfiles.cycle.concat(meas_idx);
+            cycle = cycle.concat(meas_idx);
         };
 
-        const getEmptyIdx = function(array) {
-            let indices = [];
-            let element = -999;
-            let idx = array.indexOf(element);
-            while (idx != -1) {
-                indices.push(idx);
-                idx = array.indexOf(element, idx + 1);
+        const getMaskForPair = function(arrayOne, arrayTwo) {
+            let mask = [];
+            const element = -999; // -999 is the actual nan value. -900 just in case of decimal
+            for(let idx=0; idx < arrayOne.length; idx++){
+                if (arrayOne[idx] === element || arrayTwo[idx] === element){
+                    mask.push(false);
+                }
+                else {
+                    mask.push(true)
+                }
             }
-            return(indices);
+            return(mask);
         }
 
-        // -999 are 'NaN'. These need to be removed from the arrays that will be used to make traces.
-        // initialize copies of arrays require the .slice(0).
-        var temp = combinedProfiles.temp.slice(0);
-        var psal = combinedProfiles.psal.slice(0);
-        var presForTemp = combinedProfiles.pres.slice(0);
-        var presForPsal = combinedProfiles.pres.slice(0);
-        var cycleForTemp = combinedProfiles.cycle.slice(0);
-        var cycleForPsal = combinedProfiles.cycle.slice(0);
+        //filter using Tyler's algorithm
+        presVsTempMask = getMaskForPair(temp, pres);
+        presVsPsalMask = getMaskForPair(psal, pres);
 
-        // get a list of indicies for -999.
-        let presEmptyIdxArray = getEmptyIdx(combinedProfiles.pres);
-        let tempEmptyIdxArray = getEmptyIdx(temp);
-        let psalEmptyIdxArray = getEmptyIdx(psal);
+        presForTemp = pres.filter((item, i) => presVsTempMask[i]);
+        tempForPres = temp.filter((item, i) => presVsTempMask[i]);
+        cycleForTemp = cycle.filter((item, i) => presVsTempMask[i]);
 
-        // replace values from arrays where pres is -999 with -999.
-        var i = presEmptyIdxArray.length;
-        while(i--) {
-            presEmptyIdx = presEmptyIdxArray[i];
-            temp.splice(presEmptyIdx, 1, -999);
-            psal.splice(presEmptyIdx, 1, -999);
-            presForTemp.splice(presEmptyIdx, 1, -999);
-            presForPsal.splice(presEmptyIdx, 1, -999);
-            cycleForTemp.splice(presEmptyIdx, 1, -999);
-            cycleForPsal.splice(presEmptyIdx, 1, -999);
-        }
+        presForPsal = pres.filter((item, i) => presVsPsalMask[i]);
+        psalForPres = psal.filter((item, i) => presVsPsalMask[i]);
+        cycleForPsal = cycle.filter((item, i) => presVsPsalMask[i]);
 
-        // replace values from arrays where temp is -999 with -999.
-        var j = tempEmptyIdxArray.length;
-        while(j--) {
-            tempEmptyIdx = tempEmptyIdxArray[j];
-            presForTemp.splice(tempEmptyIdx, 1, -999);
-            cycleForTemp.splice(tempEmptyIdx, 1,-999);
-        }
+        console.log('pres v temp lengths should be equal')
+        console.log(presForTemp.length);
+        console.log(tempForPres.length);
+        console.log(cycleForTemp.length);
 
-        temp = temp.filter(dropNegNineNineNine);
-        presForTemp = presForTemp.filter(dropNegNineNineNine);
-        cycleForTemp = cycleForTemp.filter(dropNegNineNineNine);
-
-        // replace values from arrays where psal is -999 with -999.
-        var k = psalEmptyIdxArray.length
-        while(k--) {
-            psalEmptyIdx = psalEmptyIdxArray[k];
-            psal.splice(psalEmptyIdx, 1, -999); //try this... shouln't be needed...
-            presForPsal.splice(psalEmptyIdx, 1, -999);
-            cycleForPsal.splice(psalEmptyIdx, 1, -999);
-        }
-        psal = psal.filter(dropNegNineNineNine);
-        presForPsal = presForPsal.filter(dropNegNineNineNine);
-        cycleForPsal = cycleForPsal.filter(dropNegNineNineNine);
+        console.log('pres v psal lengths should be equal')
+        console.log(presForPsal.length);
+        console.log(psalForPres.length);
+        console.log(cycleForPsal.length);
 
         var tempScl = [[0.0, 'rgb(3, 35, 51)'],
                         [0.125, 'rgb(24, 51, 124)'],
@@ -236,7 +192,7 @@ html(lang='en')
 
         const measurements = {'pres_v_temp': {'xvalues': cycleForTemp,
                                                 'yvalues': presForTemp.map(roundArray),
-                                                'cvalues': temp.map(roundArray),
+                                                'cvalues': tempForPres.map(roundArray),
                                                 'text': 'temperature: ',
                                                 'yaxis': 'y2',
                                                 'xaxis': 'x1',
@@ -248,7 +204,7 @@ html(lang='en')
                                                         }},
                                 'pres_v_psal': {'xvalues': cycleForPsal,
                                                 'yvalues': presForPsal.map(roundArray),
-                                                'cvalues': psal.map(roundArray),
+                                                'cvalues': psalForPres.map(roundArray),
                                                 'text': 'salinity: ',
                                                 'yaxis': 'y1',
                                                 'xaxis': 'x1',

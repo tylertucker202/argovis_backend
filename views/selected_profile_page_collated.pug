@@ -67,11 +67,8 @@ html(lang='en')
         });
 
         $('#downloadProfiles').on('click', function(){
-            const data = JSON.stringify(!{profiles});
-            const blob = new Blob([data], {type: "application/json"});
-            const saveAs = window.saveAs;
-            const filename = 'selected_profiles.json';
-            saveAs(blob, filename);
+            var url =  window.location.href.replace("page", "");
+            window.open(url,'_blank');
         });
 
     script(type='text/javascript').
@@ -140,106 +137,57 @@ html(lang='en')
             _ids = _ids.concat(id_array);
         }
 
-        // get list of array indexes that contain -999 values
-        /*
-        const getEmptyIdx = function(array) {
-            var indices = [];
-            var element = -999;
-            var idx = array.indexOf(element);
-            while (idx != -1) {
-                indices.push(idx);
-                idx = array.indexOf(element, idx + 1);
-            }
-            return(indices);
-        }
-        */
-
-        // get list of array indexes that contain -999 values
-        const getEmptyIdxForPair = function(arrayOne, arrayTwo) {
-            let indices = [];
-            const element = -999;
+        const getMaskForPair = function(arrayOne, arrayTwo) {
+            let mask = [];
+            const element = -999; // -999 is the actual nan value. -900 just in case of decimal
             for(let idx=0; idx < arrayOne.length; idx++){
-
                 if (arrayOne[idx] === element || arrayTwo[idx] === element){
-                    indices.push(idx);
+                    mask.push(false);
+                }
+                else {
+                    mask.push(true)
                 }
             }
-            return(indices);
+            return(mask);
         }
 
-        tempForPres = temp.slice(0);
-        tempForPsal = temp.slice(0);
+        //filter using Tyler's algorithm
+        presVsTempMask = getMaskForPair(temp, pres);
+        presVsPsalMask = getMaskForPair(psal, pres);
+        tempVsPsalMask = getMaskForPair(psal, temp);
 
-        presForTemp = pres.slice(0);
-        presForPsal = pres.slice(0);
+        presForTemp = pres.filter((item, i) => presVsTempMask[i]);
+        tempForPres = temp.filter((item, i) => presVsTempMask[i]);
+        cvaluesForTempVsPres = cvalues.filter((item, i) => presVsTempMask[i]);
+        _idsForTempVsPres =  _ids.filter((item, i) => presVsTempMask[i]);
 
-        psalForPres = psal.slice(0);
-        psalForTemp = psal.slice(0);
+        presForPsal = pres.filter((item, i) => presVsPsalMask[i]);
+        psalForPres = psal.filter((item, i) => presVsPsalMask[i]);
+        cvaluesForPsalVsPres = cvalues.filter((item, i) => presVsPsalMask[i]);
+        _idsForPsalVsPres =  _ids.filter((item, i) => presVsPsalMask[i]);
 
-        cvaluesForTempVsPres = cvalues.slice(0);
-        cvaluesForPsalVsPres = cvalues.slice(0);
-        cvaluesForTempVsPsal = cvalues.slice(0);
+        psalForTemp = psal.filter((item, i) => tempVsPsalMask[i]);
+        tempForPsal = temp.filter((item, i) => tempVsPsalMask[i]);
+        cvaluesForTempVsPsal = cvalues.filter((item, i) => tempVsPsalMask[i]);
+        _idsForTempVsPsal =  _ids.filter((item, i) => tempVsPsalMask[i]);
 
-        _idsForTempVsPres = _ids.slice(0);
-        _idsForPsalVsPres = _ids.slice(0);
-        _idsForTempVsPsal = _ids.slice(0);
-
-        tempVsPresEmptyIdxArray = getEmptyIdxForPair(temp, pres);
-        psalVsPresEmptyIdxArray = getEmptyIdxForPair(psal, pres);
-        psalVsTempEmptyIdxArray = getEmptyIdxForPair(psal, temp);
-
-        // replace entries whose pres[idx] or temp[idx] = -999 with -999.
-        var i = tempVsPresEmptyIdxArray.length
-        while(i--) {
-            buffer = tempVsPresEmptyIdxArray[i];
-            tempForPres.splice(buffer, 1, -999);
-            presForTemp.splice(buffer, 1, -999);
-            cvaluesForTempVsPres.splice(buffer, 1, -999);
-            _idsForTempVsPres.splice(buffer, 1, -999);
-        }
-
-        // replace entries whose psal[idx] or pres[idx] = -999 with -999.
-        var i = psalVsPresEmptyIdxArray.length
-        while(i--) {
-            buffer = psalVsPresEmptyIdxArray[i];
-            psalForPres.splice(buffer, 1, -999);
-            presForPsal.splice(buffer, 1, -999);
-            cvaluesForPsalVsPres.splice(buffer, 1, -999);
-            _idsForPsalVsPres.splice(buffer, 1, -999);
-        }
-
-        // replace entries whose psal[idx] or temp[idx] = -999 with -999.
-        var i = psalVsTempEmptyIdxArray.length
-        while(i--) {
-            buffer = psalVsTempEmptyIdxArray[i];
-            tempForPsal.splice(buffer, 1, -999);
-            psalForTemp.splice(buffer, 1, -999);
-            cvaluesForTempVsPsal.splice(buffer, 1, -999);
-            _idsForTempVsPsal.splice(buffer, 1, -999);
-        }
-
-        // drop all values of -999
-        const dropNegNineNineNine = function(value){ if (value != -999) {return(value)}}
-        tempForPres = tempForPres.filter(dropNegNineNineNine);
-        presForTemp = presForTemp.filter(dropNegNineNineNine);
-        cvaluesForTempVsPres = cvaluesForTempVsPres.filter(dropNegNineNineNine);
-        _idsForTempVsPres = _idsForTempVsPres.filter(dropNegNineNineNine);
-        console.log('length should be equal')
+        console.log('pres v temp lengths should be equal')
         console.log(tempForPres.length);
         console.log(presForTemp.length);
         console.log(cvaluesForTempVsPres.length);
         console.log(_idsForTempVsPres.length);
 
+        console.log('pres v psal lengths should be equal')
+        console.log(presForPsal.length);
+        console.log(psalForPres.length);
+        console.log(cvaluesForPsalVsPres.length);
+        console.log(_idsForPsalVsPres.length);
 
-        psalForPres = psalForPres.filter(dropNegNineNineNine);
-        presForPsal = presForPsal.filter(dropNegNineNineNine);
-        cvaluesForPsalVsPres = cvaluesForPsalVsPres.filter(dropNegNineNineNine);
-        _idsForPsalVsPres = _idsForPsalVsPres.filter(dropNegNineNineNine);
-
-        tempForPsal = tempForPsal.filter(dropNegNineNineNine);
-        psalForTemp = psalForTemp.filter(dropNegNineNineNine);
-        cvaluesForTempVsPsal = cvaluesForTempVsPsal.filter(dropNegNineNineNine);
-        _idsForTempVsPsal = _idsForTempVsPsal.filter(dropNegNineNineNine);
+        console.log('psal v temp lengths should be equal')
+        console.log(psalForTemp.length);
+        console.log(tempForPsal.length);
+        console.log(cvaluesForTempVsPsal.length);
+        console.log(_idsForTempVsPsal.length);        
 
         //create traces.
         var profileScl1 = [[0.0, 'rgb(140,81,10)'],

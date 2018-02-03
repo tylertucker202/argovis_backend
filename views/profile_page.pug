@@ -66,49 +66,54 @@ html(lang='en')
             return(indices);
         }
 
-        //zeros signify empty values. These need to be removed from the arrays that will be used to make traces.
+        //-999 signify empty values. These need to be removed from the arrays that will be used to make traces.
         var temp = meas.temp;
         var psal = meas.psal;
-        //presForTemp = combinedProfiles.pres.map(function(element) { return (element * -1) }); //flipping pres axis
-        presForTemp = meas.pres
-        presForPsal = meas.pres; //initialize
-        tempForPsal = temp;
-        psalForTemp = psal;
+        var pres = meas.pres;
 
-        tempEmptyIdx = getEmptyIdx(temp);
-        psalEmptyIdx = getEmptyIdx(psal);
-
-        //drop instances from arrays where temp is -999.
-        var i = tempEmptyIdx.length
-        while(i--) {
-            idx = tempEmptyIdx[i];
-            presForTemp.splice(idx, 1, -999);
-            psalForTemp.splice(idx, 1, -999); // for temp vs psal
-            tempForPsal.splice(idx, 1, -999); // for temp vs psal
+        const getMaskForPair = function(arrayOne, arrayTwo) {
+            let mask = [];
+            const element = -999; // -999 is the actual nan value. -900 just in case of decimal
+            for(let idx=0; idx < arrayOne.length; idx++){
+                if (arrayOne[idx] === element || arrayTwo[idx] === element){
+                    mask.push(false);
+                }
+                else {
+                    mask.push(true)
+                }
+            }
+            return(mask);
         }
 
-        //drop all values of -999
-        temp = temp.filter(function(value){ if (value != -999) {return(value)}})
-        presForTemp = presForTemp.filter(function(value){ if (value != -999) {return(value)}})
+        presVsTempMask = getMaskForPair(temp, pres);
+        presVsPsalMask = getMaskForPair(psal, pres);
+        tempVsPsalMask = getMaskForPair(psal, temp);
 
-        //drop instances from arrays where psal is -999.
-        var i = psalEmptyIdx.length
-        while(i--) {
-            idx = psalEmptyIdx[i];
-            presForPsal.splice(idx, 1, -999);
-            psalForTemp.splice(idx, 1, -999); // for temp vs psal
-            tempForPsal.splice(idx, 1, -999); // for temp vs psal
-        }
+        presForTemp = pres.filter((item, i) => presVsTempMask[i]);
+        tempForPres = temp.filter((item, i) => presVsTempMask[i]);
 
-        psal = psal.filter(function(value){ if (value != -999) {return(value)}})
-        presForPsal = presForPsal.filter(function(value){ if (value != -999) {return(value)}})
+        presForPsal = pres.filter((item, i) => presVsPsalMask[i]);
+        psalForPres = psal.filter((item, i) => presVsPsalMask[i]);
 
-        tempForPsal = tempForPsal.filter(function(value){ if (value != -999) {return(value)}})
-        psalForTemp = psalForTemp.filter(function(value){ if (value != -999) {return(value)}})
+        psalForTemp = psal.filter((item, i) => tempVsPsalMask[i]);
+        tempForPsal = temp.filter((item, i) => tempVsPsalMask[i]);
+
+
+        console.log('pres v temp lengths should be equal')
+        console.log(tempForPres.length);
+        console.log(presForTemp.length);
+
+        console.log('pres v psal lengths should be equal')
+        console.log(presForPsal.length);
+        console.log(psalForPres.length);
+
+        console.log('psal v temp lengths should be equal')
+        console.log(psalForTemp.length);
+        console.log(tempForPsal.length);  
 
         const measurements = {'temp_v_psal': {'yvalue': tempForPsal, 'xvalue': psalForTemp, 'yaxis': 'y1', 'xaxis': 'x1'},
-                                'pres_v_psal': {'yvalue': presForPsal, 'xvalue': psal, 'yaxis': 'y2', 'xaxis': 'x2'},
-                                'pres_v_temp': {'yvalue': presForTemp, 'xvalue': temp, 'yaxis': 'y3', 'xaxis': 'x3'}
+                                'pres_v_psal': {'yvalue': presForPsal, 'xvalue': psalForPres, 'yaxis': 'y2', 'xaxis': 'x2'},
+                                'pres_v_temp': {'yvalue': presForTemp, 'xvalue': tempForPres, 'yaxis': 'y3', 'xaxis': 'x3'}
                                 };
 
         const makeTrace =function(key) {
