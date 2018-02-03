@@ -148,9 +148,24 @@ html(lang='en')
             return(mask);
         }
 
+        //Used to for pres vs psal. if temp reporting nan, psal should be zero too.
+        const getMaskForTrio = function(arrayOne, arrayTwo, arrayThree) {
+            let mask = [];
+            const element = -999; // -999 is the actual nan value. -900 just in case of decimal
+            for(let idx=0; idx < arrayOne.length; idx++){
+                if (arrayOne[idx] === element || arrayTwo[idx] === element || arrayThree[idx] === element){
+                    mask.push(false);
+                }
+                else {
+                    mask.push(true)
+                }
+            }
+            return(mask);
+        }
+
         //filter using Tyler's algorithm
         presVsTempMask = getMaskForPair(temp, pres);
-        presVsPsalMask = getMaskForPair(psal, pres);
+        presVsPsalMask = getMaskForTrio(psal, pres, temp);
 
         presForTemp = pres.filter((item, i) => presVsTempMask[i]);
         tempForPres = temp.filter((item, i) => presVsTempMask[i]);
