@@ -16,6 +16,8 @@ html(lang='en')
             h1 Profile Id: #{title}
             p Date: #{moment(profile.date).format("YYYY-MM-DD HH:mm")}
             p Cycle number: #{profile.cycle_number}
+            p Latitude: #{profile.lat}
+            p Longitude: #{profile.lon}
             p Dac: #{profile.dac}
             p Parameters: #{profile.station_parameters}
             p Positioning system: #{profile.POSITIONING_SYSTEM}
