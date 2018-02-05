@@ -244,7 +244,7 @@ exports.selected_profile_list = function(req, res , next) {
 
 exports.latest_profile_list = function(req,res, next) {
     //get startDate, endDate
-    startDate = moment().subtract(30, 'days');
+    startDate = moment().subtract(14, 'days');
     endDate = moment();
     //var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()}});
     var query = Profile.aggregate([ {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
