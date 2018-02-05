@@ -248,14 +248,15 @@ exports.latest_profile_list = function(req,res, next) {
     endDate = moment();
     //var query = Profile.find({ date: {$lte: endDate.toDate(), $gte: startDate.toDate()}});
     var query = Profile.aggregate([ {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+                                    {$sort: {'platform_number': -1, 'date': -1}},
                                     {$group: {_id: '$platform_number',
                                             'platform_number': {$first: '$platform_number'},
                                             'date': {$first: '$date'},
                                             'cycle_number': {$first: '$cycle_number'},
                                             'geoLocation': {$first: '$geoLocation'}}},
-                                    {$sort: { 'date': -1}}]);
+                                    ]);
     if (req.params.format === 'map') {
-        query.limit(1000);
+        //query.limit(1000);
         //query.select(mapParams);
     }
     query.exec( function (err, profiles) {
