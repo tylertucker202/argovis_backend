@@ -116,7 +116,7 @@ html(lang='en')
                       const shape = features[i].geometry.coordinates;
                       const transformedShape = getTransformedShape(shape)
                       let urlQuery = base+'?startDate='+dates.startDate+'&endDate='+dates.endDate+'&presRange='+JSON.stringify(presRange)+'&shape='+JSON.stringify([transformedShape]);
-                      displayProfiles(urlQuery);
+                      displayProfiles(urlQuery, '', false);
                   }
               }
           }
