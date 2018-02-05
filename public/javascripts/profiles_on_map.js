@@ -44,14 +44,14 @@ const openDrawnItemPopups = function() {
     }    
 }
 
-const displayProfiles = function(url, markerType) {
+const displayProfiles = function(url, markerType, latestBool) {
     platformProfileMarkersLayer.clearLayers();
     console.log(url);
     $.getJSON(url, function(result){
-        if (result.length > 1000) {
+        if (result.length > 1000 && latestBool === false) {
             closeDrawnItemPopups()
             alert("This query is too large."
-            + " Only 1000 profiles will appear in the selection region."
+            + " Only 1001 profiles will be included in the selection page."
             + " Try reducing the polygon size or date range."
             + " Another option is to use an API. See www.itsonlyamodel.us/argovis-python-api.html for more details.");
         }
@@ -81,12 +81,12 @@ const displayProfiles = function(url, markerType) {
 
 //populate map with most recent profiles
 //displayProfiles('/selection/lastProfiles');
-displayProfiles('/selection/latestProfiles/map');
+displayProfiles('/selection/latestProfiles/map', '', true);
 
 const platformProfilesSelection = function(selectedPlatform, markerType){
     if (selectedPlatform) {
         var url = '/catalog/platforms/'+selectedPlatform+'/map';
-        displayProfiles(url, markerType);
+        displayProfiles(url, markerType, false);
     }
 };
 
@@ -151,7 +151,7 @@ $('#latestProfileSelection').on('click', function(){
     if(drawnItems){
         drawnItems.clearLayers();
     }
-    displayProfiles('/selection/latestProfiles/map');
+    displayProfiles('/selection/latestProfiles/map', '', false);
 })
 
 $('#clearProfiles').on('click', function(){
