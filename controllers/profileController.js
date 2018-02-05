@@ -225,12 +225,13 @@ exports.selected_profile_list = function(req, res , next) {
 };
 
 exports.last_profile_list = function(req, res, next) {
-    var query = Profile.aggregate([{$sort: { 'date': -1}},
+    var query = Profile.aggregate([
                        {$group: {_id: '$platform_number',
                                  'platform_number': {$first: '$platform_number'},
                                  'date': {$first: '$date'},
                                  'cycle_number': {$first: '$cycle_number'},
-                                 'geoLocation': {$first: '$geoLocation'}}}]);
+                                 'geoLocation': {$first: '$geoLocation'}}},
+                                 {$sort: { 'date': -1}}]);
     if (req.params.format === 'map') {
         query.select(mapParams);
         query.limit(1000);
