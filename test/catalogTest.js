@@ -130,8 +130,7 @@ describe('/GET profile render', function() {
                                       'station_parameters', 
                                       'PI_NAME',
                                       'POSITIONING_SYSTEM',
-                                      'PLATFORM_TYPE',
-                                      );
+                                      'PLATFORM_TYPE');
         a_profile._id.should.be.a('string');
         a_profile.platform_number.should.be.a('string');
         a_profile.dac.should.be.a('string');
