@@ -38,6 +38,16 @@ ProfileSchema
   return '/catalog/profiles/' + this._id;
 });
 
+ProfileSchema
+.virtual('roundLat')
+.get(function () {
+  return this.lat.toFixed(3);
+});
+ProfileSchema
+.virtual('roundLon')
+.get(function () {
+  return this.lon.toFixed(3);
+});
 // Virtual for formatted date
 ProfileSchema
 .virtual('date_formatted')

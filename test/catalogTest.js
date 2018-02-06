@@ -9,13 +9,11 @@ let Profile = require('../models/profile');
 let chaiHttp = require('chai-http');
 let app = require('../app');
 let should = chai.should();
-
+let generate = require('./../public/javascripts/generate_arrays_for_plotting.js')
 chai.use(chaiHttp);
 
 /* Test catalog */
-
-
-describe('/GET catalog platform', function() {
+describe('/GET catalog list of platforms', function() {
   this.timeout(2000);
   it('it should GET all the platforms', (done) => {
     chai.request(app)
@@ -35,6 +33,51 @@ describe('/GET catalog platform', function() {
         a_platform.geoLocation.coordinates.should.be.a('array');
         a_platform.geoLocation.coordinates.length.should.be.eql(2);
         a_platform.geoLocation.type.should.be.eql('Point');
+        done();
+    });
+  });
+});
+
+describe('/GET a platform', function() {
+  this.timeout(2000);
+  it('it should GET one platform', (done) => {
+    chai.request(app)
+    .get('/catalog/platforms/2902972')
+    .end((err, res) => {
+        //test overall response
+        res.should.have.status(200);
+
+        let profiles = res.body.splice(0);
+        let psal = [];
+        let pres = [];
+        let temp = [];
+        let cycle = [];
+        for(var i=0; i < profiles.length; i++) {
+            var profileMeas = generate.reduceGPSMeasurements(profiles[i], 200);
+            profileMeas = generate.collateProfileMeasurements(profileMeas);
+            psal = psal.concat(profileMeas.psal);
+            pres = pres.concat(profileMeas.pres);
+            temp = temp.concat(profileMeas.temp);
+    
+            let meas_idx = [];
+            for (var j=0; j<profileMeas.pres.length; j++) {
+                meas_idx.push(profiles[i].cycle_number); //just an array of cycle number
+            }
+            cycle = cycle.concat(meas_idx);
+        };
+
+        out = generate.filterProfiles(temp, pres, psal, cycle)
+        // presVsTemp array lengths should be equal
+        presVsTempLength = out.tempForPres.length;
+        out.tempForPres.length.should.be.equal(presVsTempLength);
+        out.presForTemp.length.should.be.equal(presVsTempLength);
+        out.cycleForTemp.length.should.be.equal(presVsTempLength);
+
+        // presVsPsal array lengths should be equal
+        presVsPsalLength = out.psalForPres.length;
+        out.presForPsal.length.should.be.equal(presVsPsalLength);
+        out.psalForPres.length.should.be.equal(presVsPsalLength);
+        out.cycleForTemp.length.should.be.equal(presVsPsalLength);
         done();
     });
   });
@@ -66,7 +109,7 @@ describe('/GET catalog dacs', function() {
 describe('/GET profile render', function() {
   this.timeout(500);
   it('it should GET the selected profile.', (done) => {
-    const urlQuery = '/catalog/profiles/3901857_44'
+    const urlQuery = '/catalog/profiles/2902972_69'
     chai.request(app)
     .get(urlQuery)
     .end((err, res) => {

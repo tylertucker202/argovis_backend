@@ -151,7 +151,7 @@ $('#latestProfileSelection').on('click', function(){
     if(drawnItems){
         drawnItems.clearLayers();
     }
-    displayProfiles('/selection/latestProfiles/map', '', true);
+    displayProfiles('/selection/latestProfiles/map', '', false);
 })
 
 $('#clearProfiles').on('click', function(){

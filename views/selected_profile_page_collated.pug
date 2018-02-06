@@ -154,7 +154,7 @@ html(lang='en')
         //Used to for pres vs psal. if temp reporting nan, psal should be zero too.
         const getMaskForTrio = function(arrayOne, arrayTwo, arrayThree) {
             let mask = [];
-            const element = -999; // -999 is the actual nan value. -900 just in case of decimal
+            const element = -999; 
             for(let idx=0; idx < arrayOne.length; idx++){
                 if (arrayOne[idx] === element || arrayTwo[idx] === element || arrayThree[idx] === element){
                     mask.push(false);
@@ -185,25 +185,6 @@ html(lang='en')
         tempForPsal = temp.filter((item, i) => tempVsPsalMask[i]);
         cvaluesForTempVsPsal = cvalues.filter((item, i) => tempVsPsalMask[i]);
         _idsForTempVsPsal =  _ids.filter((item, i) => tempVsPsalMask[i]);
-
-        console.log('pres v temp lengths should be equal')
-        console.log(tempForPres.length);
-        console.log(presForTemp.length);
-        console.log(cvaluesForTempVsPres.length);
-        console.log(_idsForTempVsPres.length);
-
-        console.log('pres v psal lengths should be equal')
-        console.log(presForPsal.length);
-        console.log(psalForPres.length);
-        console.log(cvaluesForPsalVsPres.length);
-        console.log(_idsForPsalVsPres.length);
-
-        console.log('psal v temp lengths should be equal')
-        console.log(psalForTemp.length);
-        console.log(tempForPsal.length);
-        console.log(cvaluesForTempVsPsal.length);
-        console.log(_idsForTempVsPsal.length);        
-
         //create traces.
         var profileScl1 = [[0.0, 'rgb(140,81,10)'],
                           [0.125, 'rgb(191,129,45)'],
