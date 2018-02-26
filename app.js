@@ -11,6 +11,7 @@ var debug = require('debug')('app');
 var index = require('./routes/index');
 var catalog = require('./routes/catalog');  //Import routes for "catalog" area of site
 var selection = require('./routes/selection');  //Import routes for "catalog" area of site
+var gridding = require('./routes/gridding');  //Import routes for "catalog" area of site
 var compression = require('compression'); //All routs are compressed
 var helmet = require('helmet'); //sets appropriate HTTP headers
 
@@ -58,7 +59,7 @@ app.use(express.static('public'))
 app.use('/', index);
 app.use('/catalog', catalog);
 app.use('/selection', selection);
-
+app.use('/gridding', gridding);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
