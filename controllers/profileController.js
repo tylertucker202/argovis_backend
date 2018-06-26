@@ -3,7 +3,7 @@ var async = require('async');
 var moment = require('moment');
 var GJV = require('geojson-validation');
 
-const mapParams = 'platform_number date geoLocation cycle_number';
+const mapParams = 'platform_number date geoLocation geo2DLocation cycle_number';
 
 // Display list of all Profiles
 exports.profile_list = function(req, res, next) {
@@ -14,6 +14,7 @@ exports.profile_list = function(req, res, next) {
         res.json(profile);
     });
 };
+
 
 exports.month_year_profile_list = function(req, res, next) {
     req.checkQuery('month', 'month should be specified.').notEmpty();
@@ -31,16 +32,22 @@ exports.month_year_profile_list = function(req, res, next) {
     const endDate = startDate.clone().endOf('month');
     const query = Profile.aggregate([
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-        {$project: { platform_number: -1,
-                     date: -1,
-                     geoLocation: 1,
-                     cycle_number: -1,
-                     PLATFORM_TYPE: -1,
-                     POSITIONING_SYSTEM: -1,
-                     DATA_MODE: -1,
-                     station_parameters: -1, 
-                     cycle_number: -1, 
-                     dac: -1}}
+        {$unwind: "$measurements"},
+        {$group: {   _id: "$_id",
+                     platform_number: { "$first": "$platform_number"},
+                     date:  { "$first": "$date"},
+                     geo2DLocation: { "$first": "$geo2DLocation"},
+                     cycle_number:  { "$first": "$cycle_number"},
+                     PLATFORM_TYPE:  { "$first": "$PLATFORM_TYPE"},
+                     POSITIONING_SYSTEM:  { "$first": "$POSITIONING_SYSTEM"},
+                     DATA_MODE:  { "$first": "$DATA_MODE"},
+                     station_parameters:  { "$first": "$station_parameters"},
+                     cycle_number:  { "$first": "$cycle_number"},
+                     dac:  { "$first": "$dac"},
+                     maxPres: {"$max": "$measurements.pres"},
+                     minPres: {"$min": "$measurements.pres"}
+                    },
+        },   
     ]);
     const promise = query.exec();
     promise.then(function (profiles) {
@@ -48,6 +55,43 @@ exports.month_year_profile_list = function(req, res, next) {
     })
     .catch(function(err) { return next(err)});
 }
+// does not use max and min pressure
+
+// exports.month_year_profile_list = function(req, res, next) {
+//     req.checkQuery('month', 'month should be specified.').notEmpty();
+//     req.checkQuery('year', 'year should be specified.').notEmpty();
+//     req.checkQuery('year', 'year should be four digit number.').isNumeric();
+//     req.checkQuery('month', 'month should be two digit number.').isNumeric();
+//     req.sanitize('month').escape();
+//     req.sanitize('month').trim();
+//     req.sanitize('year').escape();
+//     req.sanitize('year').trim();
+
+//     const year = JSON.parse(req.params.year);
+//     const month = JSON.parse(req.params.month);
+//     const startDate = moment(year + '-' + month + '-' + 01,'YYYY-MM-DD');
+//     const endDate = startDate.clone().endOf('month');
+//     const query = Profile.aggregate([
+//         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+//         {$project: { platform_number: -1,
+//                      date: -1,
+//                      geo2DLocation: 1,
+//                      cycle_number: -1,
+//                      PLATFORM_TYPE: -1,
+//                      POSITIONING_SYSTEM: -1,
+//                      DATA_MODE: -1,
+//                      station_parameters: -1, 
+//                      cycle_number: -1, 
+//                      dac: -1,
+//                     },
+//         }
+//     ]);
+//     const promise = query.exec();
+//     promise.then(function (profiles) {
+//         res.json(profiles);
+//     })
+//     .catch(function(err) { return next(err)});
+// }
 
 exports.profile_detail = function (req, res, next) {
     req.checkParams('_id', 'Profile id should be specified.').notEmpty();
@@ -90,8 +134,10 @@ exports.selected_profile_list = function(req, res , next) {
     req.sanitize('startDate').toDate();
     req.sanitize('endDate').toDate();
 
-    const shape = JSON.parse(req.query.shape);
+    var shape = JSON.parse(req.query.shape);
     var shapeJson = {"type": "Polygon", "coordinates": shape}
+    shape=shape[0]
+    console.log(shape)
     if (req.query.presRange) {
         var presRange = JSON.parse(req.query.presRange);
         var maxPres = Number(presRange[1]);
@@ -114,7 +160,7 @@ exports.selected_profile_list = function(req, res , next) {
         if (req.params.format === 'map' && req.query.presRange) {
             var query = Profile.aggregate([
                 {$project: { //need to include all fields that you wish to keep.
-                    platform_number: -1, date: -1, geoLocation: 1, cycle_number: -1,
+                    platform_number: -1, date: -1, geoLocation: 1, geo2DLocation: 1, cycle_number: -1,
                     measurements: {
                         $filter: {
                             input: '$measurements',
@@ -127,30 +173,30 @@ exports.selected_profile_list = function(req, res , next) {
                         },
                     },
                 }},
-                { $match: { $and: [ {geoLocation: {$geoWithin: {$geometry: shapeJson}}},
+                { $match: { $and: [ {geo2DLocation: {$geoWithin: {$polygon: shape}}},
                                     {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} ] } },
                 {$project: { // return profiles that have measurements falling within pressure Ranges
-                    platform_number: -1, date: -1, geoLocation: 1, cycle_number: -1, measurements: 1,
+                    platform_number: -1, date: -1, geoLocation: 1, geo2DLocation: 1, cycle_number: -1, measurements: 1,
                     count: { $size:'$measurements' },
                 }},
                 {$match: {count: {$gt: 0}}},
                 {$project: { // only need these fields to plot on map.
-                    platform_number: -1, date: -1, geoLocation: 1, cycle_number: -1
+                    platform_number: -1, date: -1, geoLocation: 1, geo2DLocation: 1, cycle_number: -1
                 }},
                 {$limit: 1001},
                 ]);
         }
         else if (req.params.format === 'map' && !req.query.presRange) {
             var query = Profile.aggregate([
-                {$project: { platform_number: -1, date: -1, geoLocation: 1, cycle_number: -1}},
-                { $match: { $and: [ {geoLocation: {$geoWithin: {$geometry: shapeJson}}},
+                {$project: { platform_number: -1, date: -1, geo2DLocation: 1, cycle_number: -1}},
+                { $match: { $and: [ {geo2DLocation: {$geoWithin: {$polygon: shape}}},
                     {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} ] } },
                 {$limit: 1001},
             ]);
         }
         else if (req.params.format !== 'map' && req.query.presRange) {
             var query = Profile.aggregate([
-                {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
+                {$match: {geo2DLocation: {$geoWithin: {$polygon: shape}}}},
                 {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
                 {$project: { //need to include all fields that you wish to keep.
                     nc_url: 1,
@@ -162,6 +208,7 @@ exports.selected_profile_list = function(req, res , next) {
                     lon: 1,
                     platform_number: 1,
                     geoLocation: 1,
+                    geo2DLocation: 1,
                     station_parameters: 1,
                     maximum_pressure: 1,
                     POSITIONING_SYSTEM: 1,
@@ -189,7 +236,8 @@ exports.selected_profile_list = function(req, res , next) {
                     lat: 1,
                     lon: 1,
                     platform_number: 1,
-                    geoLocation: 1,
+                    geoLocation: 1, 
+                    geo2DLocation: 1,
                     station_parameters: 1,
                     maximum_pressure: 1,
                     measurements: 1,
@@ -203,7 +251,7 @@ exports.selected_profile_list = function(req, res , next) {
         }
         else {
             var query = Profile.aggregate([
-                {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
+                {$match: {geo2DLocation: {$geoWithin: {$polygon: shape}}}},
                 {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}]);
         }
         var promise = query.exec();
@@ -212,7 +260,10 @@ exports.selected_profile_list = function(req, res , next) {
             if (req.params.format==='page'){
                 if (profiles === null) { res.send('profile not found'); }
                 else {
-                    res.render('selected_profile_page_collated', {title:'Custom selection', profiles: JSON.stringify(profiles), moment: moment, url: req.originalUrl })
+                    res.render('selected_profile_page_collated', {title:'Custom selection',
+                                                                  profiles: JSON.stringify(profiles),
+                                                                  moment: moment,
+                                                                  url: req.originalUrl})
                 }
             }
             else {
@@ -251,7 +302,8 @@ exports.latest_profile_list = function(req,res, next) {
                                             'platform_number': {$first: '$platform_number'},
                                             'date': {$first: '$date'},
                                             'cycle_number': {$first: '$cycle_number'},
-                                            'geoLocation': {$first: '$geoLocation'}}},
+                                            'geoLocation': {$first: '$geoLocation'},
+                                            'geo2DLocation': {$first: '$geo2DLocation'}}},
                                     ]);
     if (req.params.format === 'map') {
         //query.limit(1000);
