@@ -27,7 +27,7 @@ describe('/GET catalog list of platforms', function() {
         //console.log('A platform is: ' + JSON.stringify(a_platform));
         a_platform.should.include.keys('_id', 'most_recent_date', 'cycle_number', 'geoLocation');
         a_platform._id.should.be.a('string');
-        moment(a_platform.most_recent_date).format('YYYY-MM-DD').should.be.a('string');
+        moment.utc(a_platform.most_recent_date).format('YYYY-MM-DD').should.be.a('string');
         (a_platform['platform_number'] * 1).should.be.a('number');
         (a_platform.cycle_number * 1).should.be.a('number');
         a_platform.geoLocation.coordinates.should.be.a('array');
@@ -99,7 +99,7 @@ describe('/GET catalog dacs', function() {
         a_dac.should.include.keys('_id', 'number_of_profiles', 'dac');
         a_dac._id.should.be.a('string');
         a_dac.number_of_profiles.should.be.a('number');
-        moment(a_dac.most_recent_date).format('YYYY-MM-DD').should.be.a('string');
+        moment.utc(a_dac.most_recent_date).format('YYYY-MM-DD').should.be.a('string');
         a_dac.dac.should.be.a('string');
         done();
     });
@@ -135,7 +135,7 @@ describe('/GET profile render', function() {
         a_profile.platform_number.should.be.a('string');
         a_profile.dac.should.be.a('string');
         a_profile.nc_url.should.be.a('string');
-        moment(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
+        moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
         a_profile.position_qc.should.be.a('number');
         a_profile.lat.should.be.a('number');
         a_profile.lon.should.be.a('number');

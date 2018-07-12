@@ -32,7 +32,7 @@ describe('/GET last reported profiles', function() {
               console.log('A profile is: ' + JSON.stringify(a_profile));
               a_profile.should.include.keys('_id', 'date', 'platform_number', 'cycle_number', 'geoLocation');
               a_profile._id.should.be.a('string');
-              moment(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
+              moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
               (a_profile.platform_number * 1).should.be.a('number');
               (a_profile.cycle_number * 1).should.be.a('number');
               a_profile.geoLocation.coordinates.should.be.a('array');
@@ -68,7 +68,7 @@ describe('/GET atlantic selection', function() {
               //console.log('A profile is: ' + JSON.stringify(a_profile));
               a_profile.should.include.keys('_id', 'date', 'cycle_number','platform_number', 'geoLocation');
               a_profile._id.should.be.a('string');
-              moment(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
+              moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
               (a_profile.platform_number * 1).should.be.a('number');
               (a_profile.cycle_number * 1).should.be.a('number');
               a_profile.geoLocation.coordinates.should.be.a('array');

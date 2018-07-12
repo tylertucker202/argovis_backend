@@ -47,7 +47,7 @@ html(lang='en')
                             td #{profile.POSITIONING_SYSTEM}
                             td 
                                 a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
-                            td #{moment(profile.date).format("YYYY-MM-DD HH:mm")}
+                            td #{moment.utc(profile.date).format("YYYY-MM-DD HH:mm")}
                             td #{profile.cycle_number}
                             td #{profile.DATA_MODE}
                             td #{profile.measurements.length}

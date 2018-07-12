@@ -126,7 +126,7 @@ function addToMarkersLayer(profile, markerIcon, markers) {
                     + '<br>lon: ' + lon + '</b>'
                     + '<br>lat: ' + lat + '</b>'
                     + '<br>cycle: ' + cycle.toString() + '</b>'
-                    + '<br>date: ' + moment(profile.date).format('YYYY-MM-DD') + '</b>'
+                    + '<br>date: ' + moment.utc(profile.date).format('YYYY-MM-DD') + '</b>'
                     + '<br>' + profileLink + '</b>'
                     + '<br>' + platformLink + '</b>'
                     + '<br>' + platformButton + '</b>'

@@ -27,7 +27,7 @@ exports.month_year_profile_list = function(req, res, next) {
 
     const year = JSON.parse(req.params.year);
     const month = JSON.parse(req.params.month);
-    const startDate = moment(year + '-' + month + '-' + 01,'YYYY-MM-DD');
+    const startDate = moment.utc(year + '-' + month + '-' + 01,'YYYY-MM-DD');
     const endDate = startDate.clone().endOf('month');
     const query = Profile.aggregate([
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
@@ -110,8 +110,8 @@ exports.selected_profile_list = function(req, res , next) {
         var minPres = Number(presRange[0]);
     }
 
-    const startDate = moment(req.query.startDate, 'YYYY-MM-DD');
-    const endDate = moment(req.query.endDate, 'YYYY-MM-DD');
+    const startDate = moment.utc(req.query.startDate, 'YYYY-MM-DD');
+    const endDate = moment.utc(req.query.endDate, 'YYYY-MM-DD');
     GJV.valid(shapeJson);
     GJV.isPolygon(shapeJson);
 
@@ -260,8 +260,8 @@ exports.selected_profile_list = function(req, res , next) {
 
 exports.latest_profile_list = function(req,res, next) {
     //get startDate, endDate
-    startDate = moment().subtract(7, 'days');
-    endDate = moment();
+    startDate = moment.utc().subtract(7, 'days');
+    endDate = moment.utc();
     var query = Profile.aggregate([ {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
                                     {$sort: {'platform_number': -1, 'date': -1}},
                                     {$group: {_id: '$platform_number',

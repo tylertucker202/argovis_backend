@@ -52,7 +52,7 @@ ProfileSchema
 ProfileSchema
 .virtual('date_formatted')
 .get(function () {
-  return moment(this.date).format('YYYY-MM-DD');
+  return moment.utc(this.date).format('YYYY-MM-DD');
 });
 
 //Export model, mongoose automatically looks for the plural of the first input. 'profiles'
