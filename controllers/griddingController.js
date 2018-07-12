@@ -16,8 +16,8 @@ exports.pres_layer_selection = function(req, res , next) {
     const maxPres = Number(presRange[1]);
     const minPres = Number(presRange[0]);
 
-    const startDate = moment(req.query.startDate, 'YYYY-MM-DD');
-    const endDate = moment(req.query.endDate, 'YYYY-MM-DD');
+    const startDate = moment.utc(req.query.startDate, 'YYYY-MM-DD');
+    const endDate = moment.utc(req.query.endDate, 'YYYY-MM-DD');
 
     req.getValidationResult().then(function (result) {
         if (!result.isEmpty()) {
