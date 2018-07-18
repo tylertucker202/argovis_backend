@@ -10,6 +10,7 @@ html(lang='en')
         script(src='/javascripts/external-js/jquery.min.js')
         script(src='/javascripts/external-js/bootstrap.min.js')
         script(src='/javascripts/external-js/tableexport.min.js')
+        script(src="/javascripts/external-js/moment.min.js")
     body
 
     block content
@@ -77,7 +78,7 @@ html(lang='en')
         let psal = [];
         let pres = [];
         let temp = [];
-        let cycle = [];
+        let time = [];
         let profiles = !{profiles};
 
         const collateProfileMeasurements = function(profile) {
@@ -127,12 +128,13 @@ html(lang='en')
             pres = pres.concat(profileMeas.pres);
             temp = temp.concat(profileMeas.temp);
 
-            let meas_idx = [];
+            let profTime = [];
             for (var j=0; j<profileMeas.pres.length; j++) {
-                meas_idx.push(profiles[i].cycle_number); //just an array of cycle number
+                profTime.push(moment.utc(profiles[i].date).format('YYYY-MM-DD'))
             }
-            cycle = cycle.concat(meas_idx);
+            time = time.concat(profTime);
         };
+
 
         const getMaskForPair = function(arrayOne, arrayTwo) {
             let mask = [];
@@ -169,11 +171,11 @@ html(lang='en')
 
         presForTemp = pres.filter((item, i) => presVsTempMask[i]);
         tempForPres = temp.filter((item, i) => presVsTempMask[i]);
-        cycleForTemp = cycle.filter((item, i) => presVsTempMask[i]);
+        timeForTemp = time.filter((item, i) => presVsTempMask[i]);
 
         presForPsal = pres.filter((item, i) => presVsPsalMask[i]);
         psalForPres = psal.filter((item, i) => presVsPsalMask[i]);
-        cycleForPsal = cycle.filter((item, i) => presVsPsalMask[i]);
+        timeForPsal = time.filter((item, i) => presVsPsalMask[i]);
         var tempScl = [[0.0, 'rgb(3, 35, 51)'],
                         [0.125, 'rgb(24, 51, 124)'],
                         [0.25, 'rgb(86, 59, 156)'],
@@ -194,7 +196,7 @@ html(lang='en')
                         [0.875, 'rgb(195, 221, 100)'],
                         [1.0, 'rgb(253, 238, 153)']];
 
-        const measurements = {'pres_v_temp': {'xvalues': cycleForTemp,
+        const measurements = {'pres_v_temp': {'xvalues': timeForTemp,
                                                 'yvalues': presForTemp.map(roundArray),
                                                 'cvalues': tempForPres.map(roundArray),
                                                 'text': 'temperature: ',
@@ -206,7 +208,7 @@ html(lang='en')
                                                         len: 1, 
                                                         yanchor: "middle"
                                                         }},
-                                'pres_v_psal': {'xvalues': cycleForPsal,
+                                'pres_v_psal': {'xvalues': timeForPsal,
                                                 'yvalues': presForPsal.map(roundArray),
                                                 'cvalues': psalForPres.map(roundArray),
                                                 'text': 'salinity: ',
@@ -261,8 +263,8 @@ html(lang='en')
             },
             xaxis: {
                 autorange: true, 
-                type: "linear", 
-                title: "Cycle"
+                type: "date", 
+                title: "Date"
             }, 
             hovermode: "closest", 
             showlegend: true
@@ -281,8 +283,8 @@ html(lang='en')
             },
             xaxis: {
                 autorange: true, 
-                type: "linear", 
-                title: "Cycle"
+                type: "date", 
+                title: "Date"
             }, 
             hovermode: "closest", 
             showlegend: true
