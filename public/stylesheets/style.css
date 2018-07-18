@@ -101,23 +101,30 @@ a {
 table.table-striped {
   display: table;
   border: '1';
+  text-align: left;
 }
 
 table.table-striped thead, table.table-striped tbody {
   float: left;
   width: 100%;
+  text-align: left;
 }
 table.table-striped tbody {
   overflow: auto;
   height: 300px;
+  text-align: left;
+  float: left;
 }
 
 table.table-striped tr {
   width: 100%;
   display: table;
   text-align: left;
+  float: left;
 }
 table.table-striped th, table.table-striped td {
-  width: 10%;
+  width: 9%;
+  text-align: left;
+  float: left;
 }
 

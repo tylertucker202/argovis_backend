@@ -33,11 +33,13 @@ html(lang='en')
                         th Dac
                         th Parameters
                         th Positioning system
+                        th Lat
+                        th Lon
                         th Link to profile page
                         th Date reported
                         th Cycle number
                         th Data mode
-                        th Number of measurements
+                        th Num. of meas.
                 tbody(overflow='auto', height='150px')
                     each profile, i in JSON.parse(profiles)
                         tr
@@ -46,6 +48,8 @@ html(lang='en')
                             td #{profile.dac}
                             td #{profile.station_parameters}
                             td #{profile.POSITIONING_SYSTEM}
+                            td #{profile.lat}
+                            td #{profile.lon}
                             td 
                                 a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
                             td #{moment.utc(profile.date).format("YYYY-MM-DD HH:mm")}
