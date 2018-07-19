@@ -52,8 +52,8 @@ html(lang='en')
                             td #{moment.utc(profile.date).format("YYYY-MM-DD HH:mm")}
                             td #{profile.cycle_number}
                             td #{profile.POSITIONING_SYSTEM}
-                            td #{profile.lat}
-                            td #{profile.lon}
+                            td #{Number(profile.lat).toFixed(3)}
+                            td #{Number(profile.lon).toFixed(3)}
                             td #{profile.DATA_MODE}
                             td #{profile.measurements.length}
 
