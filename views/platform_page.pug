@@ -48,8 +48,8 @@ html(lang='en')
                             td #{profile.dac}
                             td #{profile.station_parameters}
                             td #{profile.POSITIONING_SYSTEM}
-                            td #{Number(profile.lat).toFixed(3)}
-                            td #{Number(profile.lon).toFixed(3)}
+                            td #{profile.strLat}
+                            td #{profile.strLon}
                             td 
                                 a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
                             td #{moment.utc(profile.date).format("YYYY-MM-DD HH:mm")}
@@ -85,6 +85,8 @@ html(lang='en')
         let time = [];
         let cycle = [];
         let profiles = !{profiles};
+
+        console.log(profiles[0]);
 
         const collateProfileMeasurements = function(profile) {
             var collatedProfiles = {};

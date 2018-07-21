@@ -219,6 +219,29 @@ exports.selected_profile_list = function(req, res , next) {
         var promise = query.exec();
         promise
         .then(function (profiles) {
+            //create virtural fields. 
+            for(var idx=0; idx < profiles.length; idx++){
+                let lat = profiles[idx].lat;
+                let lon = profiles[idx].lon;
+                profiles[idx].roundLat = Number(lat.toFixed(3));
+                profiles[idx].roundLon = Number(lon.toFixed(3));
+
+                if (lat > 0) {
+                    profiles[idx].strLat = Math.abs(lat).toFixed(3).toString() + ' N';
+                }
+                else {
+                    profiles[idx].strLat = Math.abs(lat).toFixed(3).toString() + ' S';
+                }
+                if (lon > 0) {
+                    profiles[idx].strLon = Math.abs(lon).toFixed(3).toString() + ' E';
+                }
+                else {
+                    profiles[idx].strLon = Math.abs(lon).toFixed(3).toString() + ' W';
+                }
+                }
+            
+
+            //render page
             if (req.params.format==='page'){
                 if (profiles === null) { res.send('profile not found'); }
                 else {

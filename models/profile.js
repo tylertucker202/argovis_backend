@@ -29,7 +29,12 @@ var ProfileSchema = Schema(
     POSITIONING_SYSTEM: {type: String, required: false, max: 100},
     DATA_MODE: {type: String, required: false, max: 100},
     PLATFORM_TYPE: {type: String, required: false, max: 100},
-  });
+  },
+  {
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true }
+  }
+);
 
 // Virtual for profile's URL
 ProfileSchema
@@ -48,6 +53,33 @@ ProfileSchema
 .get(function () {
   return this.lon.toFixed(3);
 });
+
+ProfileSchema
+.virtual('strLat')
+.get(function () {
+  let lat = this.lat;
+  if (lat > 0) {
+    strLat = Math.abs(lat).toFixed(3).toString() + ' N';
+  }
+  else {
+      strLat = Math.abs(lat).toFixed(3).toString() + ' S';
+  }
+  return strLat
+});
+
+ProfileSchema
+.virtual('strLon')
+.get(function () {
+  let lon = this.lon;
+  if (lon > 0) {
+    strLon = Math.abs(lon).toFixed(3).toString() + ' E';
+  }
+  else {
+      strLon = Math.abs(lon).toFixed(3).toString() + ' W';
+  }
+  return strLon
+});
+
 // Virtual for formatted date
 ProfileSchema
 .virtual('date_formatted')
