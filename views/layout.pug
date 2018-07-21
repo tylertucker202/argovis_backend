@@ -14,9 +14,11 @@ html(lang='en')
         link(rel='stylesheet', href='/stylesheets/external-css/leaflet.css')
         link(rel='stylesheet', href='/stylesheets/style.css')
         link(rel='stylesheet', href='/stylesheets/external-css/leaflet-draw.css')
+        link(rel="stylesheet" href='/stylesheets/external-css/Leaflet.Coordinates-0.1.5.css')
         script(src='/javascripts/external-js/jquery.min.js')
         script(src="/javascripts/external-js/leaflet.js")
         script(src="/javascripts/external-js/leaflet.draw.js")
+        script(src="/javascripts/external-js/Leaflet.Coordinates-0.1.5.min.js")
         link(rel='stylesheet', href='/stylesheets/external-css/bootstrap.css')
         script(src='/javascripts/external-js/bootstrap.min.js')
         //used for jquery date range
@@ -156,10 +158,13 @@ html(lang='en')
               drawnItems.addLayer(layer);
           }
 
-          map.on('mousemove', function (e) {
-              info._div.innerHTML = 'Longitude: ' + e.latlng.lng.toFixed(2) + '<br />' +
-                                      'Latitude: ' + e.latlng.lat.toFixed(2);
-          });
+          L.control.coordinates({
+            position:"topright",
+            useDMS:true,
+            enableUserInput:false,
+            labelTemplateLat:"N {y}",
+            labelTemplateLng:"E {x}",
+            decimals:2,}).addTo(map);
 
           map.on(L.Draw.Event.CREATED, function (event) {
               var layer = event.layer;
@@ -209,14 +214,6 @@ html(lang='en')
               });
               shapeSelectionOnMap()
           });
-
-          var info = L.control({position: 'topright'});
-
-          info.onAdd = function (map) {
-              this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-              return this._div;
-          };
-          info.addTo(map);
 
           $('#aboutPopup').on('click', function(){
             alert('An interactive app for the Argo dataset.')

@@ -223,8 +223,8 @@ exports.selected_profile_list = function(req, res , next) {
             for(var idx=0; idx < profiles.length; idx++){
                 let lat = profiles[idx].lat;
                 let lon = profiles[idx].lon;
-                profiles[idx].roundLat = Number(lat.toFixed(3));
-                profiles[idx].roundLon = Number(lon.toFixed(3));
+                profiles[idx].roundLat = Number(lat).toFixed(3);
+                profiles[idx].roundLon = Number(lon).toFixed(3);
 
                 if (lat > 0) {
                     profiles[idx].strLat = Math.abs(lat).toFixed(3).toString() + ' N';

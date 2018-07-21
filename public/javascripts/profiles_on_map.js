@@ -93,8 +93,8 @@ const platformProfilesSelection = function(selectedPlatform, markerType){
 function addToMarkersLayer(profile, markerIcon, markers) {
     const selectedPlatform = profile.platform_number;
     const geoLocation = profile.geoLocation;
-    const lat = geoLocation.coordinates[1].toFixed(2);
-    const lon = geoLocation.coordinates[0].toFixed(2);
+    var lat = geoLocation.coordinates[1].toFixed(2);
+    var lon = geoLocation.coordinates[0].toFixed(2);
     if (lat > 0) {
         var strLat = Math.abs(lat).toFixed(3).toString() + ' N';
     }

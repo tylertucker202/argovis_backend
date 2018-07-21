@@ -30,6 +30,7 @@
     "jquery-ui": "^1.12.1",
     "leaflet": "^1.1.0",
     "leaflet-draw": "^0.4.12",
+    "leaflet.coordinates": "^0.1.5",
     "moment": "^2.18.1",
     "mongoose": "^4.11.10",
     "morgan": "~1.8.1",
