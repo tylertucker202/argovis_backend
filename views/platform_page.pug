@@ -83,6 +83,7 @@ html(lang='en')
         let pres = [];
         let temp = [];
         let time = [];
+        let cycle = [];
         let profiles = !{profiles};
 
         const collateProfileMeasurements = function(profile) {
@@ -133,12 +134,14 @@ html(lang='en')
             temp = temp.concat(profileMeas.temp);
 
             let profTime = [];
+            var cycleIdx = [];
             for (var j=0; j<profileMeas.pres.length; j++) {
-                profTime.push(moment.utc(profiles[i].date).format('YYYY-MM-DD'))
+                profTime.push(moment.utc(profiles[i].date).format('YYYY-MM-DD HH:mm'))
+                cycleIdx.push(profiles[i].cycle_number); //just an array of cycle number
             }
             time = time.concat(profTime);
+            cycle = cycle.concat(cycleIdx);
         };
-
 
         const getMaskForPair = function(arrayOne, arrayTwo) {
             let mask = [];
@@ -175,10 +178,12 @@ html(lang='en')
 
         presForTemp = pres.filter((item, i) => presVsTempMask[i]);
         tempForPres = temp.filter((item, i) => presVsTempMask[i]);
+        cycleForTemp = cycle.filter((item, i) => presVsTempMask[i]);
         timeForTemp = time.filter((item, i) => presVsTempMask[i]);
 
         presForPsal = pres.filter((item, i) => presVsPsalMask[i]);
         psalForPres = psal.filter((item, i) => presVsPsalMask[i]);
+        cycleForPsal = cycle.filter((item, i) => presVsPsalMask[i]);
         timeForPsal = time.filter((item, i) => presVsPsalMask[i]);
         var tempScl = [[0.0, 'rgb(3, 35, 51)'],
                         [0.125, 'rgb(24, 51, 124)'],
@@ -206,6 +211,7 @@ html(lang='en')
                                                 'text': 'temperature: ',
                                                 'yaxis': 'y2',
                                                 'xaxis': 'x1',
+                                                'cycle': cycleForTemp,
                                                 'colorscale': tempScl,
                                                 'colorbar': {
                                                         title: "Temperature [Celsius]", 
@@ -218,6 +224,7 @@ html(lang='en')
                                                 'text': 'salinity: ',
                                                 'yaxis': 'y1',
                                                 'xaxis': 'x1',
+                                                'cycle': cycleForPsal,
                                                 'colorscale': psalScl,
                                                 'colorbar': {
                                                         title: "Salinity [psu]", 
@@ -226,21 +233,30 @@ html(lang='en')
                                                         }}
                                 };
 
-        const makeText = function(text, value) {
+        const makeText = function(text, value, cycle) {
                 return("<br>" + text + value.toString()
+                     + "<br>cycle:" + cycle.toString()
                      + "<br>click to see profile page"
                 )
         };
 
         const makeTrace = function(key) {
             let meas = measurements[key];
+            //let hovorText = meas.cvalues.map(function(value) { return makeText(meas.text, value); });
+            //hovorText = meas.cycle.map(function(value) return)
+            let hovorText = [];
+            for(let idx=0; idx < meas.cvalues.length; idx++){
+                let pointText = makeText(meas.text, meas.cvalues[idx], meas.cycle[idx])
+                hovorText.push(pointText);
+            }
             scatterTrace = {
                 y: meas.yvalues,
                 x: meas.xvalues,
-                text: meas.cvalues.map(function(value) { return makeText(meas.text, value); }),
+                text: hovorText,
                 showlegend: false,
                 type: 'scattergl',
                 mode: 'markers',
+                cycle: meas.cycle,
                 marker: { color: meas.cvalues,
                             size: 5,
                             symbol: 'dot',
@@ -303,14 +319,16 @@ html(lang='en')
         // Upon click a new tab opens to the corresponding profile.
         pres_v_temp_plot.on('plotly_click', function(data){
             let xidx = data.points[0].pointNumber
-            var profile_id = !{title} + '_' + data.points[0].data.x[xidx];
+            let cycle_num = data.points[0].data.cycle[xidx];
+            var profile_id = !{title} + '_' + cycle_num;
             var url = '/catalog/profiles/' + profile_id + '/page';
             window.open(url,'_blank');
         });
 
         pres_v_psal_plot.on('plotly_click', function(data){
             let xidx = data.points[0].pointNumber
-            var profile_id = !{title} + '_' + data.points[0].data.x[xidx];
+            let cycle_num = data.points[0].data.cycle[xidx];
+            var profile_id = !{title} + '_' + cycle_num;
             var url = '/catalog/profiles/' + profile_id + '/page';
             window.open(url,'_blank');
         });
