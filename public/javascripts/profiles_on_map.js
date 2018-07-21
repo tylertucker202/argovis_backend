@@ -95,6 +95,18 @@ function addToMarkersLayer(profile, markerIcon, markers) {
     const geoLocation = profile.geoLocation;
     const lat = geoLocation.coordinates[1].toFixed(2);
     const lon = geoLocation.coordinates[0].toFixed(2);
+    if (lat > 0) {
+        var strLat = Math.abs(lat).toFixed(3).toString() + ' N';
+    }
+    else {
+        var strLat = Math.abs(lat).toFixed(3).toString() + ' S';
+    }
+    if (lon > 0) {
+        var strLon = Math.abs(lon).toFixed(3).toString() + ' E';
+    }
+    else {
+        var strLon = Math.abs(lon).toFixed(3).toString() + ' W';
+    }
     const cycle = profile.cycle_number
     const profile_id = selectedPlatform.toString()+'_'+cycle.toString();
 
@@ -123,8 +135,8 @@ function addToMarkersLayer(profile, markerIcon, markers) {
     const platformButton = "<input type='button' value='Position history' onclick=platformProfilesSelection("+selectedPlatform.toString()+",'history')>"
     const platformLink = "<a href='/catalog/platforms/" + selectedPlatform + "/page' target='_blank' >To platform page</a>";
     const popupText = '<b>Hello, I\'m ' + profile_id + '!</b>'
-                    + '<br>lon: ' + lon + '</b>'
-                    + '<br>lat: ' + lat + '</b>'
+                    + '<br>lon: ' + strLon + '</b>'
+                    + '<br>lat: ' + strLat + '</b>'
                     + '<br>cycle: ' + cycle.toString() + '</b>'
                     + '<br>date: ' + moment.utc(profile.date).format('YYYY-MM-DD') + '</b>'
                     + '<br>' + profileLink + '</b>'
