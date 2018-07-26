@@ -44,6 +44,12 @@ ProfileSchema
 });
 
 ProfileSchema
+.virtual('formatted_station_parameters')
+.get(function () {
+  return this.station_parameters.map(param => ' '+param)
+})
+
+ProfileSchema
 .virtual('roundLat')
 .get(function () {
   return this.lat.toFixed(3);

@@ -46,7 +46,7 @@ html(lang='en')
                             td 
                                 a(href=profile.nc_url) #{profile._id} data
                             td #{profile.dac}
-                            td #{profile.station_parameters}
+                            td #{profile.formatted_station_parameters}
                             td 
                                 a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
                             td #{moment.utc(profile.date).format("YYYY-MM-DD HH:mm")}

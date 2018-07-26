@@ -238,7 +238,10 @@ exports.selected_profile_list = function(req, res , next) {
                 else {
                     profiles[idx].strLon = Math.abs(lon).toFixed(3).toString() + ' W';
                 }
+                let station_parameters = profiles[idx].station_parameters
+                profiles[idx].formatted_station_parameters = station_parameters.map(param => ' '+param)
                 }
+            
             
 
             //render page

@@ -14,7 +14,7 @@ html(lang='en')
         link(rel='stylesheet', href='/stylesheets/external-css/leaflet.css')
         link(rel='stylesheet', href='/stylesheets/style.css')
         link(rel='stylesheet', href='/stylesheets/external-css/leaflet-draw.css')
-        link(rel="stylesheet" href='/stylesheets/external-css/Leaflet.Coordinates-0.1.5.css')
+        //link(rel="stylesheet" href='/stylesheets/external-css/Leaflet.Coordinates-0.1.5.css')
         script(src='/javascripts/external-js/jquery.min.js')
         script(src="/javascripts/external-js/leaflet.js")
         script(src="/javascripts/external-js/leaflet.draw.js")
@@ -158,13 +158,42 @@ html(lang='en')
               drawnItems.addLayer(layer);
           }
 
-          L.control.coordinates({
-            position:"topright",
-            useDMS:true,
-            enableUserInput:false,
-            labelTemplateLat:"N {y}",
-            labelTemplateLng:"E {x}",
-            decimals:2,}).addTo(map);
+          //- L.control.coordinates({
+          //-   position:"topright",
+          //-   useDMS:true,
+          //-   enableUserInput:false,
+          //-   labelTemplateLat:"N {y}",
+          //-   labelTemplateLng:"E {x}",
+          //-   decimals:2,}).addTo(map);
+
+          var adjLatLng = function(lat, lon) {
+              if (lat > 0) {
+                  var strLat = Math.abs(lat).toFixed(2).toString() + ' N';
+              }
+              else {
+                  var strLat = Math.abs(lat).toFixed(2).toString() + ' S';
+              }
+              if (lon > 0) {
+                  var strLon = Math.abs(lon).toFixed(2).toString() + ' E';
+              }
+              else {
+                  var strLon = Math.abs(lon).toFixed(2).toString() + ' W';
+              }
+              return([strLat, strLon])
+          }
+          map.on('mousemove', function (e) {
+              let latLon = adjLatLng(e.latlng.lat, e.latlng.lng)
+              info._div.innerHTML = 'Longitude: ' + latLon[1] + '<br />' +
+                                      'Latitude: ' + latLon[0];
+          });
+
+          var info = L.control({position: 'topright'});
+          info.onAdd = function (map) {
+              this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+              return this._div;
+          };
+          info.addTo(map);
+
 
           map.on(L.Draw.Event.CREATED, function (event) {
               var layer = event.layer;
