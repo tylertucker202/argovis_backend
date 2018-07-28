@@ -6,11 +6,15 @@ html(lang='en')
         link(rel='stylesheet', href='/stylesheets/style.css')
         script(type="text/javascript", src='https://cdn.plot.ly/plotly-latest.min.js')
         link(rel='stylesheet', href='/stylesheets/external-css/bootstrap.css')
+        link(rel='stylesheet', href='/stylesheets/external-css/bootstrap-table.css')
         script(src='/javascripts/external-js/FileSaver.min.js')
         script(src='/javascripts/external-js/jquery.min.js')
         script(src='/javascripts/external-js/bootstrap.min.js')
         script(src='/javascripts/external-js/tableexport.min.js')
         script(src="/javascripts/external-js/moment.min.js")
+        script(src="/javascripts/external-js/bootstrap-table.js")
+
+
     body
 
     block content
@@ -24,27 +28,33 @@ html(lang='en')
             button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
             div(class='top')
                 a(href='/catalog/platforms/'+ title + '/page2' target='_blank') To platform PT, PS, and TS plot pages
+            div(class='middle')
+                a(href='http://www.jcommops.org/board/wa/Platform?ref='+ title target='_blank') To JCOMMOPS page
             div(class='bottom')
                 a(href='/map' ) To main page
-            table(class="table table-striped", id='profileTable')
-                thead
+            //- table(class="table sortable", id='profileTable')
+            table(class="table-striped", data-toggle="table", id='profileTable')
+                thead(height='50px')
                     tr
                         th Link to GDAC data
+                        th link to Ifremer
                         th Dac
                         th Parameters
                         th Positioning system
-                        th Lat
-                        th Lon
+                        th(data-sortable='true') Lat
+                        th(data-sortable='true') Lon
                         th Link to profile page
-                        th Date reported
-                        th Cycle number
-                        th Data mode
-                        th Num. of meas.
+                        th(data-sortable='true') Date reported
+                        th(data-sortable='true') Cycle number
+                        th(data-sortable='true') Data mode
+                        th(data-sortable='true') Num. of meas.
                 tbody(overflow='auto', height='150px')
                     each profile, i in JSON.parse(profiles)
                         tr
                             td 
                                 a(href=profile.nc_url) #{profile._id} data
+                            td 
+                                a(href=profile.ifremerProfile) ifremer data
                             td #{profile.dac}
                             td #{profile.formatted_station_parameters}
                             td #{profile.POSITIONING_SYSTEM}
@@ -85,8 +95,6 @@ html(lang='en')
         let time = [];
         let cycle = [];
         let profiles = !{profiles};
-
-        console.log(profiles[0]);
 
         const collateProfileMeasurements = function(profile) {
             var collatedProfiles = {};

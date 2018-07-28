@@ -44,6 +44,18 @@ ProfileSchema
 });
 
 ProfileSchema
+.virtual('jcompsPlatform')
+.get(function () {
+  return 'http://www.jcommops.org/board/wa/Platform?ref=' + this.platform_number
+})
+
+ProfileSchema
+.virtual('ifremerProfile')
+.get(function () {
+  return 'http://www.ifremer.fr/co-argoFloats/cycle?detail=false&ptfCode='+this.platform_number+'&cycleNum='+this.cycle_number
+})
+
+ProfileSchema
 .virtual('formatted_station_parameters')
 .get(function () {
   return this.station_parameters.map(param => ' '+param)

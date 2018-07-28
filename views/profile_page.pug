@@ -26,6 +26,10 @@ html(lang='en')
             p Data mode: #{profile.DATA_MODE}
             p Data source:
             a(href=profile.nc_url) #{profile.nc_url}
+            p Ifremer link: 
+            a(href=profile.ifremerProfile) #{profile.ifremerProfile}
+            p JCOMMPS Platform link:
+            a(href=profile.jcompsPlatform) #{profile.jcompsPlatform}
             p
             a(href='/catalog/platforms/'+ platform_number + '/page' target='_blank') To platform #{profile.platform_number} page
             div

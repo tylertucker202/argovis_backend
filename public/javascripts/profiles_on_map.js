@@ -19,6 +19,13 @@ const argoIconBW = L.icon({
     popupAnchor:  [6, 6]
 });
 
+const vertex = L.icon({
+    iconUrl: '../images/dot_grey.png',
+    iconSize:     [12, 12], 
+    iconAnchor:   [0, 0],
+    popupAnchor:  [6, 6]    
+})
+
 var markersLayer = new L.layerGroup();
 var platformProfileMarkersLayer = new L.layerGroup();
 
@@ -74,7 +81,7 @@ const displayProfiles = function(url, markerType, latestBool) {
             markersLayer.addTo(map);
         }
     }).fail(function(){
-        //console.log(result.length);
+        console.log(result.length);
         closeDrawnItemPopups(); 
         alert('Points did not load, try reducing the polygon size or date range...or try restarting Argovis')});
 };

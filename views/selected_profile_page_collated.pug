@@ -6,10 +6,12 @@ html(lang='en')
         link(rel='stylesheet', href='/stylesheets/style.css')
         script(type="text/javascript", src='https://cdn.plot.ly/plotly-latest.min.js')
         link(rel='stylesheet', href='/stylesheets/external-css/bootstrap.css')
+        link(rel='stylesheet', href='/stylesheets/external-css/bootstrap-table.css')
         script(src='/javascripts/external-js/FileSaver.min.js')
         script(src='/javascripts/external-js/jquery.min.js')
         script(src='/javascripts/external-js/bootstrap.min.js')
         script(src='/javascripts/external-js/tableexport.min.js')
+        script(src="/javascripts/external-js/bootstrap-table.js")
     body
 
     block content
@@ -26,20 +28,20 @@ html(lang='en')
                 button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
             div(class='bottom')
                 a(href='/map' ) To main page
-            table(class="table table-striped")
-                thead
+            table(class="table table-striped", data-toggle="table")
+                thead(height='50px')
                     tr
                         th Link to GDAC data
-                        th Dac
-                        th Parameters
+                        th(data-sortable='true') Dac
+                        th(data-sortable='true') Parameters
                         th Link to profile page
-                        th Date reported
-                        th Cycle number
-                        th Positioning system
-                        th Lat
-                        th Lon
-                        th Data mode
-                        th Num. of meas.
+                        th(data-sortable='true') Date reported
+                        th(data-sortable='true') Cycle number
+                        th(data-sortable='true') Positioning system
+                        th(data-sortable='true') Lat
+                        th(data-sortable='true') Lon
+                        th(data-sortable='true') Data mode
+                        th(data-sortable='true') Num. of meas.
                 tbody(overflow='auto', height='150px')
                     each profile, i in JSON.parse(profiles)
                         tr

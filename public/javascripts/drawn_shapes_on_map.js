@@ -18,7 +18,9 @@ const drawOptions = {
                 rectangle: {
                     shapeOptions: {
                         color: '#983fb2',
-                        weight: 4
+                        weight: 4,
+                        //fill: false,
+                        //opacity: 0.0,
                     },
                 },
                 polyline: false,
