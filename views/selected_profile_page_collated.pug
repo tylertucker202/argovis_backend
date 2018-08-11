@@ -64,8 +64,8 @@ html(lang='en')
         function latSorter(a, b) {
             aNS = a.slice(-1);
             bNS = b.slice(-1);
-            aNum = a.slice(0, -2);
-            bNum = b.slice(0, -2);
+            aNum = Number(a.slice(0, -2));
+            bNum = Number(b.slice(0, -2));
             if (aNS == 'S') { aNum = -1*Number(aNum) }
             if (bNS == 'S') { bNum = -1*Number(bNum) }
             if (aNum < bNum) return -1;
@@ -76,8 +76,8 @@ html(lang='en')
         function lonSorter(a, b) {
             aNS = a.slice(-1);
             bNS = b.slice(-1);
-            aNum = a.slice(0, -2);
-            bNum = b.slice(0, -2);
+            aNum = Number(a.slice(0, -2));
+            bNum = Number(b.slice(0, -2));
             if (aNS == 'E') { aNum = -1*Number(aNum) }
             if (bNS == 'E') { bNum = -1*Number(bNum) }
             if (aNum < bNum) return -1;
