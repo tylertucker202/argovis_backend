@@ -24,16 +24,16 @@ html(lang='en')
             p Positioning system: #{profile.POSITIONING_SYSTEM}
             p Platform type: #{profile.PLATFORM_TYPE}
             p Data mode: #{profile.DATA_MODE}
-            p Data source:
-            a(href=profile.nc_url) #{profile.nc_url}
-            p Ifremer link: 
-            a(href=profile.ifremerProfile) #{profile.ifremerProfile}
-            p JCOMMPS Platform link:
-            a(href=profile.jcompsPlatform) #{profile.jcompsPlatform}
             p
-            a(href='/catalog/platforms/'+ platform_number + '/page' target='_blank') To platform #{profile.platform_number} page
-            div
-            a(href='/map' ) To main page
+                a(href=profile.nc_url) Data source link
+            p
+                a(href=profile.ifremerProfile) Ifremer link
+            p
+                a(href=profile.jcompsPlatform) JCOMMPS Platform link
+            p
+                a(href='/catalog/platforms/'+ platform_number + '/page' target='_blank') To platform #{profile.platform_number} page
+            p
+                a(href='/map' ) Back to map
             #TPS_CHART
             button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
 
@@ -119,37 +119,68 @@ html(lang='en')
 
         psalForTemp = psal.filter((item, i) => tempVsPsalMask[i]);
         tempForPsal = temp.filter((item, i) => tempVsPsalMask[i]);
+        const roundArray = function (value){ return(Number(value).toFixed(3)) };
 
-
-        console.log('pres v temp lengths should be equal')
-        console.log(tempForPres.length);
-        console.log(presForTemp.length);
-
-        console.log('pres v psal lengths should be equal')
-        console.log(presForPsal.length);
-        console.log(psalForPres.length);
-
-        console.log('psal v temp lengths should be equal')
-        console.log(psalForTemp.length);
-        console.log(tempForPsal.length);  
-
-        const measurements = {'temp_v_psal': {'yvalue': tempForPsal, 'xvalue': psalForTemp, 'yaxis': 'y1', 'xaxis': 'x1'},
-                                'pres_v_psal': {'yvalue': presForPsal, 'xvalue': psalForPres, 'yaxis': 'y2', 'xaxis': 'x2'},
-                                'pres_v_temp': {'yvalue': presForTemp, 'xvalue': tempForPres, 'yaxis': 'y3', 'xaxis': 'x3'}
+        const measurements = {'temp_v_psal': {'yvalues': tempForPsal.map(roundArray),
+                                              'xvalues': psalForTemp.map(roundArray),
+                                              'yaxis': 'y1',
+                                              'xaxis': 'x1',
+                                              'ylabel': 'temperature: ',
+                                              'xlabel': 'salinity: ',
+                                              'yunits': ' C',
+                                              'xunits': ' psu'
+                                              },
+                              'pres_v_psal': {'yvalues': presForPsal.map(roundArray),
+                                              'xvalues': psalForPres.map(roundArray),
+                                              'yaxis': 'y2',
+                                              'xaxis': 'x2',
+                                              'ylabel': 'pressure: ',
+                                              'xlabel': 'salinity: ',
+                                              'yunits': ' dbar',
+                                              'xunits': ' psu'
+                                                },
+                              'pres_v_temp': {'yvalues': presForTemp.map(roundArray),
+                                              'xvalues': tempForPres.map(roundArray),
+                                              'yaxis': 'y3',
+                                              'xaxis': 'x3',
+                                              'ylabel': 'pressure: ',
+                                              'xlabel': 'temperature: ',
+                                              'yunits': ' dbar',
+                                              'xunits': ' C'
+                                                }
                                 };
+
+        let makeText = function(ylabel, yunits, yvalue, xlabel, xunits, xvalue) {
+            text = "<br>" + ylabel + yvalue.toString() + yunits
+                 + "<br>" + xlabel + xvalue.toString() + xunits
+                 + "<br>click to see profile page"
+            return (text)
+        };
 
         const makeTrace =function(key) {
             meas = measurements[key];
+            let hovorText = [];
+            for(let idx=0; idx < meas.yvalues.length; idx++){
+                let pointText = makeText(meas.ylabel,
+                                         meas.yunits,
+                                         meas.yvalues[idx],
+                                         meas.xlabel,
+                                         meas.xunits,
+                                         meas.xvalues[idx])
+                hovorText.push(pointText);
+            }
             return {
-                y: meas.yvalue,
-                x: meas.xvalue,
+                y: meas.yvalues,
+                x: meas.xvalues,
+                text: hovorText,
+                hoverinfo: 'text',
                 xaxis: meas.xaxis,
                 yaxis: meas.yaxis,
                 mode: 'markers',
                 type: 'scatter',
                 name: key
             };
-        }
+        };
 
         const layout = {
             title: "Profile measurements",

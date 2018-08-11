@@ -13,8 +13,6 @@ html(lang='en')
         script(src='/javascripts/external-js/tableexport.min.js')
         script(src="/javascripts/external-js/moment.min.js")
         script(src="/javascripts/external-js/bootstrap-table.js")
-
-
     body
 
     block content
@@ -41,8 +39,8 @@ html(lang='en')
                         th Dac
                         th Parameters
                         th Positioning system
-                        th(data-sortable='true') Lat
-                        th(data-sortable='true') Lon
+                        th(data-sortable='true' data-sorter="latSorter") Lat
+                        th(data-sortable='true' data-sorter="lonSorter") Lon
                         th Link to profile page
                         th(data-sortable='true') Date reported
                         th(data-sortable='true') Cycle number
@@ -68,6 +66,30 @@ html(lang='en')
                             td #{profile.measurements.length}
 
     script(type='text/javascript').
+
+        function latSorter(a, b) {
+            aNS = a.slice(-1);
+            bNS = b.slice(-1);
+            aNum = a.slice(0, -2);
+            bNum = b.slice(0, -2);
+            if (aNS == 'N' && bNS == 'S') return 1;
+            if (aNS == 'S' && bNS == 'N') return -1; 
+            if (aNum < bNum) return -1;
+            if (aNum > bNum) return 1;
+            return 0;
+        }
+
+        function lonSorter(a, b) {
+            aNS = a.slice(-1);
+            bNS = b.slice(-1);
+            aNum = a.slice(0, -2);
+            bNum = b.slice(0, -2);
+            if (aNS == 'W' && bNS == 'E') return 1;
+            if (aNS == 'E' && bNS == 'W') return -1; 
+            if (aNum < bNum) return -1;
+            if (aNum > bNum) return 1;
+            return 0;
+        }
 
         TableExport(document.getElementsByTagName("table"), {
             headers: true,                              // (Boolean), display table headers (th or td elements) in the <thead>, (default: true)
@@ -221,6 +243,7 @@ html(lang='en')
                                                 'text': 'temperature: ',
                                                 'yaxis': 'y2',
                                                 'xaxis': 'x1',
+                                                'units': 'C',
                                                 'cycle': cycleForTemp,
                                                 'colorscale': tempScl,
                                                 'colorbar': {
@@ -234,6 +257,7 @@ html(lang='en')
                                                 'text': 'salinity: ',
                                                 'yaxis': 'y1',
                                                 'xaxis': 'x1',
+                                                'units': 'psu',
                                                 'cycle': cycleForPsal,
                                                 'colorscale': psalScl,
                                                 'colorbar': {
@@ -243,9 +267,11 @@ html(lang='en')
                                                         }}
                                 };
 
-        const makeText = function(text, value, cycle) {
-                return("<br>" + text + value.toString()
-                     + "<br>cycle:" + cycle.toString()
+        const makeText = function(pres, date, text, value, units, cycle) {
+                return("<br>" + text + value.toString() + " " + units
+                     + "<br>date: " + date.toString()
+                     + "<br>pressure: " + pres.toString() + " dbar"
+                     + "<br>cycle: " + cycle.toString()
                      + "<br>click to see profile page"
                 )
         };
@@ -256,13 +282,14 @@ html(lang='en')
             //hovorText = meas.cycle.map(function(value) return)
             let hovorText = [];
             for(let idx=0; idx < meas.cvalues.length; idx++){
-                let pointText = makeText(meas.text, meas.cvalues[idx], meas.cycle[idx])
+                let pointText = makeText(meas.yvalues[idx], meas.xvalues[idx], meas.text, meas.cvalues[idx], meas.units, meas.cycle[idx])
                 hovorText.push(pointText);
             }
             scatterTrace = {
                 y: meas.yvalues,
                 x: meas.xvalues,
                 text: hovorText,
+                hoverinfo: 'text',
                 showlegend: false,
                 type: 'scattergl',
                 mode: 'markers',
