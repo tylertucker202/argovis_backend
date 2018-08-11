@@ -60,6 +60,30 @@ html(lang='en')
                             td #{profile.measurements.length}
 
     script(type='text/javascript').
+
+        function latSorter(a, b) {
+            aNS = a.slice(-1);
+            bNS = b.slice(-1);
+            aNum = a.slice(0, -2);
+            bNum = b.slice(0, -2);
+            if (aNS == 'S') { aNum = -1*Number(aNum) }
+            if (bNS == 'S') { bNum = -1*Number(bNum) }
+            if (aNum < bNum) return -1;
+            if (aNum > bNum) return 1;
+            return 0;
+        }
+
+        function lonSorter(a, b) {
+            aNS = a.slice(-1);
+            bNS = b.slice(-1);
+            aNum = a.slice(0, -2);
+            bNum = b.slice(0, -2);
+            if (aNS == 'E') { aNum = -1*Number(aNum) }
+            if (bNS == 'E') { bNum = -1*Number(bNum) }
+            if (aNum < bNum) return -1;
+            if (aNum > bNum) return 1;
+            return 0;
+        }
         
         TableExport(document.getElementsByTagName("table"), {
             headers: true,                              // (Boolean), display table headers (th or td elements) in the <thead>, (default: true)
@@ -73,30 +97,6 @@ html(lang='en')
             ignoreCols: null,                           // (Number, Number[]), column indices to exclude from the exported file(s) (default: null)
             trimWhitespace: true                        // (Boolean), remove all leading/trailing newlines, spaces, and tabs from cell text in the exported file(s) (default: false)
         });
-
-        function latSorter(a, b) {
-            aNS = a.slice(-1);
-            bNS = b.slice(-1);
-            aNum = a.slice(0, -2);
-            bNum = b.slice(0, -2);
-            if (aNS == 'N' && bNS == 'S') return 1;
-            if (aNS == 'S' && bNS == 'N') return -1; 
-            if (aNum < bNum) return -1;
-            if (aNum > bNum) return 1;
-            return 0;
-        }
-
-        function lonSorter(a, b) {
-            aNS = a.slice(-1);
-            bNS = b.slice(-1);
-            aNum = a.slice(0, -2);
-            bNum = b.slice(0, -2);
-            if (aNS == 'W' && bNS == 'E') return 1;
-            if (aNS == 'E' && bNS == 'W') return -1; 
-            if (aNum < bNum) return -1;
-            if (aNum > bNum) return 1;
-            return 0;
-        }
 
         $('#downloadProfiles').on('click', function(){
             var url =  window.location.href.replace("page", "");
