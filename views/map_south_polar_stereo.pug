@@ -2,7 +2,7 @@ extends layout.pug
 
 
 block content
-    #map
+    #mapSPS
     script(type='text/javascript').
         //stereographic projection
         var mycrs = new L.Proj.CRS('EPSG:3411',
@@ -13,8 +13,17 @@ block content
                     ],
                     origin: [0, 0]
                 });
-        var map = L.map('map', {maxZoom: 13, minZoom: 1, maxBounds: [[-180, -540], [180,540]], crs: mycrs}).setView([#{lat},#{lng}], 4);
-        var geojsonLayer = new L.GeoJSON.AJAX("../images/world-countries.json");       
+        var map = L.map('mapSPS', {maxZoom: 13, minZoom: 1, maxBounds: [[-180, -540], [180,540]], crs: mycrs}).setView([#{lat},#{lng}], 4);
+        var drawnItems = new L.featureGroup().addTo(map);
+        var myStyle = {
+            "color": "#15b01a",
+            "fill-rule": "evenodd",
+            "weight": 1,
+            "fillColor": "#033500",
+            "opacity": 1,
+            "fillOpacity": .9,
+        };
+        var geojsonLayer = new L.GeoJSON.AJAX("../images/world-countries.json", {style: myStyle});       
         geojsonLayer.addTo(map);
         L.control.layers(
             { 'draw layer': drawnItems },

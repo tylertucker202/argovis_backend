@@ -8,11 +8,29 @@ html, body {
 height: 100%;
 overflow: scroll;
 }
+
 #map {
 width: 100%;
 height: 800px;
 border: 1px solid #ccc
 }
+
+#mapNPS {
+  width: 100%;
+  height: 800px;
+  border: 1px solid #ccc;
+  background: #75bbfd;
+  }
+#mapSPS {
+    width: 100%;
+    height: 800px;
+    border: 1px solid #ccc;
+    background: #75bbfd;
+    }
+
+/* .leaflet-container {
+  background: #0343df;
+} */
 
 .info {
 padding: 6px 8px;

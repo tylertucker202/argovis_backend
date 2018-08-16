@@ -2,21 +2,28 @@ extends layout.pug
 
 
 block content
-    #map
+    #mapNPS
     script(type='text/javascript').
         //stereographic projection
         var mycrs = new L.Proj.CRS('EPSG:3411',
                 '+proj=stere +lat_0=90 +lon_0=-45 +lat_ts=-80 +k=1 +x_0=0 +y_0=0 +a=6378273 +b=6356889.449 +units=m +no_defs',
-        //var mycrs = new L.Proj.CRS('EPSG:3411',
-                //'+proj=ortho +lat_0=90 +lon_0=-45 +lat_ts=-80 +k=1 +x_0=0 +y_0=0 +a=6378273 +b=6356889.449 +units=m +no_defs',
                 {
                     resolutions: [
                     4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8
                     ],
                     origin: [0, 0]
                 });
-        var map = L.map('map', {maxZoom: 13, minZoom: 1, maxBounds: [[-180, -540], [180,540]], crs: mycrs}).setView([#{lat},#{lng}], 4);
-        var geojsonLayer = new L.GeoJSON.AJAX("../images/world-countries.json");       
+        var map = L.map('mapNPS', {maxZoom: 13, minZoom: 1, maxBounds: [[-180, -540], [180,540]], crs: mycrs}).setView([#{lat},#{lng}], 4);
+        var drawnItems = new L.featureGroup().addTo(map);
+        var myStyle = {
+            "color": "#15b01a",
+            "fill-rule": "evenodd",
+            "weight": 1,
+            "fillColor": "#033500",
+            "opacity": 1,
+            "fillOpacity": .9,
+        };
+        var geojsonLayer = new L.GeoJSON.AJAX("../images/world-countries-sans-antartica.json", {style: myStyle});       
         geojsonLayer.addTo(map);
         L.control.layers(
             { 'draw layer': drawnItems },
