@@ -1,0 +1,30 @@
+extends layout.pug
+
+
+block content
+    #mapEXP
+    script(type='text/javascript').
+        // uses equireq projection
+        var map = L.map('mapEXP', {maxZoom: 13,
+                                   minZoom: 1,
+                                   maxBounds: [[-180, -540], [180,540]],
+                                   crs: L.CRS.EPSG4326},
+                        ).setView([#{lat},#{lng}], 4);
+        var drawnItems = new L.featureGroup().addTo(map);
+        var myStyle = {
+            "color": "#15b01a",
+            "fill-rule": "evenodd",
+            "weight": 1,
+            "fillColor": "#033500",
+            "opacity": 1,
+            "fillOpacity": .9,
+        };
+
+        var geojsonLayer = new L.GeoJSON.AJAX("../images/world-countries.json", {style: myStyle});       
+        geojsonLayer.addTo(map);
+        L.control.layers(
+            { 'draw layer': drawnItems },
+            { position: 'topleft', collapsed: false }
+        ).addTo(map);
+    script(type='text/javascript', src='javascripts/drawn_shapes_on_map.js')
+    script(type='text/javascript', src='javascripts/profiles_on_map.js')

@@ -31,4 +31,11 @@ router.get('/mapSPS', function(req,res) {
   });
 });
 
+router.get('/mapEQUIREC', function(req,res) {
+  res.render('map_equireq_proj', {
+      lat : 0,
+      lng : 0
+  });
+});
+
 module.exports = router;
