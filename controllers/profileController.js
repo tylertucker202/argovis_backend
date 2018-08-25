@@ -3,7 +3,8 @@ var async = require('async');
 var moment = require('moment');
 var GJV = require('geojson-validation');
 
-const mapParams = 'platform_number date geoLocation cycle_number';
+//station_parameters, lat, lon are needed for virtural fields
+const mapParams = 'platform_number date geoLocation cycle_number station_parameters lat lon';
 
 // Display list of all Profiles
 exports.profile_list = function(req, res, next) {

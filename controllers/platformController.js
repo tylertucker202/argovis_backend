@@ -2,7 +2,8 @@ var Profile = require('../models/profile');
 var async = require('async');
 var moment = require('moment');
 
-const mapParams = 'platform_number date geoLocation cycle_number';
+//station_parameters, lat, lon are needed for virtural fields
+const mapParams = 'platform_number date geoLocation cycle_number station_parameters lat lon';
 
 // Display list of all platforms
 exports.index = function(req, res) {   
