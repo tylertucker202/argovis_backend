@@ -5,7 +5,7 @@ block content
     #mapSPS
     script(type='text/javascript').
         //stereographic projection
-        var mycrs = new L.Proj.CRS('EPSG:3411',
+        var SPScrs = new L.Proj.CRS('EPSG:3411',
                 '+proj=stere +lat_0=-90 +lon_0=-45 +lat_ts=80 +k=1 +x_0=0 +y_0=0 +a=6378273 +b=6356889.449 +units=m +no_defs',
                 {
                     resolutions: [
@@ -13,7 +13,7 @@ block content
                     ],
                     origin: [0, 0]
                 });
-        var map = L.map('mapSPS', {maxZoom: 13, minZoom: 1, maxBounds: [[-180, -540], [180,540]], crs: mycrs}).setView([#{lat},#{lng}], 4);
+        var map = L.map('mapSPS', {maxZoom: 13, minZoom: 1, maxBounds: [[-180, -540], [180,540]], crs: SPScrs}).setView([#{lat},#{lng}], 4);
         var drawnItems = new L.featureGroup().addTo(map);
         var myStyle = {
             "color": "#15b01a",
