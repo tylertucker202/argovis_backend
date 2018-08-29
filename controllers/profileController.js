@@ -46,12 +46,12 @@ exports.month_year_profile_list = function(req, res, next) {
                      station_parameters:  { "$first": "$station_parameters"},
                      cycle_number:  { "$first": "$cycle_number"},
                      dac:  { "$first": "$dac"},
-                     maxPres: {"$max": "$measurements.pres"},
-                     minPres: {"$min": "$measurements.pres"},
-                     maxTemp: {"$max": "$measurements.temp"},
-                     minTemp: {"$min": "$measurements.temp"},
-                     maxPsal: {"$max": "$measurements.psal"},
-                     minPsal: {"$min": "$measurements.psal"}
+                     //maxPres: {"$max": "$measurements.pres"},
+                     //minPres: {"$min": "$measurements.pres"},
+                     //maxTemp: {"$max": "$measurements.temp"},
+                     //minTemp: {"$min": "$measurements.temp"},
+                     //maxPsal: {"$max": "$measurements.psal"},
+                     //minPsal: {"$min": "$measurements.psal"}
                     },
         },   
     ]);
