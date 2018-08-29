@@ -38,6 +38,8 @@ exports.month_year_profile_list = function(req, res, next) {
                      date:  { "$first": "$date"},
                      geo2DLocation: { "$first": "$geo2DLocation"},
                      cycle_number:  { "$first": "$cycle_number"},
+                     lat:  { "$first": "$lat"},
+                     lon:  { "$first": "$lon"},
                      PLATFORM_TYPE:  { "$first": "$PLATFORM_TYPE"},
                      POSITIONING_SYSTEM:  { "$first": "$POSITIONING_SYSTEM"},
                      DATA_MODE:  { "$first": "$DATA_MODE"},
