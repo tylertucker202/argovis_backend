@@ -191,12 +191,15 @@ const getTransformedShape = function(shape) {
     //console.log('number of points: '+shape[0].length);
     for (let j = 0; j < shape[0].length; j++) {
         //transformation if shape is outside latitude.
-        let lat = shape[0][j][0] % 360;
+        let lon = shape[0][j][0] % 360;
         //crossing antimeridian transformation
-        if (lat < -180) {
-            lat = 180 + lat % 180;
+        if (lon < -180) {
+            lon = 180 + lon % 180;
         }
-        let point = [lat, shape[0][j][1]];
+        else if (lon > 180) {
+            lon = 180 - lon % 180;
+        }
+        let point = [lon, shape[0][j][1]];
         transformedShape.push(point);
     }
     return(transformedShape)
