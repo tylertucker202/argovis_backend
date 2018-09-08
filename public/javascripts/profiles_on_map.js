@@ -33,7 +33,7 @@ var platformProfileMarkersLayer = new L.layerGroup();
 const closeDrawnItemPopups = function() {
     //close popups from all drawn items
     if (drawnItems){
-        console.log('closing drawn items');
+        console.log('closeDrawnItemPopups: closing drawn items');
         drawnItems.eachLayer(function (layer) {
             layer.closePopup();
         });
@@ -44,7 +44,7 @@ const closeDrawnItemPopups = function() {
 const openDrawnItemPopups = function() {
     //close popups from all drawn items
     if (drawnItems){
-        console.log('closing drawn items');
+        console.log('openDrawnItemPopups: closing drawn items');
         drawnItems.eachLayer(function (layer) {
             layer.openPopup();
         });
@@ -87,13 +87,12 @@ const displayProfiles = function(url, markerType, latestBool) {
             markersLayer.addTo(map);
         }
     }).fail(function(){
-        console.log(result.length);
         closeDrawnItemPopups();
         alertify.alert('Points did not load, try reducing the polygon size or date range...or try restarting Argovis')});
 };
 
 //populate map with most recent profiles
-displayProfiles('/selection/lastProfiles');
+displayProfiles('/selection/lastProfiles?map', '', true);
 //displayProfiles('/selection/latestProfiles/map', '', true);
 
 const platformProfilesSelection = function(selectedPlatform, markerType){
