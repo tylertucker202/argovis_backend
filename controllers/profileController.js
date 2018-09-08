@@ -271,7 +271,9 @@ exports.last_profile_list = function(req, res, next) {
                                  'date': {$first: '$date'},
                                  'cycle_number': {$first: '$cycle_number'},
                                  'geoLocation': {$first: '$geoLocation'}}},
+                                 {$limit : 1000 },
                                  {$sort: { 'date': -1}}]);
+    query.limit(1000);
     if (req.params.format === 'map') {
         query.limit(1000);
     }
@@ -292,6 +294,7 @@ exports.latest_profile_list = function(req,res, next) {
                                             'date': {$first: '$date'},
                                             'cycle_number': {$first: '$cycle_number'},
                                             'geoLocation': {$first: '$geoLocation'}}},
+                                    {$limit : 1000 }
                                     ]);
     if (req.params.format === 'map') {
         //query.limit(1000);
