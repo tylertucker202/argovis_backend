@@ -273,7 +273,6 @@ exports.last_profile_list = function(req, res, next) {
                                  'geoLocation': {$first: '$geoLocation'}}},
                                  {$sort: { 'date': -1}}]);
     if (req.params.format === 'map') {
-        query.select(mapParams);
         query.limit(1000);
     }
     query.exec( function (err, profiles) {
