@@ -72,17 +72,15 @@ const displayProfiles = function(url, markerType, latestBool) {
             $.each(result, function(i, profile){
                 if (markerType==='history') {
                     addToMarkersLayer(profile, argoIconBW, platformProfileMarkersLayer);
-                    openDrawnItemPopups();
                 }
                 else if (markerType==='platform') {
                     addToMarkersLayer(profile, platformIcon, platformProfileMarkersLayer);
-                    openDrawnItemPopups();
                 }
                 else {
                     addToMarkersLayer(profile, argoIcon, markersLayer);
-                    openDrawnItemPopups();
                 }
             });
+            openDrawnItemPopups();
             platformProfileMarkersLayer.addTo(map);
             markersLayer.addTo(map);
         }
