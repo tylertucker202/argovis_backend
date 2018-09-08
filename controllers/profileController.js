@@ -265,7 +265,10 @@ exports.selected_profile_list = function(req, res , next) {
 };
 
 exports.last_profile_list = function(req, res, next) {
+    startDate = moment.utc().subtract(365, 'days'); //speeds up search by choosing the past year
+    endDate = moment.utc();
     var query = Profile.aggregate([
+                       {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
                        {$group: {_id: '$platform_number',
                                  'platform_number': {$first: '$platform_number'},
                                  'date': {$first: '$date'},
