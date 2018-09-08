@@ -29,6 +29,11 @@ var ProfileSchema = Schema(
     POSITIONING_SYSTEM: {type: String, required: false, max: 100},
     DATA_MODE: {type: String, required: false, max: 100},
     PLATFORM_TYPE: {type: String, required: false, max: 100},
+    pres_max_for_TEMP: {type: Number, required: true},
+    pres_max_for_PSAL: {type: Number, required: true},
+    pres_min_for_TEMP: {type: Number, required: true},
+    pres_min_for_PSAL: {type: Number, required: true},
+    basin: {type: Number, required: true},
   },
   {
     toObject: { virtuals: true },

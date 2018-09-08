@@ -264,23 +264,23 @@ exports.selected_profile_list = function(req, res , next) {
     }})
 };
 
-// exports.last_profile_list = function(req, res, next) {
-//     var query = Profile.aggregate([
-//                        {$group: {_id: '$platform_number',
-//                                  'platform_number': {$first: '$platform_number'},
-//                                  'date': {$first: '$date'},
-//                                  'cycle_number': {$first: '$cycle_number'},
-//                                  'geoLocation': {$first: '$geoLocation'}}},
-//                                  {$sort: { 'date': -1}}]);
-//     if (req.params.format === 'map') {
-//         //query.select(mapParams);
-//         //query.limit(1000);
-//     }
-//     query.exec( function (err, profiles) {
-//         if (err) { return next(err); }
-//         res.json(profiles)
-//         });
-// };
+exports.last_profile_list = function(req, res, next) {
+    var query = Profile.aggregate([
+                       {$group: {_id: '$platform_number',
+                                 'platform_number': {$first: '$platform_number'},
+                                 'date': {$first: '$date'},
+                                 'cycle_number': {$first: '$cycle_number'},
+                                 'geoLocation': {$first: '$geoLocation'}}},
+                                 {$sort: { 'date': -1}}]);
+    if (req.params.format === 'map') {
+        query.select(mapParams);
+        query.limit(1000);
+    }
+    query.exec( function (err, profiles) {
+        if (err) { return next(err); }
+        res.json(profiles)
+        });
+};
 
 exports.latest_profile_list = function(req,res, next) {
     //get startDate, endDate

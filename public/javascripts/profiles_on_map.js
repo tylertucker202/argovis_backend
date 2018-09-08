@@ -51,16 +51,22 @@ const openDrawnItemPopups = function() {
     }    
 }
 
+alertify.set('notifier','position', 'top-center');
+
 const displayProfiles = function(url, markerType, latestBool) {
     platformProfileMarkersLayer.clearLayers();
     console.log(url);
     $.getJSON(url, function(result){
         if (result.length > 1000 && latestBool === false) {
             closeDrawnItemPopups()
-            alert("This query is too large."
+            alertify.alert("This query is too large."
             + " Only 1001 profiles will be included in the selection page."
             + " Try reducing the polygon size or date range."
             + " Another option is to use an API. See www.itsonlyamodel.us/argovis-python-api.html for more details.");
+        }
+        else if (result.length == 0) {
+            alertify.notify('No profiles inside this region', 'warning', 5)
+            //alertify.alert('No profiles inside this region');
         }
         else {
             $.each(result, function(i, profile){
@@ -82,13 +88,13 @@ const displayProfiles = function(url, markerType, latestBool) {
         }
     }).fail(function(){
         console.log(result.length);
-        closeDrawnItemPopups(); 
-        alert('Points did not load, try reducing the polygon size or date range...or try restarting Argovis')});
+        closeDrawnItemPopups();
+        alertify.alert('Points did not load, try reducing the polygon size or date range...or try restarting Argovis')});
 };
 
 //populate map with most recent profiles
-//displayProfiles('/selection/lastProfiles');
-displayProfiles('/selection/latestProfiles/map', '', true);
+displayProfiles('/selection/lastProfiles');
+//displayProfiles('/selection/latestProfiles/map', '', true);
 
 const platformProfilesSelection = function(selectedPlatform, markerType){
     if (selectedPlatform) {

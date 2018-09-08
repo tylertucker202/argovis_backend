@@ -7,7 +7,7 @@ var profile_controller = require('../controllers/profileController');
 var dac_controller = require('../controllers/dacController');
 
 /* Get request for list of last profiles. */
-//router.get('/lastProfiles/:format?', profile_controller.last_profile_list);
+router.get('/lastProfiles/:format?', profile_controller.last_profile_list);
 
 /* Get request for list of latest profiles. */
 router.get('/latestProfiles/:format?', profile_controller.latest_profile_list);
