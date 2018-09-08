@@ -185,19 +185,18 @@ $('#clearProfiles').on('click', function(){
 })
 
 const getTransformedShape = function(shape) {
+    //handles antimeridian crossing for db query.
     let transformedShape = [];
-    //console.log('before tranformation');
-    //console.log(JSON.stringify(shape));
-    //console.log('number of points: '+shape[0].length);
     for (let j = 0; j < shape[0].length; j++) {
         //transformation if shape is outside latitude.
         let lon = shape[0][j][0] % 360;
-        //crossing antimeridian transformation
+        //crossing antimeridian on the left
         if (lon < -180) {
             lon = 180 + lon % 180;
         }
+        //crossing antimeridian on the right
         else if (lon > 180) {
-            lon = 180 - lon % 180;
+            lon = -180 + lon % 180;
         }
         let point = [lon, shape[0][j][1]];
         transformedShape.push(point);
