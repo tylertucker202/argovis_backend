@@ -10,6 +10,7 @@ var ProfileSchema = Schema(
     cycle_number: {type: Number, required: true},
     dac: {type: String, required: true, max: 100},
     date: {type: Date, required: true},
+    date_qc: {type: Number, required: false},
     max_pres: {type: Number, required: true}, // currently not being used by app.
     measurements: [{ pres: {type: Number, required: true},
                      temp: {type: Number, required: true},
@@ -25,7 +26,10 @@ var ProfileSchema = Schema(
     platform_number: {type: String, required: true, max: 100},
     geoLocation: {type: Schema.Types.Mixed, required: true},
     station_parameters: {type: Schema.Types.Array, required: true},
+    STATION_PARAMETERS_inMongoDB: {type: Schema.Types.Array, required: false},
+    VERTICAL_SAMPLING_SCHEME: {type:String, required: false},
     PI_NAME: {type: String, required: false, max: 100},
+    WMO_INST_TYPE: {type: String, required: false, max: 100},
     POSITIONING_SYSTEM: {type: String, required: false, max: 100},
     DATA_MODE: {type: String, required: false, max: 100},
     PLATFORM_TYPE: {type: String, required: false, max: 100},

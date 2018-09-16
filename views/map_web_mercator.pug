@@ -5,7 +5,7 @@ block content
     script(type='text/javascript').
         //stereographic projection
 
-        var map = L.map('map', {maxZoom: 13, minZoom: 1, maxBounds: [[-180, -270], [180,270]]}).setView([#{lat},#{lng}], 2);
+        var map = L.map('map', {maxZoom: 13, minZoom: 1, zoomDelta: 0.25, zoomSnap: 0, maxBounds: [[-180, -270], [180,270]]}).setView([#{lat},#{lng}], 2);
         const satelliteMap = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
                                     {attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
         });

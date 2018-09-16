@@ -36,22 +36,26 @@ exports.month_year_profile_list = function(req, res, next) {
         {$group: {   _id: "$_id",
                      platform_number: { "$first": "$platform_number"},
                      date:  { "$first": "$date"},
+                     date_qc: { "$first": "$date_qc"},
                      geo2DLocation: { "$first": "$geo2DLocation"},
+                     PI_NAME: {"$first": "$PI_NAME"},
                      cycle_number:  { "$first": "$cycle_number"},
                      lat:  { "$first": "$lat"},
                      lon:  { "$first": "$lon"},
+                     position_qc: {"$first": "$position_qc"},
                      PLATFORM_TYPE:  { "$first": "$PLATFORM_TYPE"},
                      POSITIONING_SYSTEM:  { "$first": "$POSITIONING_SYSTEM"},
                      DATA_MODE:  { "$first": "$DATA_MODE"},
-                     station_parameters:  { "$first": "$station_parameters"},
+                     station_parameters: { "$first": "$station_parameters"},
+                     VERTICAL_SAMPLING_SCHEME: { "$first": "$VERTICAL_SAMPLING_SCHEME"},
+                     STATION_PARAMETERS_inMongoDB: { "$first": "$station_parameters"},
                      cycle_number:  { "$first": "$cycle_number"},
                      dac:  { "$first": "$dac"},
-                     //maxPres: {"$max": "$measurements.pres"},
-                     //minPres: {"$min": "$measurements.pres"},
-                     //maxTemp: {"$max": "$measurements.temp"},
-                     //minTemp: {"$min": "$measurements.temp"},
-                     //maxPsal: {"$max": "$measurements.psal"},
-                     //minPsal: {"$min": "$measurements.psal"}
+                     pres_max_for_TEMP: { "$first": "$pres_max_for_TEMP"},
+                     pres_min_for_TEMP: { "$first": "$pres_min_for_TEMP"},
+                     pres_max_for_PSAL: { "$first": "$pres_max_for_PSAL"},
+                     pres_min_for_PSAL: { "$first": "$pres_min_for_PSAL"},
+                     basin: { "$first": "$basin"}
                     },
         },   
     ]);
@@ -166,14 +170,26 @@ exports.selected_profile_list = function(req, res , next) {
                 {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
                 {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
                 {$project: { //need to include all fields that you wish to keep.
-                    nc_url: 1,
-                    position_qc: 1,
+                    platform_number: 1,
+                    date:  1,
+                    date_qc: 1,
+                    geo2DLocation: 1,
+                    PI_NAME: 1,
                     cycle_number: 1,
-                    dac: 1,
-                    date:1,
                     lat: 1,
                     lon: 1,
-                    platform_number: 1,
+                    position_qc: 1,
+                    PLATFORM_TYPE: 1,
+                    POSITIONING_SYSTEM: 1,
+                    DATA_MODE: 1,
+                    station_parameters: 1,
+                    VERTICAL_SAMPLING_SCHEME: 1,
+                    STATION_PARAMETERS_inMongoDB: 1,
+                    WMO_INST_TYPE: 1,
+                    cycle_number: 1,
+                    dac: 1,
+                    basin: 1,
+                    nc_url: 1,
                     geoLocation: 1,
                     station_parameters: 1,
                     maximum_pressure: 1,
@@ -193,22 +209,32 @@ exports.selected_profile_list = function(req, res , next) {
                     },
                 }},
                 {$project: { // return profiles with measurements
-                    _id: 1,
-                    nc_url: 1,
-                    position_qc: 1,
+                    platform_number: 1,
+                    date:  1,
+                    date_qc: 1,
+                    geo2DLocation: 1,
+                    PI_NAME: 1,
                     cycle_number: 1,
-                    dac: 1,
-                    date:1,
                     lat: 1,
                     lon: 1,
-                    platform_number: 1,
+                    position_qc: 1,
+                    PLATFORM_TYPE: 1,
+                    POSITIONING_SYSTEM: 1,
+                    DATA_MODE: 1,
+                    station_parameters: 1,
+                    VERTICAL_SAMPLING_SCHEME: 1,
+                    STATION_PARAMETERS_inMongoDB: 1,
+                    WMO_INST_TYPE: 1,
+                    cycle_number: 1,
+                    dac: 1,
+                    basin: 1,
+                    nc_url: 1,
                     geoLocation: 1,
                     station_parameters: 1,
                     maximum_pressure: 1,
-                    measurements: 1,
                     POSITIONING_SYSTEM: 1,
                     DATA_MODE: 1,
-                    PLATFORM_TYPE: 1,
+                    measurements: 1,
                     count: { $size:'$measurements' },
                 }},
                 {$match: {count: {$gt: 0}}}
@@ -265,7 +291,7 @@ exports.selected_profile_list = function(req, res , next) {
 };
 
 exports.last_profile_list = function(req, res, next) {
-    startDate = moment.utc().subtract(365, 'days'); //speeds up search by choosing the past year
+    startDate = moment.utc().subtract(30, 'days'); //speeds up search by choosing the 30 days
     endDate = moment.utc();
     var query = Profile.aggregate([
                        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
@@ -276,10 +302,6 @@ exports.last_profile_list = function(req, res, next) {
                                  'geoLocation': {$first: '$geoLocation'}}},
                                  {$limit : 1000 },
                                  {$sort: { 'date': -1}}]);
-    query.limit(1000);
-    if (req.params.format === 'map') {
-        query.limit(1000);
-    }
     query.exec( function (err, profiles) {
         if (err) { return next(err); }
         res.json(profiles)
@@ -299,10 +321,6 @@ exports.latest_profile_list = function(req,res, next) {
                                             'geoLocation': {$first: '$geoLocation'}}},
                                     {$limit : 1000 }
                                     ]);
-    if (req.params.format === 'map') {
-        //query.limit(1000);
-        //query.select(mapParams);
-    }
     query.exec( function (err, profiles) {
         if (err) { return next(err); }
         res.json(profiles);
