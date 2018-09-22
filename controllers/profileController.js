@@ -55,7 +55,7 @@ exports.month_year_profile_list = function(req, res, next) {
                      pres_min_for_TEMP: { "$first": "$PRES_min_for_TEMP"},
                      pres_max_for_PSAL: { "$first": "$pres_max_for_PSAL"},
                      pres_min_for_PSAL: { "$first": "$pres_min_for_PSAL"},
-                     basin: { "$first": "$BASIN"}
+                     BASIN: { "$first": "$BASIN"}
                     },
         },   
     ]);
