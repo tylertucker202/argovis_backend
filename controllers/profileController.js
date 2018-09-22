@@ -52,10 +52,10 @@ exports.month_year_profile_list = function(req, res, next) {
                      cycle_number:  { "$first": "$cycle_number"},
                      dac:  { "$first": "$dac"},
                      pres_max_for_TEMP: { "$first": "$pres_max_for_TEMP"},
-                     pres_min_for_TEMP: { "$first": "$pres_min_for_TEMP"},
+                     pres_min_for_TEMP: { "$first": "$PRES_min_for_TEMP"},
                      pres_max_for_PSAL: { "$first": "$pres_max_for_PSAL"},
                      pres_min_for_PSAL: { "$first": "$pres_min_for_PSAL"},
-                     basin: { "$first": "$basin"}
+                     basin: { "$first": "$BASIN"}
                     },
         },   
     ]);
