@@ -1,9 +1,13 @@
 var express = require('express');
 var router = express.Router();
+var mongoose = require('mongoose');
+var Profile = require('../models/profile'); 
+var async = require('async');
+var moment = require('moment')
 
-/* GET ng home page. */
-router.get('/', function(req, res, next) {
-  res.render('dist/index');
+/* GET home page. */
+router.get('/', function(req, res) {
+  res.redirect('/map');
 });
 
 router.get('/map', function(req,res) {

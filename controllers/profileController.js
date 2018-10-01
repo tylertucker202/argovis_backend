@@ -291,7 +291,7 @@ exports.selected_profile_list = function(req, res , next) {
 };
 
 exports.last_profile_list = function(req, res, next) {
-    startDate = moment.utc().subtract(360, 'days'); //speeds up search by choosing the 30 days
+    startDate = moment.utc().subtract(30, 'days'); //speeds up search by choosing the 30 days
     endDate = moment.utc();
     var query = Profile.aggregate([
                        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
