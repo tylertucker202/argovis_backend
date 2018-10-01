@@ -300,7 +300,7 @@ exports.last_profile_list = function(req, res, next) {
                                  'date': {$first: '$date'},
                                  'cycle_number': {$first: '$cycle_number'},
                                  'geoLocation': {$first: '$geoLocation'}}},
-                                 {$limit : 1000 },
+                                 {$limit : 500 },
                                  {$sort: { 'date': -1}}]);
     query.exec( function (err, profiles) {
         if (err) { return next(err); }
@@ -319,7 +319,7 @@ exports.latest_profile_list = function(req,res, next) {
                                             'date': {$first: '$date'},
                                             'cycle_number': {$first: '$cycle_number'},
                                             'geoLocation': {$first: '$geoLocation'}}},
-                                    {$limit : 1000 }
+                                    {$limit : 500 }
                                     ]);
     query.exec( function (err, profiles) {
         if (err) { return next(err); }
