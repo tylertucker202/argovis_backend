@@ -6,11 +6,6 @@ router.get('/', function(req, res, next) {
   res.render('dist/index');
 });
 
-// /* GET home page. */
-// router.get('/', function(req, res) {
-//   res.redirect('/map');
-// });
-
 router.get('/map', function(req,res) {
         res.render('map_web_mercator', {
             lat : 0,
