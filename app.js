@@ -55,7 +55,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(expressValidator()); // Add this after the bodyParser middlewares!
 
-app.use(express.static('public'))
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, './../dist'))); // Point static path to ng dist
 app.use('/', index);
 app.use('/catalog', catalog);
 app.use('/selection', selection);
