@@ -53,7 +53,7 @@ exports.month_year_profile_list = function(req, res, next) {
 }
 
 exports.last_profile_list = function(req, res, next) {
-    startDate = moment.utc().subtract(3000, 'days'); //speeds up search by choosing the 30 days
+    startDate = moment.utc().subtract(30, 'days'); //speeds up search by choosing the 30 days
     endDate = moment.utc();
     var query = Profile.aggregate([
                        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
@@ -73,7 +73,7 @@ exports.last_profile_list = function(req, res, next) {
 
 exports.latest_profile_list = function(req,res, next) {
     //get startDate, endDate
-    startDate = moment.utc().subtract(7000, 'days');
+    startDate = moment.utc().subtract(7, 'days');
     endDate = moment.utc();
     var query = Profile.aggregate([ {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
                                     {$sort: {'platform_number': -1, 'date': -1}},
