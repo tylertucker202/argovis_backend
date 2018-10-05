@@ -1,5 +1,4 @@
 var Profile = require('../models/profile');
-var async = require('async');
 var moment = require('moment');
 
 exports.pres_layer_selection = function(req, res , next) {

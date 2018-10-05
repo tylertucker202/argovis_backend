@@ -10,8 +10,8 @@ var mongoose = require('mongoose');
 var debug = require('debug')('app');
 var index = require('./routes/index');
 var catalog = require('./routes/catalog');  //Import routes for "catalog" area of site
-var selection = require('./routes/selection');  //Import routes for "catalog" area of site
-var gridding = require('./routes/gridding');  //Import routes for "catalog" area of site
+var selection = require('./routes/selection');  //Import routes for "selection" area of site
+var gridding = require('./routes/gridding');  //Import routes for "gridding" area of site
 var compression = require('compression'); //All routs are compressed
 var helmet = require('helmet'); //sets appropriate HTTP headers
 

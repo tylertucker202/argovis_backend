@@ -35,7 +35,6 @@ html(lang='en')
                 thead(height='50px')
                     tr
                         th Link to GDAC data
-                        th link to Ifremer
                         th Dac
                         th Parameters
                         th Positioning system
@@ -51,8 +50,6 @@ html(lang='en')
                         tr
                             td 
                                 a(href=profile.nc_url) #{profile._id} data
-                            td 
-                                a(href=profile.ifremerProfile) ifremer data
                             td #{profile.dac}
                             td #{profile.formatted_station_parameters}
                             td #{profile.POSITIONING_SYSTEM}
