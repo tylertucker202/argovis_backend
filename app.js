@@ -1,4 +1,5 @@
 var express = require('express');
+var cors = require('cors')
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -54,6 +55,20 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(expressValidator()); // Add this after the bodyParser middlewares!
+
+var originsWhitelist  = [
+  'http://localhost:4200',      //this is my front-end url for development
+];
+var corsOptions = {
+  origin: function(origin, callback){
+        var isWhitelisted = originsWhitelist.indexOf(origin) !== -1;
+        callback(null, isWhitelisted);
+  },
+  credentials:true
+}
+
+//here is the magic
+app.use(cors(corsOptions));
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, './../dist'))); // Point static path to ng dist
