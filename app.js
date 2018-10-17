@@ -21,7 +21,6 @@ app.use(compression()); //Compress all routes
 app.use(helmet());
 
 const ENV = config.util.getEnv('NODE_ENV');
-console.log('NODE_ENV: ' + ENV);
 //don't show the log when it is test
 if(ENV !== 'test') {
   //use morgan to log at command line
@@ -29,18 +28,8 @@ if(ENV !== 'test') {
 }
 
 const mongoDB = config.db[ENV];
-console.log(mongoDB)
 debug('mongodb: ' + mongoDB);
 mongoose.Promise = global.Promise;
-
-const options = {
-  autoIndex: false, // Don't build indexes
-  reconnectTries: 30, // Retry up to 30 times
-  reconnectInterval: 500, // Reconnect every 500ms
-  poolSize: 10, // Maintain up to 10 socket connections
-  // If not connected, return errors immediately rather than waiting for reconnect
-  bufferMaxEntries: 0
-}
 
 //connect mongoose to the mongo dbUrl
 mongoose.connect(mongoDB, {useMongoClient: true},

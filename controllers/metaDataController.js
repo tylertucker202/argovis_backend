@@ -1,6 +1,6 @@
 var Profile = require('../models/profile');
 var moment = require('moment');
-
+var config = require('config');
 exports.month_year_profile_list = function(req, res, next) {
     req.checkQuery('month', 'month should be specified.').notEmpty();
     req.checkQuery('year', 'year should be specified.').notEmpty();
@@ -53,8 +53,17 @@ exports.month_year_profile_list = function(req, res, next) {
 }
 
 exports.last_profile_list = function(req, res, next) {
-    startDate = moment.utc().subtract(30, 'days'); //speeds up search by choosing the 30 days
-    endDate = moment.utc();
+    //get startDate, endDate
+    const ENV = config.util.getEnv('NODE_ENV');
+    const appStartDate = config.startDate[ENV];
+    if (appStartDate === 'today'){
+        startDate = moment.utc().subtract(30, 'days');
+        endDate = moment.utc();      
+    }
+    else {
+        startDate = moment.utc(appStartDate).subtract(30, 'days');
+        endDate = moment.utc(appStartDate);
+    }
     var query = Profile.aggregate([
                        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
                        {$group: {_id: '$platform_number',
@@ -73,8 +82,16 @@ exports.last_profile_list = function(req, res, next) {
 
 exports.latest_profile_list = function(req,res, next) {
     //get startDate, endDate
-    startDate = moment.utc().subtract(7, 'days');
-    endDate = moment.utc();
+    const ENV = config.util.getEnv('NODE_ENV');
+    const appStartDate = config.startDate[ENV];
+    if (appStartDate === 'today'){
+        startDate = moment.utc().subtract(7, 'days');
+        endDate = moment.utc();      
+    }
+    else {
+        startDate = moment.utc(appStartDate).subtract(7, 'days');
+        endDate = moment.utc(appStartDate);
+    }
     var query = Profile.aggregate([ {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
                                     {$sort: {'platform_number': -1, 'date': -1}},
                                     {$group: {_id: '$platform_number',

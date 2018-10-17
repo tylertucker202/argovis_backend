@@ -6,9 +6,9 @@
   },
   "private": true,
   "scripts": {
-    "test": "NODE_ENV=test && mocha",
-    "start": "NODE_ENV=production && node ./bin/www",
-    "devstart": "NODE_ENV=development && nodemon ./bin/www"
+    "test": "export NODE_ENV=test && mocha",
+    "start": "export NODE_ENV=production && node ./bin/www",
+    "devstart": "export NODE_ENV=development && nodemon ./bin/www"
   },
   "dependencies": {
     "acorn-globals": "^4.0.0",
