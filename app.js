@@ -21,7 +21,7 @@ app.use(compression()); //Compress all routes
 app.use(helmet());
 
 const ENV = config.util.getEnv('NODE_ENV');
-debug('NODE_ENV: ' + ENV);
+console.log('NODE_ENV: ' + ENV);
 //don't show the log when it is test
 if(ENV !== 'test') {
   //use morgan to log at command line
@@ -29,6 +29,7 @@ if(ENV !== 'test') {
 }
 
 const mongoDB = config.db[ENV];
+console.log(mongoDB)
 debug('mongodb: ' + mongoDB);
 mongoose.Promise = global.Promise;
 
@@ -41,22 +42,14 @@ const options = {
   bufferMaxEntries: 0
 }
 
-// const connectWithRetry = () => {
-// mongoose.connect(mongoDB, options).then(()=>{
-// }).catch(err=>{
-//   console.log('MongoDB connection unsuccessful, retry after 5 seconds.')
-//   setTimeout(connectWithRetry, 5000)
-// })
-// }
-
-//connectWithRetry()
-// connect mongoose to the mongo dbUrl
+//connect mongoose to the mongo dbUrl
 mongoose.connect(mongoDB, {useMongoClient: true},
     function (error) {
         if (error) {
             console.log(error);
     }
-});
+}).
+catch(error => { console.log('mongoose connect error: ', error.message); });
 
 app.use(favicon(path.join(__dirname,'public','images','favicon.ico')));
 

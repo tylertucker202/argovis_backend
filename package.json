@@ -6,9 +6,9 @@
   },
   "private": true,
   "scripts": {
-    "test": "set NODE_ENV=test && mocha",
-    "start": "set NODE_ENV=production && node ./bin/www",
-    "devstart": "set NODE_ENV=development && nodemon ./bin/www"
+    "test": "NODE_ENV=test && mocha",
+    "start": "NODE_ENV=production && node ./bin/www",
+    "devstart": "NODE_ENV=development && nodemon ./bin/www"
   },
   "dependencies": {
     "acorn-globals": "^4.0.0",
@@ -20,7 +20,7 @@
     "bootstrap-daterangepicker": "^2.1.25",
     "bootstrap-table": "^1.12.1",
     "compression": "^1.7.1",
-    "config": "^1.26.2",
+    "config": "^1.31.0",
     "cookie-parser": "~1.4.3",
     "cors": "^2.8.4",
     "debug": "~2.6.3",
