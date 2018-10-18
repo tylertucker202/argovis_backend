@@ -113,6 +113,7 @@ html(lang='en')
         let temp = [];
         let time = [];
         let cycle = [];
+        let id = [];
         let profiles = !{profiles};
 
         const collateProfileMeasurements = function(profile) {
@@ -164,12 +165,15 @@ html(lang='en')
 
             let profTime = [];
             var cycleIdx = [];
+            var profileId = [];
             for (var j=0; j<profileMeas.pres.length; j++) {
                 profTime.push(moment.utc(profiles[i].date).format('YYYY-MM-DD HH:mm'))
                 cycleIdx.push(profiles[i].cycle_number); //just an array of cycle number
+                profileId.push(profiles[i]._id);
             }
             time = time.concat(profTime);
             cycle = cycle.concat(cycleIdx);
+            id = id.concat(profileId);
         };
 
         const getMaskForPair = function(arrayOne, arrayTwo) {
@@ -209,11 +213,14 @@ html(lang='en')
         tempForPres = temp.filter((item, i) => presVsTempMask[i]);
         cycleForTemp = cycle.filter((item, i) => presVsTempMask[i]);
         timeForTemp = time.filter((item, i) => presVsTempMask[i]);
+        idForTemp = id.filter((item, i) => presVsTempMask[i]);
 
         presForPsal = pres.filter((item, i) => presVsPsalMask[i]);
         psalForPres = psal.filter((item, i) => presVsPsalMask[i]);
         cycleForPsal = cycle.filter((item, i) => presVsPsalMask[i]);
         timeForPsal = time.filter((item, i) => presVsPsalMask[i]);
+        idForPsal = id.filter((item, i) => presVsPsalMask[i]);
+
         var tempScl = [[0.0, 'rgb(3, 35, 51)'],
                         [0.125, 'rgb(24, 51, 124)'],
                         [0.25, 'rgb(86, 59, 156)'],
@@ -243,6 +250,7 @@ html(lang='en')
                                                 'units': 'C',
                                                 'cycle': cycleForTemp,
                                                 'colorscale': tempScl,
+                                                'id': idForTemp,
                                                 'colorbar': {
                                                         title: "Temperature [Celsius]", 
                                                         len: 1, 
@@ -257,6 +265,7 @@ html(lang='en')
                                                 'units': 'psu',
                                                 'cycle': cycleForPsal,
                                                 'colorscale': psalScl,
+                                                'id': idForPsal,
                                                 'colorbar': {
                                                         title: "Salinity [psu]", 
                                                         len: 1, 
@@ -275,8 +284,6 @@ html(lang='en')
 
         const makeTrace = function(key) {
             let meas = measurements[key];
-            //let hovorText = meas.cvalues.map(function(value) { return makeText(meas.text, value); });
-            //hovorText = meas.cycle.map(function(value) return)
             let hovorText = [];
             for(let idx=0; idx < meas.cvalues.length; idx++){
                 let pointText = makeText(meas.yvalues[idx], meas.xvalues[idx], meas.text, meas.cvalues[idx], meas.units, meas.cycle[idx])
@@ -291,6 +298,7 @@ html(lang='en')
                 type: 'scattergl',
                 mode: 'markers',
                 cycle: meas.cycle,
+                profile_ids: meas.id,
                 marker: { color: meas.cvalues,
                             size: 5,
                             symbol: 'dot',
@@ -353,16 +361,14 @@ html(lang='en')
         // Upon click a new tab opens to the corresponding profile.
         pres_v_temp_plot.on('plotly_click', function(data){
             let xidx = data.points[0].pointNumber
-            let cycle_num = data.points[0].data.cycle[xidx];
-            var profile_id = !{title} + '_' + cycle_num;
+            var profile_id = data.points[0].data.profile_ids[xidx];
             var url = '/catalog/profiles/' + profile_id + '/page';
             window.open(url,'_blank');
         });
 
         pres_v_psal_plot.on('plotly_click', function(data){
             let xidx = data.points[0].pointNumber
-            let cycle_num = data.points[0].data.cycle[xidx];
-            var profile_id = !{title} + '_' + cycle_num;
+            var profile_id = data.points[0].data.id[xidx];
             var url = '/catalog/profiles/' + profile_id + '/page';
             window.open(url,'_blank');
         });
