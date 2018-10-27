@@ -1,0 +1,11 @@
+{
+    "apps": [
+        {
+            "name": "argo",
+            "script": "./bin/www",
+            "env": {
+                "NODE_ENV": "docker"
+            }
+        }
+    ]
+}
