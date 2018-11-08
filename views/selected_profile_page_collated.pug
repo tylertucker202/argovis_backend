@@ -1,0 +1,404 @@
+doctype html
+html(lang='en')
+    head
+        title=title
+        meta(charset='utf-8')
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        script(type="text/javascript", src='https://cdn.plot.ly/plotly-latest.min.js')
+        link(rel='stylesheet', href='/stylesheets/external-css/bootstrap.css')
+        link(rel='stylesheet', href='/stylesheets/external-css/bootstrap-table.css')
+        script(src='/javascripts/external-js/FileSaver.min.js')
+        script(src='/javascripts/external-js/jquery.min.js')
+        script(src='/javascripts/external-js/bootstrap.min.js')
+        script(src='/javascripts/external-js/tableexport.min.js')
+        script(src="/javascripts/external-js/bootstrap-table.js")
+    body
+
+    block content
+        div(class='selection_and_catalog_page')
+            div(class='horizContainer')
+                div(class='plotContainer')
+                    #PRES_V_TEMP_PLOT
+                div(class='plotContainer')
+                    #PRES_V_PSAL_PLOT
+                div(class='plotContainer')
+                    #TEMP_V_PSAL_PLOT
+            p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
+            div(class='top')
+                button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
+            div(class='bottom')
+                a(href='/map' ) To main page
+            table(class="table table-striped", data-toggle="table")
+                thead(height='50px')
+                    tr
+                        th Link to GDAC data
+                        th(data-sortable='true') Dac
+                        th(data-sortable='true') Parameters
+                        th Link to profile page
+                        th(data-sortable='true') Date reported
+                        th(data-sortable='true') Cycle number
+                        th(data-sortable='true') Positioning system
+                        th(data-sortable='true' data-sorter="latSorter") Lat
+                        th(data-sortable='true' data-sorter="lonSorter") Lon
+                        th(data-sortable='true') Data mode
+                        th(data-sortable='true') Num. of meas.
+                tbody(overflow='auto', height='150px')
+                    each profile, i in JSON.parse(profiles)
+                        tr
+                            td
+                                a(href=profile.nc_url) #{profile._id} data
+                            td #{profile.dac}
+                            td #{profile.formatted_station_parameters}
+                            td
+                                a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
+                            td #{moment.utc(profile.date).format("YYYY-MM-DD HH:mm")}
+                            td #{profile.cycle_number}
+                            td #{profile.POSITIONING_SYSTEM}
+                            td #{profile.strLat}
+                            td #{profile.strLon}
+                            td #{profile.DATA_MODE}
+                            td #{profile.measurements.length}
+
+    script(type='text/javascript').
+
+        function latSorter(a, b) {
+            aNS = a.slice(-1);
+            bNS = b.slice(-1);
+            aNum = Number(a.slice(0, -2));
+            bNum = Number(b.slice(0, -2));
+            if (aNS == 'S') { aNum = -1*Number(aNum) }
+            if (bNS == 'S') { bNum = -1*Number(bNum) }
+            if (aNum < bNum) return -1;
+            if (aNum > bNum) return 1;
+            return 0;
+        }
+
+        function lonSorter(a, b) {
+            aNS = a.slice(-1);
+            bNS = b.slice(-1);
+            aNum = Number(a.slice(0, -2));
+            bNum = Number(b.slice(0, -2));
+            if (aNS == 'E') { aNum = -1*Number(aNum) }
+            if (bNS == 'E') { bNum = -1*Number(bNum) }
+            if (aNum < bNum) return -1;
+            if (aNum > bNum) return 1;
+            return 0;
+        }
+        
+        TableExport(document.getElementsByTagName("table"), {
+            headers: true,                              // (Boolean), display table headers (th or td elements) in the <thead>, (default: true)
+            footers: true,                              // (Boolean), display table footers (th or td elements) in the <tfoot>, (default: false)
+            formats: ['csv', 'xlsx', 'xls', 'txt'],             // (String[]), filetype(s) for the export, (default: ['xls', 'csv', 'txt'])
+            filename: 'selection_table',                             // (id, String), filename for the downloaded file, (default: 'id')
+            bootstrap: true,                           // (Boolean), style buttons using bootstrap, (default: true)
+            exportButtons: true,                        // (Boolean), automatically generate the built-in export buttons for each of the specified formats (default: true)
+            position: 'bottom',                         // (top, bottom), position of the caption element relative to table, (default: 'bottom')
+            ignoreRows: null,                           // (Number, Number[]), row indices to exclude from the exported file(s) (default: null)
+            ignoreCols: null,                           // (Number, Number[]), column indices to exclude from the exported file(s) (default: null)
+            trimWhitespace: true                        // (Boolean), remove all leading/trailing newlines, spaces, and tabs from cell text in the exported file(s) (default: false)
+        });
+
+        $('#downloadProfiles').on('click', function(){
+            var url =  window.location.href.replace("page", "");
+            window.open(url,'_blank');
+        });
+
+    script(type='text/javascript').
+        
+        var profiles = !{profiles};
+
+        const collateProfileMeasurements = function(profile) {
+            var collatedProfiles = {};
+            let num_measurements = profile.length;
+            collatedProfiles.pres = new Array(num_measurements);
+            collatedProfiles.temp = new Array(num_measurements);
+            collatedProfiles.psal = new Array(num_measurements);
+
+            for (var i = 0; i < num_measurements; ++i) {
+                collatedProfiles.pres[i] = profile[i].pres;
+                collatedProfiles.temp[i] = profile[i].temp;
+                collatedProfiles.psal[i] = profile[i].psal;
+            }
+            return collatedProfiles;
+        }
+
+        const reduceGPSMeasurements = function(profile, maxLength) {
+            if (profile.POSITIONING_SYSTEM === 'GPS') {
+                mLen = profile.measurements.length;
+                if (mLen > maxLength) {
+                    //reduce array length to so that only every delta element is plotted
+                    var delta = Math.floor( mLen / maxLength );
+                    var reducedMeasurements = [];
+                    for (var j = 0; j < mLen; j=j+delta) {
+                        reducedMeasurements.push(profile.measurements[j])
+                    }
+                    return reducedMeasurements
+                }
+                else {
+                    return profile.measurements;
+                }
+            }
+            else {
+                return profile.measurements;
+            }
+        }
+
+        var traces = [];
+        var temp = [];
+        var pres = [];
+        var psal = [];
+        var _ids = [];
+        var cvalues = [];
+
+        for(var i=0; i<profiles.length; i++) {
+            var profileMeas = reduceGPSMeasurements(profiles[i], 200);
+            profileMeas = collateProfileMeasurements(profileMeas); // collect points into arrays
+            var _id = profiles[i]._id
+            var color_array = Array.apply(null, Array(profileMeas.pres.length)).map(Number.prototype.valueOf, i);
+            var id_array = Array.apply(null, Array(profileMeas.pres.length)).map(String.prototype.valueOf,_id)
+            temp = temp.concat(profileMeas.temp);
+            pres = pres.concat(profileMeas.pres);
+            psal = psal.concat(profileMeas.psal);
+            cvalues = cvalues.concat(color_array);
+            _ids = _ids.concat(id_array);
+        }
+
+        const getMaskForPair = function(arrayOne, arrayTwo) {
+            let mask = [];
+            const element = -999; // -999 is the actual nan value. -900 just in case of decimal
+            for(let idx=0; idx < arrayOne.length; idx++){
+                if (arrayOne[idx] === element || arrayTwo[idx] === element){
+                    mask.push(false);
+                }
+                else {
+                    mask.push(true)
+                }
+            }
+            return(mask);
+        }
+
+        //Used to for pres vs psal. if temp reporting nan, psal should be zero too.
+        const getMaskForTrio = function(arrayOne, arrayTwo, arrayThree) {
+            let mask = [];
+            const element = -999; 
+            for(let idx=0; idx < arrayOne.length; idx++){
+                if (arrayOne[idx] === element || arrayTwo[idx] === element || arrayThree[idx] === element){
+                    mask.push(false);
+                }
+                else {
+                    mask.push(true)
+                }
+            }
+            return(mask);
+        }
+
+        //filter using Tyler's algorithm
+        presVsTempMask = getMaskForPair(temp, pres);
+        presVsPsalMask = getMaskForTrio(psal, pres, temp);
+        tempVsPsalMask = getMaskForPair(psal, temp);
+
+        presForTemp = pres.filter((item, i) => presVsTempMask[i]);
+        tempForPres = temp.filter((item, i) => presVsTempMask[i]);
+        cvaluesForTempVsPres = cvalues.filter((item, i) => presVsTempMask[i]);
+        _idsForTempVsPres =  _ids.filter((item, i) => presVsTempMask[i]);
+
+        presForPsal = pres.filter((item, i) => presVsPsalMask[i]);
+        psalForPres = psal.filter((item, i) => presVsPsalMask[i]);
+        cvaluesForPsalVsPres = cvalues.filter((item, i) => presVsPsalMask[i]);
+        _idsForPsalVsPres =  _ids.filter((item, i) => presVsPsalMask[i]);
+
+        psalForTemp = psal.filter((item, i) => tempVsPsalMask[i]);
+        tempForPsal = temp.filter((item, i) => tempVsPsalMask[i]);
+        cvaluesForTempVsPsal = cvalues.filter((item, i) => tempVsPsalMask[i]);
+        _idsForTempVsPsal =  _ids.filter((item, i) => tempVsPsalMask[i]);
+        //create traces.
+        var profileScl1 = [[0.0, 'rgb(140,81,10)'],
+                          [0.125, 'rgb(191,129,45)'],
+                          [0.25, 'rgb(223,194,125)'],
+                          [0.375, 'rgb(246,232,195)'],
+                          [0.5, 'rgb(245,245,245)'],
+                          [0.625, 'rgb(199,234,229)'],
+                          [0.75, 'rgb(128,205,193)'],
+                          [0.875, 'rgb(53,151,143)'],
+                          [1.0, 'rgb(1,102,94)']];
+
+        var profileScl2 = [[0.0,   'rgb(166,206,227)'],
+                           [0.125, 'rgb(31,120,180)'],
+                           [0.25,  'rgb(178,223,138)'],
+                           [0.375, 'rgb(51,160,44)'],
+                           [0.5,   'rgb(251,154,153)'],
+                           [0.625, 'rgb(227,26,28)'],
+                           [0.75,  'rgb(253,191,111)'],
+                           [0.875, 'rgb(255,127,0)'],
+                           [1.0,   'rgb(202,178,214)']];
+
+
+        let makeText = function(profile_id, ylabel, yunits, yvalue, xlabel, xunits, xvalue) {
+            text = "<br>profile id: " + profile_id
+                 + "<br>" + ylabel + yvalue.toString() + yunits
+                 + "<br>" + xlabel + xvalue.toString() + xunits
+                 + "<br>click to see profile page"
+            return (text)
+        };
+
+        const makeTrace = function(xvalues,
+                                   yvalues,
+                                   cvalues,
+                                   profile_ids,
+                                   plot_name,
+                                   colorscale,
+                                   ylabel,
+                                   xlabel,
+                                   yunits,
+                                   xunits) {
+            let hovorText = [];
+            for(let idx=0; idx < yvalues.length; idx++){
+                let pointText = makeText(profile_ids[idx],
+                                         ylabel,
+                                         yunits,
+                                         yvalues[idx],
+                                         xlabel,
+                                         xunits,
+                                         xvalues[idx])
+                hovorText.push(pointText);
+            }
+            scatterGlTrace = {
+                y: yvalues,
+                x: xvalues,
+                //text: profile_ids.map(makeText),
+                text: hovorText,
+                hoverinfo: 'text',
+                showlegend: false,
+                type: 'scattergl',
+                mode: 'markers',
+                profile_ids: profile_ids,
+                marker: { color: cvalues,
+                            size: 5,
+                            symbol: 'dot',
+                            opacity: 1,
+                            colorscale: colorscale
+                        },
+                name: plot_name, 
+                
+            }
+            return [scatterGlTrace]
+        };
+
+        const roundArray = function (value){ return(Number(value).toFixed(3)) };
+        pres_v_temp_trace = makeTrace(tempForPres.map(roundArray),
+                                      presForTemp.map(roundArray),
+                                      cvaluesForTempVsPres.map(roundArray),
+                                      _idsForTempVsPres,
+                                      'pres_v_temp',
+                                      profileScl2,
+                                      'pressure: ',
+                                      'temperature: ',
+                                      ' dbar',
+                                      ' C')
+        pres_v_psal_trace = makeTrace(psalForPres.map(roundArray),
+                                      presForPsal.map(roundArray),
+                                      cvaluesForPsalVsPres.map(roundArray),
+                                      _idsForPsalVsPres,
+                                      'pres_v_psal',
+                                      profileScl2,
+                                      'pressure: ',
+                                      'salinity: ',
+                                      ' dbar',
+                                      ' psu')
+        temp_v_psal_trace = makeTrace(psalForTemp.map(roundArray),
+                                      tempForPsal.map(roundArray),
+                                      cvaluesForTempVsPsal.map(roundArray),
+                                      _idsForTempVsPsal,
+                                      'temp_v_psal',
+                                      profileScl2,
+                                      'temperature: ',
+                                      'salinity: ',
+                                      ' C',
+                                      ' psu')
+
+        //create layouts.
+        const pres_v_temp_layout = {
+            title: "Pressure vs Temperature",
+            autosize: true,
+            height: 500, 
+            width: 500,
+            xaxis: {
+                autorange: true,
+                title: "Temperature [Celsius]"
+            },
+            yaxis: {
+                showticklabels: true,
+                autorange: 'reversed',
+                type: "linear",
+                title: "Pressure [dbar]"
+            },
+            hovermode: "closest", 
+            showlegend: false
+        };
+
+        const pres_v_psal_layout = {
+            title: "Pressure vs Salinity",
+            autosize: true,
+            height: 500, 
+            width: 500,
+            xaxis: {
+                autorange: true, 
+                title: "Salinity [psu]"
+            },
+            yaxis: {
+                showticklabels: true,
+                autorange: 'reversed',
+                type: "linear",
+                title: "Pressure [dbar]"
+            },
+            hovermode: "closest", 
+            showlegend: false
+        };
+        const temp_v_psal_layout = {
+            title: "Temperature vs Salinity",
+            autosize: true,
+            height: 500, 
+            width: 500,
+            xaxis: {
+                autorange: true, 
+                title: "Salinity [psu]"
+            },
+            yaxis: {
+                showticklabels: true,
+                autorange: true,
+                type: "linear",
+                title: "Temperature [Celsius]"
+            }, 
+            hovermode: "closest", 
+            showlegend: false
+        };
+        
+        Plotly.plot('PRES_V_TEMP_PLOT',
+                    pres_v_temp_trace,
+                    pres_v_temp_layout);
+        Plotly.plot('PRES_V_PSAL_PLOT',
+                    pres_v_psal_trace,
+                    pres_v_psal_layout);
+        Plotly.plot('TEMP_V_PSAL_PLOT',
+                    temp_v_psal_trace,
+                    temp_v_psal_layout);
+
+        const linkToPage = function(data) {
+            let xidx = data.points[0].pointNumber
+            let profile_id = data.points[0].data.profile_ids[xidx];
+            let url = '/catalog/profiles/' + profile_id + '/page'
+            window.open(url,'_blank');
+        };
+
+         // Upon click a new tab opens to the corresponding profile.
+        PRES_V_TEMP_PLOT.on('plotly_click', function(data){
+            linkToPage(data);
+        });
+                 // Upon click a new tab opens to the corresponding profile.
+        PRES_V_PSAL_PLOT.on('plotly_click', function(data){
+            linkToPage(data);
+        });
+                 // Upon click a new tab opens to the corresponding profile.
+        TEMP_V_PSAL_PLOT.on('plotly_click', function(data){
+            linkToPage(data);
+        });

@@ -368,7 +368,7 @@ html(lang='en')
 
         pres_v_psal_plot.on('plotly_click', function(data){
             let xidx = data.points[0].pointNumber
-            var profile_id = data.points[0].data.id[xidx];
+            var profile_id = data.points[0].data.profile_ids[xidx];
             var url = '/catalog/profiles/' + profile_id + '/page';
             window.open(url,'_blank');
         });
