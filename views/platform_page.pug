@@ -252,9 +252,11 @@ html(lang='en')
                                                 'colorscale': tempScl,
                                                 'id': idForTemp,
                                                 'colorbar': {
-                                                        title: "Temperature [Celsius]", 
+                                                        title: "Temp. [Celsius]", 
                                                         len: 1, 
-                                                        yanchor: "middle"
+                                                        yanchor: "middle",
+                                                        titleside: "right",
+                                                        xpad: 10,
                                                         }},
                                 'pres_v_psal': {'xvalues': timeForPsal,
                                                 'yvalues': presForPsal.map(roundArray),
@@ -269,7 +271,9 @@ html(lang='en')
                                                 'colorbar': {
                                                         title: "Salinity [psu]", 
                                                         len: 1, 
-                                                        yanchor: "middle"
+                                                        yanchor: "middle",
+                                                        titleside: "right",
+                                                        xpad: 5,
                                                         }}
                                 };
 
@@ -329,7 +333,7 @@ html(lang='en')
                 title: "Date"
             }, 
             hovermode: "closest", 
-            showlegend: true
+            showlegend: true,
         };
 
         var psal_layout = {
