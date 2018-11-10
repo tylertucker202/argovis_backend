@@ -17,35 +17,36 @@ html(lang='en')
             table(style='width:100%',border='0')
                 tr
                     td Date: #{moment.utc(profile.date).format("YYYY-MM-DD HH:mm")}
-                    td 
+                    td Links to other Argovis pages:
                 tr
                     td Cycle number: #{profile.cycle_number}
                     td 
-                        a(href='/catalog/platforms/'+ platform_number + '/page' target='_blank') Link to platform #{profile.platform_number} page
+                        a(href='/catalog/platforms/'+ platform_number + '/page' target='_blank') Link to platform #{profile.platform_number} page                                          
                 tr
                     td Latitude: #{profile.strLat}
                     td 
-                        a(href=profile.nc_url) Link to profile data on Argo GDAC
+                        a(href='/map' ) Back to map                    
                 tr
                     td Longitude: #{profile.strLon}
-                    td 
-                        a(href=profile.ifremerProfile target='_blank') Link to Ifremer visualization of this profile
                 tr
                     td Position QC: #{profile.position_qc}
-                    td 
-                        a(href=profile.jcompsPlatform target='_blank') Link to platform on JCOMMOPS
+                    td External links:                       
                 tr
                     td Dac: #{profile.dac}
                     td 
-                        a(href='/map' ) Back to map
+                        a(href=profile.nc_url) Link to profile data on Argo GDAC   
                 tr
                     td Parameters: #{profile.formatted_station_parameters}
+                    td 
+                        a(href=profile.ifremerProfile target='_blank') Link to Ifremer visualization of this profile
                 tr
                     td Positioning system: #{profile.POSITIONING_SYSTEM}
+                    td 
+                        a(href=profile.jcompsPlatform target='_blank') Link to platform on JCOMMOPS
                 tr
                     td Platform type: #{profile.PLATFORM_TYPE}
                 tr
-                    td Data mode: #{profile.DATA_MODE}
+                    td Data mode: #{profile.DATA_MODE}      
             button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
             #TPS_CHART
 
