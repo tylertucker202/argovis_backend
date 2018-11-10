@@ -38,6 +38,7 @@ var ProfileSchema = Schema(
     pres_max_for_PSAL: {type: Number, required: false},
     pres_min_for_TEMP: {type: Number, required: false},
     pres_min_for_PSAL: {type: Number, required: false},
+    containsBGC: {type: Number, required: false},
     basin: {type: Number, required: false},
   },
   {

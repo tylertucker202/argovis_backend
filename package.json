@@ -36,7 +36,7 @@
     "leaflet-draw": "^0.4.12",
     "leaflet.coordinates": "^0.1.5",
     "moment": "^2.22.2",
-    "mongoose": "^4.11.10",
+    "mongoose": "^5.3.10",
     "morgan": "^1.9.1",
     "nouislider": "^10.1.0",
     "opencollective": "^1.0.3",
@@ -53,8 +53,8 @@
   },
   "devDependencies": {
     "chai": "^4.1.2",
-    "chai-http": "^3.0.0",
-    "mocha": "^3.5.0",
+    "chai-http": "^4.2.0",
+    "mocha": "^5.2.0",
     "nodemon": "^1.18.4",
     "sinon": "^3.2.1"
   }

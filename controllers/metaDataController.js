@@ -22,7 +22,7 @@ exports.month_year_profile_list = function(req, res, next) {
                      platform_number: { "$first": "$platform_number"},
                      date:  { "$first": "$date"},
                      date_qc: { "$first": "$date_qc"},
-                     geo2DLocation: { "$first": "$geo2DLocation"},
+                     containsBGC: { "$first": "$containsBGC"},
                      PI_NAME: {"$first": "$PI_NAME"},
                      cycle_number:  { "$first": "$cycle_number"},
                      lat:  { "$first": "$lat"},
@@ -71,7 +71,9 @@ exports.last_profile_list = function(req, res, next) {
                                  'date': {$first: '$date'},
                                  'cycle_number': {$first: '$cycle_number'},
                                  'geoLocation': {$first: '$geoLocation'},
-                                 'DATA_MODE': {$first: '$DATA_MODE'}}},
+                                 'DATA_MODE': {$first: '$DATA_MODE'},
+                                 'containsBGC': { $first: "$containsBGC"}
+                                }},
                                  {$limit : 500 },
                                  {$sort: { 'date': -1}}]);
     query.exec( function (err, profiles) {
@@ -99,7 +101,9 @@ exports.latest_profile_list = function(req,res, next) {
                                             'date': {$first: '$date'},
                                             'cycle_number': {$first: '$cycle_number'},
                                             'geoLocation': {$first: '$geoLocation'},
-                                            'DATA_MODE': {$first: '$DATA_MODE'}}},
+                                            'DATA_MODE': {$first: '$DATA_MODE'},
+                                            'containsBGC': { $first: "$containsBGC"}
+                                        }},
                                     {$limit : 500 }
                                     ]);
     query.exec( function (err, profiles) {

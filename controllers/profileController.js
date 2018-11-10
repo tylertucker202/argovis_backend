@@ -3,7 +3,7 @@ var moment = require('moment');
 var GJV = require('geojson-validation');
 
 //station_parameters, lat, lon are needed for virtural fields
-const mapParams = 'platform_number date geoLocation cycle_number station_parameters lat lon DATA_MODE';
+const mapParams = 'platform_number date geoLocation cycle_number station_parameters lat lon DATA_MODE containsBGC';
 
 // Display list of all Profiles
 exports.profile_list = function(req, res, next) {
@@ -84,6 +84,7 @@ exports.selected_profile_list = function(req, res , next) {
                     date: -1,
                     geoLocation: 1,
                     cycle_number: -1,
+                    containsBGC: 1,
                     measurements: {
                         $filter: {
                             input: '$measurements',
@@ -105,6 +106,7 @@ exports.selected_profile_list = function(req, res , next) {
                     geoLocation: 1,
                     cycle_number: -1,
                     DATA_MODE: -1,
+                    containsBGC: 1,
                     count: { $size:'$measurements' },
                 }},
                 {$match: {count: {$gt: 0}}},
@@ -114,6 +116,7 @@ exports.selected_profile_list = function(req, res , next) {
                     geoLocation: 1,
                     cycle_number: -1,
                     DATA_MODE: -1,
+                    containsBGC: 1,
                 }},
                 {$limit: 1001},
                 ]);
@@ -124,6 +127,7 @@ exports.selected_profile_list = function(req, res , next) {
                              date: -1,
                              geoLocation: 1,
                              cycle_number: -1,
+                             containsBGC: 1,
                              DATA_MODE: -1}},
                 { $match: { $and: [ {geoLocation: {$geoWithin: {$geometry: shapeJson}}},
                     {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} ] } },
@@ -138,7 +142,7 @@ exports.selected_profile_list = function(req, res , next) {
                     platform_number: 1,
                     date:  1,
                     date_qc: 1,
-                    geo2DLocation: 1,
+                    containsBGC: 1,
                     PI_NAME: 1,
                     cycle_number: 1,
                     lat: 1,
@@ -177,7 +181,7 @@ exports.selected_profile_list = function(req, res , next) {
                     platform_number: 1,
                     date:  1,
                     date_qc: 1,
-                    geo2DLocation: 1,
+                    containsBGC: 1,
                     PI_NAME: 1,
                     cycle_number: 1,
                     lat: 1,

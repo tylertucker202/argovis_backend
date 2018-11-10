@@ -32,7 +32,7 @@ debug('mongodb: ' + mongoDB);
 mongoose.Promise = global.Promise;
 
 //connect mongoose to the mongo dbUrl
-mongoose.connect(mongoDB, {useMongoClient: true},
+mongoose.connect(mongoDB, { useNewUrlParser: true },
     function (error) {
         if (error) {
             console.log(error);
