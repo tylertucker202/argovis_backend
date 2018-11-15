@@ -10,7 +10,7 @@ module.exports = {
   startDate: {
     production: 'today',
     development: '2017-12-20',
-    docker: '2018-11-10',
+    docker: 'today',
     test: '2018-11-10'
   }
 };
