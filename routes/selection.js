@@ -14,6 +14,9 @@ router.get('/lastProfiles/:format?', meta_controller.last_profile_list);
 /* Get request for list of latest profiles. */
 router.get('/latestProfiles/:format?', meta_controller.latest_profile_list);
 
+/* Get request for list of latest profiles. */
+router.get('/lastThreeDays/:startDate?', meta_controller.last_three_days);
+
 router.get('/profiles/:format?', profile_controller.selected_profile_list);
 
 /* Get request for month year query */

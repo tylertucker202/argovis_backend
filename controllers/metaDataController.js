@@ -65,17 +65,19 @@ exports.last_profile_list = function(req, res, next) {
         endDate = moment.utc(appStartDate);
     }
     var query = Profile.aggregate([
-                       {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-                       {$group: {_id: '$platform_number',
-                                 'platform_number': {$first: '$platform_number'},
-                                 'date': {$first: '$date'},
-                                 'cycle_number': {$first: '$cycle_number'},
-                                 'geoLocation': {$first: '$geoLocation'},
-                                 'DATA_MODE': {$first: '$DATA_MODE'},
-                                 'containsBGC': { $first: "$containsBGC"}
-                                }},
-                                 {$limit : 500 },
-                                 {$sort: { 'date': -1}}]);
+        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+        {$group: {_id: '$platform_number',
+                    'platform_number': {$first: '$platform_number'},
+                    'date': {$first: '$date'},
+                    'cycle_number': {$first: '$cycle_number'},
+                    'geoLocation': {$first: '$geoLocation'},
+                    'DATA_MODE': {$first: '$DATA_MODE'},
+                    'containsBGC': { $first: "$containsBGC"}
+                    }
+        },
+        {$limit : 500 },
+        {$sort: { 'date': -1}}
+    ]);
     query.exec( function (err, profiles) {
         if (err) { return next(err); }
         res.json(profiles)
@@ -94,18 +96,61 @@ exports.latest_profile_list = function(req,res, next) {
         startDate = moment.utc(appStartDate).subtract(7, 'days');
         endDate = moment.utc(appStartDate);
     }
-    var query = Profile.aggregate([ {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-                                    {$sort: {'platform_number': -1, 'date': -1}},
-                                    {$group: {_id: '$platform_number',
-                                            'platform_number': {$first: '$platform_number'},
-                                            'date': {$first: '$date'},
-                                            'cycle_number': {$first: '$cycle_number'},
-                                            'geoLocation': {$first: '$geoLocation'},
-                                            'DATA_MODE': {$first: '$DATA_MODE'},
-                                            'containsBGC': { $first: "$containsBGC"}
-                                        }},
-                                    {$limit : 500 }
-                                    ]);
+    var query = Profile.aggregate([ 
+        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+        {$sort: {'platform_number': -1, 'date': -1}},
+        {$group: {_id: '$platform_number',
+                'platform_number': {$first: '$platform_number'},
+                'date': {$first: '$date'},
+                'cycle_number': {$first: '$cycle_number'},
+                'geoLocation': {$first: '$geoLocation'},
+                'DATA_MODE': {$first: '$DATA_MODE'},
+                'containsBGC': { $first: "$containsBGC"}
+                }
+        },
+        {$limit : 500 }
+    ]);
+    query.exec( function (err, profiles) {
+        if (err) { return next(err); }
+        res.json(profiles);
+    });
+};
+
+exports.last_three_days = function(req,res, next) {
+
+    if(req.params.startDate) { 
+        console.log('there is a date'); 
+        var endDate = moment.utc(req.params.startDate, 'YYYY-MM-DD');
+        var startDate= moment.utc(req.params.startDate, 'YYYY-MM-DD').subtract(3, 'days')
+        console.log(startDate)
+        console.log(endDate)
+    }
+    else {
+
+        const ENV = config.util.getEnv('NODE_ENV');
+        const appStartDate = config.startDate[ENV];
+        if (appStartDate === 'today'){
+            var startDate = moment.utc().subtract(3, 'days');
+            var endDate = moment.utc();      
+        }
+        else {
+            var startDate = moment.utc(appStartDate).subtract(3, 'days');
+            var endDate = moment.utc(appStartDate);
+        }
+    }
+    var query = Profile.aggregate([
+        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+        {$sort: {'platform_number': -1, 'date': -1}},
+        {$group: {_id: '$platform_number',
+                'platform_number': {$first: '$platform_number'},
+                'date': {$first: '$date'},
+                'cycle_number': {$first: '$cycle_number'},
+                'geoLocation': {$first: '$geoLocation'},
+                'DATA_MODE': {$first: '$DATA_MODE'},
+                'containsBGC': { $first: "$containsBGC"}
+                }
+            },
+    ]);
     query.exec( function (err, profiles) {
         if (err) { return next(err); }
         res.json(profiles);
