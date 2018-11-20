@@ -77,7 +77,7 @@ exports.selected_profile_list = function(req, res , next) {
         res.render('error', { errors: errors });
     }
     else {
-        if (req.params.format === 'map' && req.query.presRange) {
+        if (req.params.format === 'map' && presRange) {
             var query = Profile.aggregate([
                 {$project: { //need to include all fields that you wish to keep.
                     platform_number: -1,
@@ -121,7 +121,7 @@ exports.selected_profile_list = function(req, res , next) {
                 {$limit: 1001},
                 ]);
         }
-        else if (req.params.format === 'map' && !req.query.presRange) {
+        else if (req.params.format === 'map' && !presRange) {
             var query = Profile.aggregate([
                 {$project: { platform_number: -1,
                              date: -1,
@@ -134,7 +134,7 @@ exports.selected_profile_list = function(req, res , next) {
                 {$limit: 1001},
             ]);
         }
-        else if (req.params.format !== 'map' && req.query.presRange) {
+        else if (req.params.format !== 'map' && presRange) {
             var query = Profile.aggregate([
                 {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
                 {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
@@ -218,7 +218,7 @@ exports.selected_profile_list = function(req, res , next) {
         var promise = query.exec();
         promise
         .then(function (profiles) {
-            //create virtural fields. 
+            //create virtural fields.
             for(var idx=0; idx < profiles.length; idx++){
                 let lat = profiles[idx].lat;
                 let lon = profiles[idx].lon;
