@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var CovarSchema = Schema(
   {
     _id: {type: String, required: true, max: 100},
-    prob: {type: Number, required: true},
+    features: [{type: Schema.Types.Mixed, required: true}],
     geoLocation: {type: Schema.Types.Mixed, required: true}
   },{}
   );

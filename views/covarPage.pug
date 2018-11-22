@@ -1,0 +1,107 @@
+doctype html
+html(lang='en')
+    head
+        title= title
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1')
+        link(rel='stylesheet', href='/stylesheets/external-css/leaflet.css')
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        link(rel='stylesheet', href='/stylesheets/external-css/leaflet-draw.css')
+        //link(rel="stylesheet" href='/stylesheets/external-css/Leaflet.Coordinates-0.1.5.css')
+        script(src='/javascripts/external-js/jquery.min.js')
+        script(src="/javascripts/external-js/leaflet.js")
+        script(src="/javascripts/external-js/leaflet.draw.js")
+        script(src="/javascripts/external-js/Leaflet.Coordinates-0.1.5.min.js")
+        link(rel='stylesheet', href='/stylesheets/external-css/bootstrap.css')
+        script(src='/javascripts/external-js/bootstrap.min.js')
+        script(src='/javascripts/external-js/leaflet.ajax.min.js')
+        script(src='/javascripts/external-js/leaflet-heat.js')
+
+    body
+    #map
+    script(type='text/javascript').
+        //stereographic projection
+
+        var map = L.map('map', {maxZoom: 13, minZoom: 1, zoomDelta: 0.25, zoomSnap: 0, maxBounds: [[-180, -270], [180,270]]}).setView([#{lat},#{lng}], 2);
+        const satelliteMap = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                                    {attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        });
+        const googleMap = L.tileLayer('http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}',
+                                    {attribution: 'google'
+        });
+        const watercolor = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}',
+                                    {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                                     subdomains: 'abcd',
+        });
+        const Esri_OceanBasemap = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}',
+                                    {attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri',
+        });
+        var drawnItems = new L.featureGroup().addTo(map);
+        L.control.layers({
+            'Esri World Imagery ': satelliteMap.addTo(map),
+            'Google': googleMap.addTo(map), 
+            'Ocean basemap': Esri_OceanBasemap.addTo(map),
+            },
+            { 'draw layer': drawnItems },
+            { position: 'topleft', collapsed: false }
+        ).addTo(map);
+        //map.scrollWheelZoom.disable();
+
+        var adjLatLng = function(lat, lon) {
+            if (lat > 0) {
+                var strLat = Math.abs(lat).toFixed(2).toString() + ' N';
+            }
+            else {
+                var strLat = Math.abs(lat).toFixed(2).toString() + ' S';
+            }
+            if (lon > 0) {
+                var strLon = Math.abs(lon).toFixed(2).toString() + ' E';
+            }
+            else {
+                var strLon = Math.abs(lon).toFixed(2).toString() + ' W';
+            }
+            return([strLat, strLon])
+        }
+        map.on('mousemove', function (e) {
+            let latLon = adjLatLng(e.latlng.lat, e.latlng.lng)
+            info._div.innerHTML = 'Longitude: ' + latLon[1] + '<br />' +
+                                    'Latitude: ' + latLon[0];
+        });
+
+        var info = L.control({position: 'topright'});
+        info.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+            return this._div;
+        };
+        info.addTo(map);
+
+        const getCovarPoints = function(urlQuery) {
+            $.getJSON(urlQuery, function(res){
+                let features = res.features
+
+                heatPoints = []
+                probs = []
+                for (idx in features) {
+                    lat = features[idx].geometry.coordinates[1]
+                    lng = features[idx].geometry.coordinates[0]
+                    prob = features[idx].properties.Probability
+                    heatPoint = [lat, lng, prob]
+                    probs.push(prob)
+                    heatPoints.push(heatPoint)
+
+                }
+                const maxProb = Math.max.apply(null, probs)
+                console.log(maxProb)
+                var heat = L.heatLayer(heatPoints, {radius: 50, max: .001}).addTo(map);
+            }).fail(function(){ console.log('failed to get covarObject') })
+        };
+
+
+        map.on('click', function(ev){
+        var latlng = map.mouseEventToLatLng(ev.originalEvent);
+        let urlQuery = '/covarGrid/'
+        urlQuery += latlng.lng.toFixed(1) +'/' + latlng.lat.toFixed(1) + '/'
+        getCovarPoints(urlQuery)
+        });
+
+        

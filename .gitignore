@@ -2,4 +2,5 @@ node_modules/*
 notes.txt
 .vscode/*
 package-lock.json
+60_day
 

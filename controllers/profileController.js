@@ -37,6 +37,13 @@ exports.profile_detail = function (req, res, next) {
                     res.render('profile_page', {title: req.params._id, profile: profile, platform_number: profile.platform_number, moment: moment});
                 }
             }
+            else if (req.params.format==='bgcPage'){
+                if (profile === null) { res.send('profile not found'); }
+                if (profile.bgcMeas === null) { res.send('profile does not have bgc'); }
+                else {
+                    res.render('bgc_profile_page', {title: req.params._id, profile: profile, platform_number: profile.platform_number, moment: moment});
+                }
+            }
             else {
                 res.json(profile);
             }

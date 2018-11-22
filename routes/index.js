@@ -13,6 +13,13 @@ router.get('/map', function(req,res) {
         });
 });
 
+router.get('/covarMap', function(req,res) {
+  res.render('covarPage', {
+      lat : 0,
+      lng : 0
+  });
+});
+
 router.get('/mapNPS', function(req,res) {
   res.render('map_north_polar_stereo', {
       lat : 89,

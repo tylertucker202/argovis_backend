@@ -12,12 +12,12 @@ exports.radius_selection = function(req, res , next) {
     req.sanitize('lon').escape();
     req.sanitize('lon').trim();
 
-    if(req.params.radius) {
-        var radius = JSON.parse(req.params.radius)
-    }
-    else {
-        var radius = 100000;
-    }
+    // if(req.params.radius) {
+    //     var radius = JSON.parse(req.params.radius)
+    // }
+    // else {
+    //     var radius = 100000;
+    // }
 
     let lat = JSON.parse(req.params.lat)
     let lon = JSON.parse(req.params.lon)
@@ -26,10 +26,10 @@ exports.radius_selection = function(req, res , next) {
     GJV.valid(point);
     GJV.isPoint(point);
 
-    var query = Covar.find({geoLocation: {
+    var query = Covar.findOne({geoLocation: {
                                 $near: {
                                     $geometry: point,
-                                    $maxDistance: radius
+                                    //$maxDistance: radius
                                 }
                             }
                             })
