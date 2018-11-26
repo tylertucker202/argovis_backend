@@ -230,24 +230,16 @@ html(lang='en')
 
         plotAxes = {}
         for (idx in paramKeys) {
+            
+            if (!meas[paramKeys[idx]+'_qc']) { continue } //include param if param_qc exists
             presVsParamMask = getMaskForPair(meas[paramKeys[idx]], pres)
             presForParam = pres.filter((item, i) => presVsParamMask[i]);
             presQcForParam = presQc.filter((item, i) => presVsParamMask[i]);
 
             paramForPres = meas[paramKeys[idx]].filter((item, i) => presVsParamMask[i]);
+            paramQcForPres = meas[paramKeys[idx]+'_qc'].filter((item, i) => presVsParamMask[i]);
+            plotAxes[paramKeys[idx]] = { 'pres': presForParam.map(roundArray), 'pres_qc': presQcForParam, 'param': paramForPres.map(roundArray), 'qc': paramQcForPres}
 
-            if (meas[paramKeys[idx]+'_qc']) {
-                paramQcForPres = meas[paramKeys[idx]+'_qc'].filter((item, i) => presVsParamMask[i]);
-            }
-            else {
-                //create qc array of -999 if it does not exist
-                paramQcForPres = paramForPres.fill(-999, 0, paramForPres.length)
-            }
-
-            if (paramForPres.length > 0){ //add if it actually exists
-                plotAxes[paramKeys[idx]] = { 'pres': presForParam.map(roundArray), 'pres_qc': presQcForParam, 'param': paramForPres.map(roundArray), 'qc': paramQcForPres}
-
-            }
         }
 
         traces = []
