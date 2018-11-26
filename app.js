@@ -32,9 +32,15 @@ if(ENV !== 'test') {
 const mongoDB = config.db[ENV];
 debug('mongodb: ' + mongoDB);
 mongoose.Promise = global.Promise;
+var mongooseOptions = {
+  useNewUrlParser: true,
+  server: { socketOptions: { keepAlive: 1, connectTimeoutMS: 30000 } },
+  replset: { socketOptions: { keepAlive: 1, connectTimeoutMS: 30000 } }
+};
+
 
 //connect mongoose to the mongo dbUrl
-mongoose.connect(mongoDB, { useNewUrlParser: true },
+mongoose.connect(mongoDB, mongooseOptions,
     function (error) {
         if (error) {
             console.log(error);

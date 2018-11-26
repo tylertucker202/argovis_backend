@@ -200,10 +200,7 @@ html(lang='en')
             };
         };
 
-
-
         var meas = [!{profile.bgcMeas}];
-        console.log(meas)
         meas = collateMeasurements(meas);
         pres = meas['pres']
         presQc = meas['pres_qc']
@@ -236,11 +233,16 @@ html(lang='en')
             presQcForParam = presQc.filter((item, i) => presVsParamMask[i]);
 
             paramForPres = meas[paramKeys[idx]].filter((item, i) => presVsParamMask[i]);
-            paramQcForPres = meas[paramKeys[idx]+'_qc'].filter((item, i) => presVsParamMask[i]);
+
+            if (meas[paramKeys[idx]+'_qc']) {
+                paramQcForPres = meas[paramKeys[idx]+'_qc'].filter((item, i) => presVsParamMask[i]);
+            }
+            else {
+                //create qc array of -999 if it does not exist
+                paramQcForPres = paramQcForPres.fill(-999, 0, paramQcForPres.length)
+            }
             plotAxes[paramKeys[idx]] = { 'pres': presForParam.map(roundArray), 'pres_qc': presQcForParam, 'param': paramForPres.map(roundArray), 'qc': paramQcForPres}
         }
-
-        console.log(plotAxes)
 
         traces = []
         let layout = {

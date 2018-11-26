@@ -70,6 +70,12 @@ exports.platform_detail = function (req, res, next) {
                     res.render('selected_profile_page_collated', {title:req.params.platform_number, profiles: JSON.stringify(profiles), moment: moment })
                 }
             }
+            else if (req.params.format==='bgcPage'){
+                if (profiles.length === 0) { res.send('platform not found'); }
+                else {
+                    res.render('bgc_platform_page', {title:req.params.platform_number, profiles: JSON.stringify(profiles), moment: moment })
+                }
+            }
             else{
                 res.json(profiles)
             }
