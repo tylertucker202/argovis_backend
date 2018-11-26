@@ -92,13 +92,15 @@ html(lang='en')
 
         const makeDomainList = function(nPlots) {
             domains = []
-            domains.push([0, 1/nPlots - .05])
+            const padding = .05
+            domains.push([0, 1/nPlots - padding])
             for(let idx=1; idx < nPlots-1; idx++) {
-                lD = idx / nPlots + .05
-                uD = (idx + 1) / nPlots - .05
+                lD = idx / nPlots + padding
+                uD = (idx + 1) / nPlots - padding
                 domains.push([lD, uD])
             }
-            domains.push([ uD + .05 ,1])
+            if (nPlots == 2) { uD = 1/nPlots - padding }
+            domains.push([ uD + padding ,1])
 
             return(domains)
         }
@@ -239,9 +241,13 @@ html(lang='en')
             }
             else {
                 //create qc array of -999 if it does not exist
-                paramQcForPres = paramQcForPres.fill(-999, 0, paramQcForPres.length)
+                paramQcForPres = paramForPres.fill(-999, 0, paramForPres.length)
             }
-            plotAxes[paramKeys[idx]] = { 'pres': presForParam.map(roundArray), 'pres_qc': presQcForParam, 'param': paramForPres.map(roundArray), 'qc': paramQcForPres}
+
+            if (paramForPres.length > 0){ //add if it actually exists
+                plotAxes[paramKeys[idx]] = { 'pres': presForParam.map(roundArray), 'pres_qc': presQcForParam, 'param': paramForPres.map(roundArray), 'qc': paramQcForPres}
+
+            }
         }
 
         traces = []
@@ -254,10 +260,11 @@ html(lang='en')
             showlegend: false
         }
 
-        domains = makeDomainList(paramKeys.length)
+        plotKeys = Object.keys(plotAxes)
+        domains = makeDomainList(plotKeys.length)
 
-        for (idx in paramKeys) {
-            paramKey = paramKeys[idx]
+        for (idx in plotKeys) {
+            paramKey = plotKeys[idx]
             let traceParam = getTraceParams(paramKey, idx)
             traceParam['xvalues'] = plotAxes[paramKey].param
             traceParam['xqc'] = plotAxes[paramKey].qc
