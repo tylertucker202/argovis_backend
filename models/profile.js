@@ -43,7 +43,7 @@ var ProfileSchema = Schema(
     platform_number: {type: String, required: true, max: 100},
     geoLocation: {type: Schema.Types.Mixed, required: true},
     station_parameters: {type: Schema.Types.Array, required: true},
-    STATION_PARAMETERS_inMongoDB: {type: Schema.Types.Array, required: true},
+    STATION_PARAMETERS_inMongoDB: {type: Schema.Types.Array, required: false},
     VERTICAL_SAMPLING_SCHEME: {type:String, required: false},
     PI_NAME: {type: String, required: false, max: 100},
     WMO_INST_TYPE: {type: String, required: false, max: 100},
@@ -86,7 +86,7 @@ ProfileSchema
 ProfileSchema
 .virtual('formatted_station_parameters')
 .get(function () {
-  return this.STATION_PARAMETERS_inMongoDB.map(param => ' '+param)
+  return this.station_parameters.map(param => ' '+param)
 })
 
 ProfileSchema
