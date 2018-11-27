@@ -1,0 +1,379 @@
+doctype html
+html(lang='en')
+    head
+        title='BGC page for platform:' + title
+        meta(charset='utf-8')
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        script(type="text/javascript", src='https://cdn.plot.ly/plotly-latest.min.js')
+        link(rel='stylesheet', href='/stylesheets/external-css/bootstrap.css')
+        link(rel='stylesheet', href='/stylesheets/external-css/bootstrap-table.css')
+        script(src='/javascripts/external-js/FileSaver.min.js')
+        script(src='/javascripts/external-js/jquery.min.js')
+        script(src='/javascripts/external-js/bootstrap.min.js')
+        script(src='/javascripts/external-js/tableexport.min.js')
+        script(src="/javascripts/external-js/moment.min.js")
+        script(src="/javascripts/external-js/bootstrap-table.js")
+    body
+
+    block content
+        div(class='selection_and_catalog_page')
+            div(class='horizContainer')
+                div(class='top')
+                    #pres_v_temp_plot
+                div(class='bottom')
+                    #pres_v_psal_plot
+            p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
+            button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
+            div(class='top')
+                a(href='/catalog/platforms/'+ title + '/page2' target='_blank') To platform PT, PS, and TS plot pages
+            div(class='middle')
+                a(href='http://www.jcommops.org/board/wa/Platform?ref='+ title target='_blank') To JCOMMOPS page
+            div(class='bottom')
+                a(href='/' ) To main page
+            //- table(class="table sortable", id='profileTable')
+            table(class="table-striped", data-toggle="table", id='profileTable')
+                thead(height='50px')
+                    tr
+                        th Link to GDAC data
+                        th Dac
+                        th Parameters
+                        th Positioning system
+                        th(data-sortable='true' data-sorter="latSorter") Lat
+                        th(data-sortable='true' data-sorter="lonSorter") Lon
+                        th Link to profile page
+                        th(data-sortable='true') Date reported
+                        th(data-sortable='true') Cycle number
+                        th(data-sortable='true') Data mode
+                        th(data-sortable='true') Num. of meas.
+                tbody(overflow='auto', height='150px')
+                    each profile, i in JSON.parse(profiles)
+                        tr
+                            td 
+                                a(href=profile.nc_url) #{profile._id} data
+                            td #{profile.dac}
+                            td #{profile.formatted_station_parameters}
+                            td #{profile.POSITIONING_SYSTEM}
+                            td #{profile.strLat}
+                            td #{profile.strLon}
+                            td 
+                                a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
+                            td #{moment.utc(profile.date).format("YYYY-MM-DD HH:mm")}
+                            td #{profile.cycle_number}
+                            td #{profile.DATA_MODE}
+                            td #{profile.measurements.length}
+
+    script(type='text/javascript').
+
+        function latSorter(a, b) {
+            aNS = a.slice(-1);
+            bNS = b.slice(-1);
+            aNum = Number(a.slice(0, -2));
+            bNum = Number(b.slice(0, -2));
+            if (aNS == 'S') { aNum = -1*Number(aNum) }
+            if (bNS == 'S') { bNum = -1*Number(bNum) }
+            if (aNum < bNum) return -1;
+            if (aNum > bNum) return 1;
+            return 0;
+        }
+
+        function lonSorter(a, b) {
+            aNS = a.slice(-1);
+            bNS = b.slice(-1);
+            aNum = Number(a.slice(0, -2));
+            bNum = Number(b.slice(0, -2));
+            if (aNS == 'E') { aNum = -1*Number(aNum) }
+            if (bNS == 'E') { bNum = -1*Number(bNum) }
+            if (aNum < bNum) return -1;
+            if (aNum > bNum) return 1;
+            return 0;
+        }
+
+        TableExport(document.getElementsByTagName("table"), {
+            headers: true,                              // (Boolean), display table headers (th or td elements) in the <thead>, (default: true)
+            footers: true,                              // (Boolean), display table footers (th or td elements) in the <tfoot>, (default: false)
+            formats: ['csv', 'xlsx', 'xls', 'txt'],             // (String[]), filetype(s) for the export, (default: ['xls', 'csv', 'txt'])
+            filename: !{title}+'_table',                             // (id, String), filename for the downloaded file, (default: 'id')
+            bootstrap: true,                           // (Boolean), style buttons using bootstrap, (default: true)
+            exportButtons: true,                        // (Boolean), automatically generate the built-in export buttons for each of the specified formats (default: true)
+            position: 'bottom',                         // (top, bottom), position of the caption element relative to table, (default: 'bottom')
+            ignoreRows: null,                           // (Number, Number[]), row indices to exclude from the exported file(s) (default: null)
+            ignoreCols: null,                           // (Number, Number[]), column indices to exclude from the exported file(s) (default: null)
+            trimWhitespace: true                        // (Boolean), remove all leading/trailing newlines, spaces, and tabs from cell text in the exported file(s) (default: false)
+        });
+
+        $('#downloadProfiles').on('click', function(){
+            var url = '/catalog/platforms/' + `#{title}`;
+            window.open(url,'_blank');
+        });
+
+    script(type='text/javascript').
+
+        let psal = [];
+        let pres = [];
+        let temp = [];
+        let time = [];
+        let cycle = [];
+        let id = [];
+        let profiles = !{profiles};
+
+        collatedProfiles = {}
+
+        function collateProfileMeasurements(list) {
+            var map = {};
+            var keys = Object.keys(list[0]);
+
+            for (idx in keys) {
+                map[keys[idx]] = [];
+            }
+            for (var i = 0; i < list.length; ++i) {
+                for (idx in keys) {
+                    map[keys[idx]].push(list[i][keys[idx]])
+                }
+            }
+            return map;
+        }
+
+        const reduceGPSMeasurements = function(profile, maxLength) {
+            if (profile.POSITIONING_SYSTEM === 'GPS') {
+                mLen = profile.bgcMeas.length;
+                if (mLen > maxLength) {
+                    //reduce array length to so that only every delta element is plotted
+                    var delta = Math.floor( mLen / maxLength );
+                    var reducedMeasurements = [];
+                    for (var j = 0; j < mLen; j=j+delta) {
+                        reducedMeasurements.push(profile.bgcMeas[j]);
+                    }
+                    return reducedMeasurements;
+                }
+                else {
+                    return profile.bgcMeas;
+                }
+            }
+            else {
+                return profile.bgcMeas;
+            }
+        }
+
+        const getMaskForPair = function(arrayOne, arrayTwo) {
+            let mask = [];
+            const element = -999; // -999 is the actual nan value. -900 just in case of decimal
+            for(let idx=0; idx < arrayOne.length; idx++){
+                if (arrayOne[idx] === element || arrayTwo[idx] === element){
+                    mask.push(false);
+                }
+                else {
+                    mask.push(true)
+                }
+            }
+            return(mask);
+        }
+
+        const dropNegNineNineNine = function(value){ if (value != -999) {return(value)}};
+        const roundArray = function (value){ return(Number(value).toFixed(3)) };
+
+        //init plotAxes
+        var profileMeas = reduceGPSMeasurements(profiles[0], 200);
+        profileMeas = collateProfileMeasurements(profileMeas);
+        paramKeys = profiles[0].station_parameters.map( s => s[0].toLowerCase() )
+        plotAxes = {}
+        plotAxes['pres'] = []
+        plotAxes['pres_qc'] = []
+        plotAxes['']
+        for (let idx=0; idx < paramKeys.length; idx++) {
+            plotAxes[paramKeys[idx]] = { 'pres': [], 'pres_qc': [], 'param': [], 'qc': [], 'time': [], 'cycle': [], '_id': []}
+        }
+
+        for(var i=0; i < profiles.length; i++) {
+            var meas = reduceGPSMeasurements(profiles[i], 200);
+            meas = collateProfileMeasurements(meas);
+            pres = meas['pres']
+            presQc = meas['pres_qc']
+            delete meas['pres'];
+            delete meas['pres_qc'];
+            for (let idx=0; idx < paramKeys.length; idx++) {
+                measKeys = Object.keys(meas)
+                if (!measKeys.includes(paramKeys[idx])) { continue } //include param if it exists in paramKeys
+                if (!meas[paramKeys[idx]+'_qc']) { continue } // ignore param if no qc
+                presVsParamMask = getMaskForPair(meas[paramKeys[idx]], pres)
+                presForParam = pres.filter((item, i) => presVsParamMask[i]);
+                presQcForParam = presQc.filter((item, i) => presVsParamMask[i]);
+                paramForPres = meas[paramKeys[idx]].filter((item, i) => presVsParamMask[i]);
+                paramQcForPres = meas[paramKeys[idx]+'_qc'].filter((item, i) => presVsParamMask[i]);
+
+                profTime = []
+                cycleIdx = []
+                profileId = []
+                for (var j=0; j<presForParam.length; j++) {
+                    profTime.push(moment.utc(profiles[i].date).format('YYYY-MM-DD HH:mm'))
+                    cycleIdx.push(profiles[i].cycle_number); //just an array of cycle number
+                    profileId.push(profiles[i]._id);
+                }
+
+                plotAxes[paramKeys[idx]]['pres'] = plotAxes[paramKeys[idx]]['pres'].concat(presForParam.map(roundArray))
+                plotAxes[paramKeys[idx]]['pres_qc'] = plotAxes[paramKeys[idx]]['pres_qc'].concat(presQcForParam)
+                plotAxes[paramKeys[idx]]['param'] = plotAxes[paramKeys[idx]]['param'].concat(paramForPres.map(roundArray))
+                plotAxes[paramKeys[idx]]['qc'] = plotAxes[paramKeys[idx]]['qc'].concat(paramQcForPres)
+                plotAxes[paramKeys[idx]]['time'] = plotAxes[paramKeys[idx]]['time'].concat(profTime)
+                plotAxes[paramKeys[idx]]['cycle'] = plotAxes[paramKeys[idx]]['cycle'].concat(cycleIdx)
+                plotAxes[paramKeys[idx]]['_id'] = plotAxes[paramKeys[idx]]['_id'].concat(profileId)
+
+            }
+        }
+        
+        console.log(plotAxes)
+
+        var tempScl = [[0.0, 'rgb(3, 35, 51)'],
+                        [0.125, 'rgb(24, 51, 124)'],
+                        [0.25, 'rgb(86, 59, 156)'],
+                        [0.375, 'rgb(130, 79, 142)'],
+                        [0.5, 'rgb(176, 95, 129)'],
+                        [0.625, 'rgb(222, 112, 100)'],
+                        [0.75, 'rgb(249, 147, 65)'],
+                        [0.875, 'rgb(249, 198, 65)'],
+                        [1.0, 'rgb(231, 250, 90)']];
+
+        var psalScl = [[0.0, 'rgb(41, 24, 107)'],
+                        [0.125, 'rgb(31, 51, 161)'],
+                        [0.25, 'rgb(15, 91, 144)'],
+                        [0.375, 'rgb(40, 119, 137)'],
+                        [0.5, 'rgb(59, 147, 135)'],
+                        [0.625, 'rgb(79, 176, 125)'],
+                        [0.75, 'rgb(122, 203, 102)'],
+                        [0.875, 'rgb(195, 221, 100)'],
+                        [1.0, 'rgb(253, 238, 153)']];
+
+        const measurements = {'pres_v_temp': {'xvalues': timeForTemp,
+                                                'yvalues': presForTemp.map(roundArray),
+                                                'cvalues': tempForPres.map(roundArray),
+                                                'text': 'temperature: ',
+                                                'yaxis': 'y2',
+                                                'xaxis': 'x1',
+                                                'units': 'C',
+                                                'cycle': cycleForTemp,
+                                                'colorscale': tempScl,
+                                                'id': idForTemp,
+                                                'colorbar': {
+                                                        title: "Temp. [Celsius]", 
+                                                        len: 1, 
+                                                        yanchor: "middle",
+                                                        titleside: "right",
+                                                        xpad: 10,
+                                                        }},
+                                'pres_v_psal': {'xvalues': timeForPsal,
+                                                'yvalues': presForPsal.map(roundArray),
+                                                'cvalues': psalForPres.map(roundArray),
+                                                'text': 'salinity: ',
+                                                'yaxis': 'y1',
+                                                'xaxis': 'x1',
+                                                'units': 'psu',
+                                                'cycle': cycleForPsal,
+                                                'colorscale': psalScl,
+                                                'id': idForPsal,
+                                                'colorbar': {
+                                                        title: "Salinity [psu]", 
+                                                        len: 1, 
+                                                        yanchor: "middle",
+                                                        titleside: "right",
+                                                        xpad: 5,
+                                                        }}
+                                };
+
+        const makeText = function(pres, date, text, value, units, cycle) {
+                return("<br>" + text + value.toString() + " " + units
+                     + "<br>date: " + date.toString()
+                     + "<br>pressure: " + pres.toString() + " dbar"
+                     + "<br>cycle: " + cycle.toString()
+                     + "<br>click to see profile page"
+                )
+        };
+
+        const makeTrace = function(key) {
+            let meas = measurements[key];
+            let hovorText = [];
+            for(let idx=0; idx < meas.cvalues.length; idx++){
+                let pointText = makeText(meas.yvalues[idx], meas.xvalues[idx], meas.text, meas.cvalues[idx], meas.units, meas.cycle[idx])
+                hovorText.push(pointText);
+            }
+            scatterTrace = {
+                y: meas.yvalues,
+                x: meas.xvalues,
+                text: hovorText,
+                hoverinfo: 'text',
+                showlegend: false,
+                type: 'scattergl',
+                mode: 'markers',
+                cycle: meas.cycle,
+                profile_ids: meas.id,
+                marker: { color: meas.cvalues,
+                            size: 5,
+                            symbol: 'dot',
+                            opacity: 1,
+                            reversescale: false,
+                            colorscale: meas.colorscale,
+                            colorbar: meas.colorbar,
+                        },
+                name: key, 
+            }
+            return [scatterTrace];
+        };
+
+        var temp_layout = {
+            title: "Temperature measurements",  
+            height: 400, 
+            width: 1200, 
+            //autosize: false, 
+            yaxis: {
+                showticklabels: true,
+                autorange: 'reversed', //scattergl currently does not show tick labels when axis is reversed
+                type: "linear", 
+                title: "Pressure [dbar]"
+            },
+            xaxis: {
+                autorange: true, 
+                type: "date", 
+                title: "Date"
+            }, 
+            hovermode: "closest", 
+            showlegend: true,
+        };
+
+        var psal_layout = {
+            title: "Salinity measurements",  
+            height: 400, 
+            width: 1200, 
+            //autosize: false, 
+            yaxis: {
+                showticklabels: true, 
+                autorange: 'reversed', //scattergl currently does not show tick labels when axis is reversed
+                type: "linear", 
+                title: "Pressure [dbar]"
+            },
+            xaxis: {
+                autorange: true, 
+                type: "date", 
+                title: "Date"
+            }, 
+            hovermode: "closest", 
+            showlegend: true
+        };
+        Plotly.plot('pres_v_temp_plot',
+                    makeTrace( 'pres_v_temp'),
+                    temp_layout);
+        Plotly.plot('pres_v_psal_plot', 
+                    makeTrace('pres_v_psal'),
+                    psal_layout);
+
+        // Upon click a new tab opens to the corresponding profile.
+        pres_v_temp_plot.on('plotly_click', function(data){
+            let xidx = data.points[0].pointNumber
+            var profile_id = data.points[0].data.profile_ids[xidx];
+            var url = '/catalog/profiles/' + profile_id + '/page';
+            window.open(url,'_blank');
+        });
+
+        pres_v_psal_plot.on('plotly_click', function(data){
+            let xidx = data.points[0].pointNumber
+            var profile_id = data.points[0].data.profile_ids[xidx];
+            var url = '/catalog/profiles/' + profile_id + '/page';
+            window.open(url,'_blank');
+        });
