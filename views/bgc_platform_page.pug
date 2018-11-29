@@ -169,20 +169,17 @@ html(lang='en')
         }
 
         const dropNegNineNineNine = function(value){ if (value != -999) {return(value)}};
-        const roundArray = function (value){ return(Number(value).toFixed(3)) };
+        const roundArray = function (value){ return(Number(value.toFixed(3))) };
 
         //init plotAxes
         var profileMeas = reduceGPSMeasurements(profiles[0], 200);
         profileMeas = collateProfileMeasurements(profileMeas);
         paramKeys = profiles[0].station_parameters.map( s => s[0].toLowerCase() )
+        paramKeys = paramKeys.filter(s=>!s.includes("pres"));
         plotAxes = {}
-        plotAxes['pres'] = []
-        plotAxes['pres_qc'] = []
-        plotAxes['']
         for (let idx=0; idx < paramKeys.length; idx++) {
             plotAxes[paramKeys[idx]] = { 'pres': [], 'pres_qc': [], 'param': [], 'qc': [], 'time': [], 'cycle': [], '_id': []}
         }
-
         for(var i=0; i < profiles.length; i++) {
             var meas = reduceGPSMeasurements(profiles[i], 200);
             meas = collateProfileMeasurements(meas);
@@ -216,7 +213,6 @@ html(lang='en')
                 plotAxes[paramKeys[idx]]['time'] = plotAxes[paramKeys[idx]]['time'].concat(profTime)
                 plotAxes[paramKeys[idx]]['cycle'] = plotAxes[paramKeys[idx]]['cycle'].concat(cycleIdx)
                 plotAxes[paramKeys[idx]]['_id'] = plotAxes[paramKeys[idx]]['_id'].concat(profileId)
-
             }
         }
         
