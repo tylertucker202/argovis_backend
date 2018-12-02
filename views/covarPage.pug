@@ -7,6 +7,7 @@ html(lang='en')
         link(rel='stylesheet', href='/stylesheets/external-css/leaflet.css')
         link(rel='stylesheet', href='/stylesheets/style.css')
         link(rel='stylesheet', href='/stylesheets/external-css/leaflet-draw.css')
+        link(rel='stylesheet', href='/stylesheets/external-css/easy-button.css')
         //link(rel="stylesheet" href='/stylesheets/external-css/Leaflet.Coordinates-0.1.5.css')
         script(src='/javascripts/external-js/jquery.min.js')
         script(src="/javascripts/external-js/leaflet.js")
@@ -16,6 +17,7 @@ html(lang='en')
         script(src='/javascripts/external-js/bootstrap.min.js')
         script(src='/javascripts/external-js/leaflet.ajax.min.js')
         script(src='/javascripts/external-js/leaflet-heat.js')
+        script(src='/javascripts/external-js/easy-button.js')
 
     body
     #map
@@ -36,13 +38,15 @@ html(lang='en')
         const Esri_OceanBasemap = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}',
                                     {attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri',
         });
-        var drawnItems = new L.featureGroup().addTo(map);
+        var covarLayer = new L.layerGroup();
+        var heat = L.heatLayer()
+        var forcastLength = '60days'
         L.control.layers({
             'Esri World Imagery ': satelliteMap.addTo(map),
             'Google': googleMap.addTo(map), 
             'Ocean basemap': Esri_OceanBasemap.addTo(map),
             },
-            { 'draw layer': drawnItems },
+            { 'Display 60 day': heat },
             { position: 'topleft', collapsed: false }
         ).addTo(map);
         //map.scrollWheelZoom.disable();
@@ -75,6 +79,24 @@ html(lang='en')
         };
         info.addTo(map);
 
+        var forcastInfo = L.control({position: 'topleft'});
+        forcastInfo.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+            forcastInfo._div.innerHTML = 'Forcasting: ' + forcastLength;
+            return this._div;
+        };
+        forcastInfo.update = function() {
+            console.log('changing days')
+            if (forcastLength == '60days') {
+                forcastLength = '140days'
+            }
+            else {
+                forcastLength = '60days'
+            }
+            this._div.innerHTML = 'Forcasting: ' + forcastLength;
+        }
+        forcastInfo.addTo(map);
+
         const getCovarPoints = function(urlQuery) {
             $.getJSON(urlQuery, function(res){
                 let features = res.features
@@ -91,8 +113,10 @@ html(lang='en')
 
                 }
                 const maxProb = Math.max.apply(null, probs)
-                console.log(maxProb)
-                var heat = L.heatLayer(heatPoints, {radius: 50, max: .001}).addTo(map);
+                map.removeLayer(heat); //remove old layer
+                heat = L.heatLayer(heatPoints, {radius: 50, max: .001});
+                heat.addTo(map)
+                //covarLayer.addLayer(heat)
             }).fail(function(){ console.log('failed to get covarObject') })
         };
 
@@ -101,7 +125,20 @@ html(lang='en')
         var latlng = map.mouseEventToLatLng(ev.originalEvent);
         let urlQuery = '/covarGrid/'
         urlQuery += latlng.lng.toFixed(1) +'/' + latlng.lat.toFixed(1) + '/'
+        urlQuery += forcastLength
         getCovarPoints(urlQuery)
         });
+
+        L.easyButton('<strong>Clear Map</strong>', function(){
+            covarLayer.clearLayers();
+            map.removeLayer(heat);
+        }).addTo(map);
+
+        L.easyButton('<strong>Toggle Forcast</strong>', function(){
+            covarLayer.clearLayers();
+            map.removeLayer(heat);
+            forcastInfo.update()
+            //switchForcast()
+        }).addTo(map);
 
         

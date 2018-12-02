@@ -34,6 +34,7 @@
     "jquery-ui": "^1.12.1",
     "leaflet": "^1.1.0",
     "leaflet-draw": "^0.4.12",
+    "leaflet-easybutton": "^2.3.0",
     "leaflet.coordinates": "^0.1.5",
     "leaflet.heat": "^0.2.0",
     "moment": "^2.22.2",

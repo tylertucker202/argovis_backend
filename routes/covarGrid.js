@@ -7,6 +7,6 @@ var covar_controller = require('../controllers/covarController')
 /* Get request for month year query */
 
 
-router.get('/:lat/:lon/:radius?', covar_controller.radius_selection);
+router.get('/:lat/:lon/:forcast?', covar_controller.radius_selection);
 
 module.exports = router;
