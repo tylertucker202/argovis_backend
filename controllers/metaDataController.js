@@ -73,7 +73,8 @@ exports.last_profile_list = function(req, res, next) {
                     'cycle_number': {$first: '$cycle_number'},
                     'geoLocation': {$first: '$geoLocation'},
                     'DATA_MODE': {$first: '$DATA_MODE'},
-                    'containsBGC': { $first: "$containsBGC"}
+                    'containsBGC': { $first: "$containsBGC"},
+                    'isDeep': { $first: "$isDeep"}
                     }
         },
         {$limit : 500 },
@@ -106,7 +107,8 @@ exports.latest_profile_list = function(req,res, next) {
                 'cycle_number': {$first: '$cycle_number'},
                 'geoLocation': {$first: '$geoLocation'},
                 'DATA_MODE': {$first: '$DATA_MODE'},
-                'containsBGC': { $first: "$containsBGC"}
+                'containsBGC': { $first: "$containsBGC"},
+                'isDeep': { $first: "$isDeep"}
                 }
         },
         {$limit : 500 }
@@ -129,17 +131,20 @@ exports.last_three_days = function(req,res, next) {
     else {
         const ENV = config.util.getEnv('NODE_ENV');
         const appStartDate = config.startDate[ENV];
+        console.log(appStartDate)
         if (appStartDate === 'today'){
             var startDate = moment.utc().subtract(3, 'days');
             var endDate = moment.utc();      
         }
         else if (appStartDate === 'yesterday') {
+            console.log('starting yesterday')
             var startDate = moment.utc().subtract(4, 'days');
             var endDate = moment.utc().subtract(1, 'days');
         }
         else {
-            var startDate = moment.utc(appStartDate).subtract(3, 'days');
-            var endDate = moment.utc(appStartDate);
+            console.log('starting yesterday')
+            var startDate = moment.utc().subtract(4, 'days');
+            var endDate = moment.utc().subtract(1, 'days');
         }
     }
     var query = Profile.aggregate([
@@ -151,7 +156,8 @@ exports.last_three_days = function(req,res, next) {
                 'cycle_number': {$first: '$cycle_number'},
                 'geoLocation': {$first: '$geoLocation'},
                 'DATA_MODE': {$first: '$DATA_MODE'},
-                'containsBGC': { $first: "$containsBGC"}
+                'containsBGC': { $first: "$containsBGC"},
+                'isDeep': { $first: "$isDeep"}
                 }
             },
     ]);
