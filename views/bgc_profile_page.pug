@@ -9,6 +9,7 @@ html(lang='en')
         script(src='/javascripts/external-js/FileSaver.min.js')
         script(src='/javascripts/external-js/jquery.min.js')
         script(src='/javascripts/external-js/bootstrap.min.js')
+        script(src='/javascripts/bgc_functions.js')
     body
 
     block content
@@ -16,7 +17,7 @@ html(lang='en')
             h1 BGC page for profile id: #{title}
             table(style='width:100%',border='0')
                 tr
-                    td Date: #{moment.utc(profile.date).format("YYYY-MM-DD HH:mm")}
+                    td Date: #{profileDate}
                     td Links to other Argovis pages:
                 tr
                     td Cycle number: #{profile.cycle_number}
@@ -38,7 +39,7 @@ html(lang='en')
                     td 
                         a(href=profile.nc_url) Link to profile data on Argo GDAC   
                 tr
-                    td Parameters: #{profile.formatted_station_parameters}
+                    td BGC Parameters: #{paramKeys}
                     td 
                         a(href=profile.ifremerProfile target='_blank') Link to Ifremer visualization of this profile
                 tr
@@ -54,154 +55,6 @@ html(lang='en')
 
     script(type='text/javascript').
 
-        $('#downloadProfiles').on('click', function(){
-            var url = '/catalog/profiles/' + `#{title}`;
-            window.open(url,'_blank');
-        });
-
-        function collateMeasurements(list) {
-            var map = {};
-            var keys = Object.keys(list[0]);
-
-            for (idx in keys) {
-                map[keys[idx]] = [];
-            }
-
-            for (var i = 0; i < list.length; ++i) {
-                for (idx in keys) {
-                    map[keys[idx]].push(list[i][keys[idx]])
-                }
-            }
-            return map;
-        }
-
-        const addLayoutAxis = function(layout, title, domain, xaxis, yaxis, yanchor) {
-            layout[xaxis] = {
-                domain: domain,
-                autorange: true,
-                title: title
-            }
-            layout[yaxis] = {
-                anchor: yanchor,
-                autorange: 'reversed',
-                type: 'linear',
-                title: 'Pressure [dbar]'
-            }
-            return(layout)
-        }
-
-        const makeDomainList = function(nPlots) {
-            domains = []
-            const padding = .05
-            domains.push([0, 1/nPlots - padding])
-            for(let idx=1; idx < nPlots-1; idx++) {
-                lD = idx / nPlots + padding
-                uD = (idx + 1) / nPlots - padding
-                domains.push([lD, uD])
-            }
-            if (nPlots == 2) { uD = 1/nPlots - padding }
-            domains.push([ uD + padding ,1])
-
-            return(domains)
-        }
-
-        const getTraceParams = function (paramKey, idx) {
-            traceParam = {}
-            plotNum = parseInt(idx) + 1
-            yaxis = 'yaxis' + plotNum.toString()
-            xaxis = 'xaxis' + plotNum.toString()
-            xanchor = 'x' + plotNum.toString()
-            yanchor = 'x' + plotNum.toString()
-            traceParam['yaxis'] = yaxis
-            traceParam['xaxis'] = xaxis
-            traceParam['yanchor'] = yanchor
-            traceParam['xanchor'] = xanchor
-            switch (paramKey) {
-                case 'temp':
-                    traceParam['ylabel'] = 'pressure: '
-                    traceParam['xlabel'] = 'temperature: '
-                    traceParam['yunits'] = ' dbar'
-                    traceParam['xunits'] = ' C'
-                    traceParam['title'] = "Temperature [Celsius]"
-                    break;
-                case 'psal':
-                    traceParam['ylabel'] = 'pressure: '
-                    traceParam['xlabel'] = 'psal: '
-                    traceParam['yunits'] = ' dbar'
-                    traceParam['xunits'] = ' psu'
-                    traceParam['title'] = "Salinity [psu]"
-                    break;
-                case 'doxy':
-                    traceParam['ylabel'] = 'pressure: '
-                    traceParam['xlabel'] = 'doxy: '
-                    traceParam['yunits'] = ' dbar'
-                    traceParam['xunits'] = ' micromole/kg'
-                    traceParam['title'] = "Dissolved Oxygen [micromole/kg]"
-                    break;
-                case 'chla':
-                    traceParam['ylabel'] = 'pressure: '
-                    traceParam['xlabel'] = 'chla: '
-                    traceParam['yunits'] = ' dbar'
-                    traceParam['xunits'] = ' mg/m3'
-                    traceParam['title'] = "Chlorophyll-A [mg/m3]"
-                    break;
-                case 'cdom':
-                    traceParam['ylabel'] = 'pressure: '
-                    traceParam['xlabel'] = 'cdom: '
-                    traceParam['yunits'] = ' dbar'
-                    traceParam['xunits'] = ' ppb'
-                    traceParam['title'] = "Concentration of coloured dissolved organic matter in sea water [ppb]"
-                    break;
-                case 'nitrate':
-                    traceParam['ylabel'] = 'pressure: '
-                    traceParam['xlabel'] = 'nitrate: '
-                    traceParam['yunits'] = ' dbar'
-                    traceParam['xunits'] = ' micromole/kg'
-                    traceParam['title'] = "Nitrate [micromole/kg]"
-                    break;
-                default:
-                    traceParam['ylabel'] = 'pressure: '
-                    traceParam['xlabel'] = 'not listed: '
-                    traceParam['yunits'] = ' dbar'
-                    traceParam['xunits'] = ' []'
-                }
-            return traceParam
-        }
-
-        const makeText = function(ylabel, yunits, yvalue, yqc, xlabel, xunits, xvalue, xqc) {
-            text = "<br>" + ylabel + yvalue.toString() + yunits
-                 + "<br>" + 'qc of ' + ylabel + yqc.toString()
-                 + "<br>" + xlabel + xvalue.toString() + xunits
-                 + "<br>" + 'qc of ' + xlabel + xqc.toString()
-            return (text)
-        };
-
-        const makeTrace = function(tp, key) {
-            let hovorText = [];
-            for(let idx=0; idx < tp.yvalues.length; idx++){
-                let pointText = makeText(tp.ylabel,
-                                         tp.yunits,
-                                         tp.yvalues[idx],
-                                         tp.yqc[idx],
-                                         tp.xlabel,
-                                         tp.xunits,
-                                         tp.xvalues[idx],
-                                         tp.xqc[idx])
-                hovorText.push(pointText);
-            }
-            return {
-                y: tp.yvalues,
-                x: tp.xvalues,
-                text: hovorText,
-                hoverinfo: 'text',
-                xaxis: tp.xanchor,
-                yaxis: tp.yanchor,
-                mode: 'markers',
-                type: 'scatter',
-                name: key
-            };
-        };
-
         var meas = [!{profile.bgcMeas}];
         meas = collateMeasurements(meas);
         pres = meas['pres']
@@ -211,24 +64,8 @@ html(lang='en')
         measKeys = Object.keys(meas);
         qcKeys = measKeys.filter(s=>s.includes("_qc"));
         paramKeys = measKeys.filter(s=>!s.includes("_qc"));
-
-        const getMaskForPair = function(arrayOne, arrayTwo) {
-            let mask = [];
-            const element = -999; // -999 is the actual nan value. -900 just in case of decimal
-            for(let idx=0; idx < arrayOne.length; idx++){
-                if (arrayOne[idx] === element || arrayTwo[idx] === element){
-                    mask.push(false);
-                }
-                else {
-                    mask.push(true)
-                }
-            }
-            return(mask);
-        }
-
-        const roundArray = function (value){ return(Number(value).toFixed(3)) };
-
         plotAxes = {}
+
         for (idx in paramKeys) {
             
             if (!meas[paramKeys[idx]+'_qc']) { continue } //include param if param_qc exists

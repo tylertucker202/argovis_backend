@@ -34,14 +34,19 @@ exports.profile_detail = function (req, res, next) {
             if (req.params.format==='page'){
                 if (profile === null) { res.send('profile not found'); }
                 else {
-                    res.render('profile_page', {title: req.params._id, profile: profile, platform_number: profile.platform_number, moment: moment});
+                    profileDate = moment.utc(profile.date).format("YYYY-MM-DD HH:mm")
+                    res.render('profile_page', {title: req.params._id, profile: profile, platform_number: profile.platform_number, profileDate: profileDate});
                 }
             }
             else if (req.params.format==='bgcPage'){
                 if (profile === null) { res.send('profile not found'); }
                 if (profile.bgcMeas === null) { res.send('profile does not have bgc'); }
                 else {
-                    res.render('bgc_profile_page', {title: req.params._id, profile: profile, platform_number: profile.platform_number, moment: moment});
+                    keys = Object.keys(profile.bgcMeas[0].toObject());
+                    paramKeys = keys.filter(s=>!s.includes("_qc"))
+                    paramKeys = paramKeys.map(x => ' '+x)
+                    profileDate = moment.utc(profile.date).format("YYYY-MM-DD HH:mm")
+                    res.render('bgc_profile_page', {title: req.params._id, profile: profile, platform_number: profile.platform_number, paramKeys: paramKeys, profileDate: profileDate});
                 }
             }
             else {
@@ -53,7 +58,6 @@ exports.profile_detail = function (req, res, next) {
 };
 
 exports.selected_profile_list = function(req, res , next) {
-
     req.checkQuery('startDate', 'startDate should be specified.').notEmpty();
     req.checkQuery('endDate', 'endDate should be specified.').notEmpty();
     req.checkQuery('shape', 'shape should be specified.').notEmpty();

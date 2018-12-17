@@ -21,6 +21,7 @@ exports.month_year_profile_list = function(req, res, next) {
         {$group: {   _id: "$_id",
                      platform_number: { "$first": "$platform_number"},
                      date:  { "$first": "$date"},
+                     date_added:  { "$first": "$date_added"},
                      date_qc: { "$first": "$date_qc"},
                      containsBGC: { "$first":  { $ifNull: [ "$containsBGC", 0 ] }},
                      PI_NAME: {"$first": "$PI_NAME"},
@@ -57,8 +58,8 @@ exports.last_profile_list = function(req, res, next) {
     const ENV = config.util.getEnv('NODE_ENV');
     const appStartDate = config.startDate[ENV];
     if (appStartDate === 'today'){
-        startDate = moment.utc().subtract(30, 'days');
-        endDate = moment.utc();      
+        startDate = moment.utc().subtract(31, 'days');
+        endDate = moment.utc().subtract(1, 'days');      
     }
     else {
         startDate = moment.utc(appStartDate).subtract(30, 'days');
@@ -92,9 +93,9 @@ exports.latest_profile_list = function(req,res, next) {
         startDate = moment.utc().subtract(7, 'days');
         endDate = moment.utc();      
     }
-    else {
-        startDate = moment.utc(appStartDate).subtract(7, 'days');
-        endDate = moment.utc(appStartDate);
+    else if (appStartDate === 'yesterday') {
+        startDate = moment.utc().subtract(8, 'days');
+        endDate = moment.utc().subtract(1, 'days'); 
     }
     var query = Profile.aggregate([ 
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
@@ -126,12 +127,15 @@ exports.last_three_days = function(req,res, next) {
         console.log(endDate)
     }
     else {
-
         const ENV = config.util.getEnv('NODE_ENV');
         const appStartDate = config.startDate[ENV];
         if (appStartDate === 'today'){
             var startDate = moment.utc().subtract(3, 'days');
             var endDate = moment.utc();      
+        }
+        else if (appStartDate === 'yesterday') {
+            var startDate = moment.utc().subtract(4, 'days');
+            var endDate = moment.utc().subtract(1, 'days');
         }
         else {
             var startDate = moment.utc(appStartDate).subtract(3, 'days');
