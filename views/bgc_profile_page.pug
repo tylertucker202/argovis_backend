@@ -51,10 +51,25 @@ html(lang='en')
                 tr
                     td Data mode: #{profile.DATA_MODE}
             button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
-            #TPS_CHART
+    div(class="grid-container", id='chart-grid')
 
     script(type='text/javascript').
+        sp = '!{paramKeys}'
+        sp = sp.split(', ')
+        sp = sp.filter(s => s)
 
+        var parent = document.getElementById('chart-grid');
+        plotDivs = {}
+        for (idx in sp ){
+            paramKey = sp[idx]
+            if (paramKey===' pres') {continue}
+            plotDivs[paramKey] = document.createElement('div');
+            plotDivs[paramKey].setAttribute("id", paramKey+'_chart');
+            
+            parent.append(plotDivs[paramKey]);
+        }
+
+    script(type='text/javascript').
         var meas = [!{profile.bgcMeas}];
         meas = collateMeasurements(meas);
         pres = meas['pres']
@@ -84,13 +99,12 @@ html(lang='en')
             title: "Profile measurements",
             autosize: false,
             height: 400, 
-            width: 1200,
+            width: 400,
             hovermode: "closest", 
             showlegend: false
         }
 
         plotKeys = Object.keys(plotAxes)
-        domains = makeDomainList(plotKeys.length)
 
         for (idx in plotKeys) {
             paramKey = plotKeys[idx]
@@ -100,8 +114,15 @@ html(lang='en')
             traceParam['yvalues'] = plotAxes[paramKey].pres
             traceParam['yqc'] = plotAxes[paramKey].pres_qc
             
+            trace = makeTrace(traceParam, paramKey)
             traces.push(makeTrace(traceParam, paramKey))
 
-            layout = addLayoutAxis(layout, traceParam['title'], domains[idx], traceParam['xaxis'], traceParam['yaxis'], traceParam['yanchor'])
+            xLabel = traceParam['xlabel'] + '[' + traceParam['xunits'] + ' ]'
+            layout = makeLayout(traceParam['title'], xLabel, traceParam['yaxis'])
+
+            div = document.getElementById(paramKey+'_chart')
+            //Plotly.newPlot(div, trace, layout);
+
+            Plotly.newPlot(div, [trace], layout);
         }
-        Plotly.plot('TPS_CHART', traces, layout);
+        //Plotly.plot('TPS_CHART', traces, layout);

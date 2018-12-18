@@ -3,19 +3,15 @@ const getTraceParams = function (paramKey, idx) {
     plotNum = parseInt(idx) + 1
     yaxis = 'yaxis' + plotNum.toString()
     xaxis = 'xaxis' + plotNum.toString()
-    xanchor = 'x' + plotNum.toString()
-    yanchor = 'x' + plotNum.toString()
     traceParam['yaxis'] = yaxis
     traceParam['xaxis'] = xaxis
-    traceParam['yanchor'] = yanchor
-    traceParam['xanchor'] = xanchor
     switch (paramKey.replace(/[0-9]/g, '')) {
         case 'temp':
             traceParam['ylabel'] = 'pressure: '
             traceParam['xlabel'] = 'temperature: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' C'
-            traceParam['title'] = "Temperature \n [Celsius]"
+            traceParam['title'] = "Temperature <br>[Celsius]"
             break;
         case 'psal':
             traceParam['ylabel'] = 'pressure: '
@@ -29,7 +25,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['xlabel'] = 'conductivity: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' mohms/m'
-            traceParam['title'] = "Electrical \n Conductivity \n [mohms/m]"
+            traceParam['title'] = "Electrical <br>Conductivity <br>[mohms/m]"
             break;
         case 'bbp':
             waveLength = paramKey.replace(/[a-z]/g, '')
@@ -37,7 +33,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['xlabel'] = 'backscattering: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' 1/m'
-            traceParam['title'] = 'Particle \n backscattering at \n ' + waveLength + 'nanometers [1/m]'
+            traceParam['title'] = 'Particle <br>backscattering at <br>' + waveLength + 'nanometers [1/m]'
             break;
         case 'cp':
         waveLength = paramKey.replace(/[a-z]/g, '')
@@ -45,14 +41,14 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['xlabel'] = 'beam attenuation: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' 1/m'
-            traceParam['title'] = 'Particle beam \n attenuation at \n ' + waveLength + 'nanometers [1/m]'
+            traceParam['title'] = 'Particle beam <br>attenuation at <br>' + waveLength + 'nanometers [1/m]'
             break;
         case 'doxy':
             traceParam['ylabel'] = 'pressure: '
             traceParam['xlabel'] = 'doxy: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' micromole/kg'
-            traceParam['title'] = "Dissolved \n Oxygen \n [micromole/kg]"
+            traceParam['title'] = "Dissolved <br>Oxygen <br>[micromole/kg]"
             break;
         case 'chla':
             traceParam['ylabel'] = 'pressure: '
@@ -66,7 +62,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['xlabel'] = 'cdom: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' ppb'
-            traceParam['title'] = "Concentration of \n coloured dissolved \n organic matter in \n sea water [ppb]"
+            traceParam['title'] = "Concentration of coloured dissolved <br>organic matter in sea water [ppb]"
             break;
         case 'nitrate':
             traceParam['ylabel'] = 'pressure: '
@@ -80,7 +76,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['xlabel'] = 'turbidity: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' ntu'
-            traceParam['title'] = "Sea water \n turbidity [ntu]"
+            traceParam['title'] = "Sea water <br>turbidity [ntu]"
             break;
         case 'bisulfide':
             traceParam['ylabel'] = 'pressure: '
@@ -93,7 +89,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['ylabel'] = 'pressure: '
             traceParam['xlabel'] = 'pH: '
             traceParam['yunits'] = ' dbar'
-            traceParam['xunits'] = ' [ ]'
+            traceParam['xunits'] = ' '
             traceParam['title'] = "pH in situ total [ ]"
             break;
         case 'down_irradiance':
@@ -102,7 +98,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['xlabel'] = 'irradiance: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' W/m^2/nm'
-            traceParam['title'] = 'Downwelling \n irradiance at \n ' + waveLength + ' nanometers [W/m^2/nm]'
+            traceParam['title'] = 'Downwelling <br>irradiance at <br>' + waveLength + ' nanometers [W/m^2/nm]'
             break;
             case 'up_irradiance':
             waveLength = paramKey.replace(/[a-z]/g, '')
@@ -110,20 +106,20 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['xlabel'] = 'irradiance: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' W/m^2/nm'
-            traceParam['title'] = 'Upwelling \n irradiance at \n ' + waveLength + ' nanometers [W/m^2/nm]'
+            traceParam['title'] = 'Upwelling <br>irradiance at <br>' + waveLength + ' nanometers [W/m^2/nm]'
             break;
         case 'downwelling_par':
             traceParam['ylabel'] = 'pressure: '
             traceParam['xlabel'] = 'irradiance: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' uMol Quanta/m^2/sec'
-            traceParam['title'] = "Downwelling \n photosynthetic \n available \n radiation [uMol Quanta/m^2/sec]"
+            traceParam['title'] = "Downwelling <br>photosynthetic <br>available <br>radiation [uMol Quanta/m^2/sec]"
             break;
         default:
             traceParam['ylabel'] = 'pressure: '
             traceParam['xlabel'] = 'not listed: '
             traceParam['yunits'] = ' dbar'
-            traceParam['xunits'] = ' []'
+            traceParam['xunits'] = ' '
         }
     return traceParam
 }
@@ -149,14 +145,12 @@ $('#downloadProfiles').on('click', function(){
     window.open(url,'_blank');
 });
 
-const addLayoutAxis = function(layout, title, domain, xaxis, yaxis, yanchor) {
+const addLayoutAxis = function(layout, title, xaxis, yaxis) {
     layout[xaxis] = {
-        domain: domain,
         autorange: true,
         title: title
     }
     layout[yaxis] = {
-        anchor: yanchor,
         autorange: 'reversed',
         type: 'linear',
         title: 'Pressure [dbar]'
@@ -164,20 +158,27 @@ const addLayoutAxis = function(layout, title, domain, xaxis, yaxis, yanchor) {
     return(layout)
 }
 
-const makeDomainList = function(nPlots) {
-    domains = []
-    const padding = .05
-    domains.push([0, 1/nPlots - padding])
-    for(let idx=1; idx < nPlots-1; idx++) {
-        lD = idx / nPlots + padding
-        uD = (idx + 1) / nPlots - padding
-        domains.push([lD, uD])
-    }
-    if (nPlots == 2) { uD = 1/nPlots - padding }
-    domains.push([ uD + padding ,1])
-
-    return(domains)
+const makeLayout = function(title, xlabel) {
+    layout = {
+        autosize: false,
+        height: 400, 
+        width: 400,
+        hovermode: "closest", 
+        showlegend: false,
+        title: title,
+        xaxis: {
+            autorange: true,
+            title: xlabel
+        },
+        yaxis: {
+            autorange: 'reversed',
+            type: 'linear',
+            title: 'Pressure [dbar]'
+        }
+        }
+    return(layout)
 }
+
 
 const makeText = function(ylabel, yunits, yvalue, yqc, xlabel, xunits, xvalue, xqc) {
     text = "<br>" + ylabel + yvalue.toString() + yunits
@@ -205,8 +206,6 @@ const makeTrace = function(tp, key) {
         x: tp.xvalues,
         text: hovorText,
         hoverinfo: 'text',
-        xaxis: tp.xanchor,
-        yaxis: tp.yanchor,
         mode: 'markers',
         type: 'scatter',
         name: key
