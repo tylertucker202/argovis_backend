@@ -5,6 +5,26 @@ var GJV = require('geojson-validation');
 //station_parameters, lat, lon are needed for virtural fields
 const mapParams = 'platform_number date geoLocation cycle_number station_parameters lat lon DATA_MODE containsBGC isDeep';
 
+const mapProj = {platform_number: -1,
+    date: -1,
+    geoLocation: 1,
+    cycle_number: -1,
+    DATA_MODE: -1,
+    containsBGC: 1,
+    isDeep: 1,
+    }
+
+const mapProjWithCount = {platform_number: -1,
+                date: -1,
+                geoLocation: 1,
+                cycle_number: -1,
+                DATA_MODE: -1,
+                containsBGC: 1,
+                isDeep: 1,
+                count: { $size:'$measurements' },
+                }
+
+
 // Display list of all Profiles
 exports.profile_list = function(req, res, next) {
     var query = Profile.find({},{});
@@ -112,37 +132,15 @@ exports.selected_profile_list = function(req, res , next) {
                 }},
                 { $match: { $and: [ {geoLocation: {$geoWithin: {$geometry: shapeJson}}},
                                     {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} ] } },
-                {$project: { // return profiles that have measurements falling within pressure Ranges
-                    platform_number: -1,
-                    date: -1,
-                    geoLocation: 1,
-                    cycle_number: -1,
-                    DATA_MODE: -1,
-                    containsBGC: 1,
-                    isDeep: 1,
-                    count: { $size:'$measurements' },
-                }},
+                {$project: mapProjWithCount},
                 {$match: {count: {$gt: 0}}},
-                {$project: { // only need these fields to plot on map.
-                    platform_number: -1,
-                    date: -1,
-                    geoLocation: 1,
-                    cycle_number: -1,
-                    DATA_MODE: -1,
-                    containsBGC: 1,
-                }},
+                {$project: mapProj},
                 {$limit: 1001},
                 ]);
         }
         else if (req.params.format === 'map' && !presRange) {
             var query = Profile.aggregate([
-                {$project: { platform_number: -1,
-                             date: -1,
-                             geoLocation: 1,
-                             cycle_number: -1,
-                             containsBGC: 1,
-                             isDeep: 1,
-                             DATA_MODE: -1}},
+                {$project: mapProj},
                 { $match: { $and: [ {geoLocation: {$geoWithin: {$geometry: shapeJson}}},
                     {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} ] } },
                 {$limit: 1001},

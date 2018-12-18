@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 
 var ProfileSchema = Schema(
   {
-    _id: {type: String, required: true, max: 100},
+    _id: {type: String, required: true},
     nc_url: {type: String, required: true},
     position_qc: {type: Number, required: true},
     cycle_number: {type: Number, required: true},
@@ -43,9 +43,8 @@ var ProfileSchema = Schema(
     lon: {type: Number, required: true},
     platform_number: {type: String, required: true, max: 100},
     geoLocation: {type: Schema.Types.Mixed, required: true},
-    //station_parameters: {type: Schema.Types.Array, required: true},
     station_parameters: {type: [String], required: true},
-    STATION_PARAMETERS_inMongoDB: {type: [String], required: false},
+    station_parameters_in_nc: {type: [String], required: false},
     VERTICAL_SAMPLING_SCHEME: {type:String, required: false},
     PI_NAME: {type: String, required: false, max: 100},
     WMO_INST_TYPE: {type: String, required: false, max: 100},
