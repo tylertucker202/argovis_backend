@@ -9,7 +9,8 @@ const mapMetaAggregate = {_id: '$platform_number',
     'geoLocation': {$first: '$geoLocation'},
     'DATA_MODE': {$first: '$DATA_MODE'},
     'containsBGC': { $first: "$containsBGC"},
-    'isDeep': { $first: "$isDeep"}
+    'isDeep': { $first: "$isDeep"},
+    'DIRECTION': { $first: "$DIRECTION"}
     }
 
 const monthYearAggregate = {_id: "$_id",

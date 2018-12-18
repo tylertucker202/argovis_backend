@@ -3,7 +3,7 @@ var moment = require('moment');
 var GJV = require('geojson-validation');
 
 //station_parameters, lat, lon are needed for virtural fields
-const mapParams = 'platform_number date geoLocation cycle_number station_parameters lat lon DATA_MODE containsBGC isDeep';
+const mapParams = 'platform_number date geoLocation cycle_number station_parameters lat lon DATA_MODE containsBGC isDeep DIRECTION';
 
 const mapProj = {platform_number: -1,
     date: -1,
@@ -12,6 +12,7 @@ const mapProj = {platform_number: -1,
     DATA_MODE: -1,
     containsBGC: 1,
     isDeep: 1,
+    DIRECTION: 1,
     }
 
 const mapProjWithCount = {platform_number: -1,
@@ -22,6 +23,7 @@ const mapProjWithCount = {platform_number: -1,
                 containsBGC: 1,
                 isDeep: 1,
                 count: { $size:'$measurements' },
+                DIRECTION: 1,
                 }
 
 
@@ -117,6 +119,7 @@ exports.selected_profile_list = function(req, res , next) {
                     cycle_number: -1,
                     containsBGC: 1,
                     isDeep: 1,
+                    DIRECTION: 1,
                     measurements: {
                         $filter: {
                             input: '$measurements',
@@ -178,6 +181,7 @@ exports.selected_profile_list = function(req, res , next) {
                     POSITIONING_SYSTEM: 1,
                     DATA_MODE: 1,
                     PLATFORM_TYPE: 1,
+                    DIRECTION: 1,
                     measurements: {
                         $filter: {
                             input: '$measurements',
