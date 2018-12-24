@@ -64,10 +64,10 @@ exports.profile_detail = function (req, res, next) {
                 if (profile === null) { res.send('profile not found'); }
                 if (profile.bgcMeas === null) { res.send('profile does not have bgc'); }
                 else {
-                    //keys = Object.keys(profile.bgcMeas[0].toObject());
-                    //paramKeys = keys.filter(s=>!s.includes("_qc"))
-                    paramKeys = Object.keys(profile.bgcMeas[0].toObject());
-                    paramKeys = paramKeys.map(x => ' '+x)
+                    keys = Object.keys(profile.bgcMeas[0].toObject());
+                    paramKeys = keys.filter(s=>!s.includes("_qc"))
+                    //paramKeys = Object.keys(profile.bgcMeas[0].toObject());
+                    //paramKeys = paramKeys.map(x => ' '+x)
                     profileDate = moment.utc(profile.date).format("YYYY-MM-DD HH:mm")
                     res.render('bgc_profile_page', {title: req.params._id, profile: profile, platform_number: profile.platform_number, paramKeys: paramKeys, profileDate: profileDate});
                 }
