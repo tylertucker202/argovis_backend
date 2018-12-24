@@ -12,6 +12,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' C'
             traceParam['title'] = "Temperature <br>[Celsius]"
+            traceParam['color'] = 'rgb(220,50,50)'
             break;
         case 'psal':
             traceParam['ylabel'] = 'pressure: '
@@ -19,6 +20,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' psu'
             traceParam['title'] = "Salinity [psu]"
+            traceParam['color'] = 'rgb(133,212,227)'
             break;
         case 'cndc':
             traceParam['ylabel'] = 'pressure: '
@@ -26,22 +28,25 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' mohms/m'
             traceParam['title'] = "Electrical Conductivity <br>[mohms/m]"
+            traceParam['color'] = 'rgb(242,231,55)'
             break;
         case 'bbp':
-            waveLength = paramKey.replace(/[a-z]/g, '')
+            waveLength = paramKey.replace(/[a-z_]/g, '')
             traceParam['ylabel'] = 'pressure: '
             traceParam['xlabel'] = 'backscattering: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' 1/m'
             traceParam['title'] = 'Particle backscattering at <br>' + waveLength + 'nanometers [1/m]'
+            traceParam['color'] = 'rgb(27,51,105)'
             break;
         case 'cp':
-        waveLength = paramKey.replace(/[a-z]/g, '')
+        waveLength = paramKey.replace(/[a-z_]/g, '')
             traceParam['ylabel'] = 'pressure: '
             traceParam['xlabel'] = 'beam attenuation: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' 1/m'
             traceParam['title'] = 'Particle beam attenuation at <br>' + waveLength + 'nanometers [1/m]'
+            traceParam['color'] = 'rgb(189,200,202)'
             break;
         case 'doxy':
             traceParam['ylabel'] = 'pressure: '
@@ -49,6 +54,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' micromole/kg'
             traceParam['title'] = "Dissolved Oxygen <br>[micromole/kg]"
+            traceParam['color'] = 'rgb(242,231,55)'
             break;
         case 'chla':
             traceParam['ylabel'] = 'pressure: '
@@ -56,6 +62,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' mg/m3'
             traceParam['title'] = "Chlorophyll-A [mg/m3]"
+            traceParam['color'] = 'rgb(237,113,62)'
             break;
         case 'cdom':
             traceParam['ylabel'] = 'pressure: '
@@ -63,6 +70,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' ppb'
             traceParam['title'] = "Concentration of coloured dissolved <br>organic matter in sea water [ppb]"
+            traceParam['color'] = 'rgb(133,212,227)'
             break;
         case 'nitrate':
             traceParam['ylabel'] = 'pressure: '
@@ -70,6 +78,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' micromole/kg'
             traceParam['title'] = "Nitrate [micromole/kg]"
+            traceParam['color'] = 'rgb(40,177,161)'
             break;
         case 'turbidity':
             traceParam['ylabel'] = 'pressure: '
@@ -77,6 +86,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' ntu'
             traceParam['title'] = "Sea water turbidity [ntu]"
+            traceParam['color'] = 'rgb(27,51,105)'
             break;
         case 'bisulfide':
             traceParam['ylabel'] = 'pressure: '
@@ -84,6 +94,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' micromole/kg'
             traceParam['title'] = "Bisulfide [micromole/kg]"
+            traceParam['color'] = 'rgb(242,231,55)'
             break;
         case 'ph_in_situ_total':
             traceParam['ylabel'] = 'pressure: '
@@ -91,22 +102,25 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' '
             traceParam['title'] = "pH in situ total [ ]"
+            traceParam['color'] = 'rgb(242,231,55)'
             break;
         case 'down_irradiance':
-            waveLength = paramKey.replace(/[a-z]/g, '')
+            waveLength = paramKey.replace(/[a-z_]/g, '')
             traceParam['ylabel'] = 'pressure: '
             traceParam['xlabel'] = 'irradiance: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' W/m^2/nm'
             traceParam['title'] = 'Downwelling irradiance at <br>' + waveLength + ' nanometers [W/m^2/nm]'
+            traceParam['color'] = 'rgb(66,50,49)'
             break;
             case 'up_irradiance':
-            waveLength = paramKey.replace(/[a-z]/g, '')
+            waveLength = paramKey.replace(/[a-z_]/g, '')
             traceParam['ylabel'] = 'pressure: '
             traceParam['xlabel'] = 'irradiance: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' W/m^2/nm'
             traceParam['title'] = 'Upwelling irradiance at <br>' + waveLength + ' nanometers [W/m^2/nm]'
+            traceParam['color'] = 'rgb(222,189,153)'
             break;
         case 'downwelling_par':
             traceParam['ylabel'] = 'pressure: '
@@ -114,12 +128,14 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' uMol Quanta/m^2/sec'
             traceParam['title'] = "Downwelling photosynthetic <br> available radiation <br> [uMol Quanta/m^2/sec]"
+            traceParam['color'] = 'rgb(73,112,109)'
             break;
         default:
             traceParam['ylabel'] = 'pressure: '
             traceParam['xlabel'] = 'not listed: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' '
+            traceParam['color'] = 'rgb(66,50,49)'
         }
     return traceParam
 }
@@ -208,6 +224,10 @@ const makeTrace = function(tp, key) {
         hoverinfo: 'text',
         mode: 'markers',
         type: 'scatter',
+        color: tp.color,
+        marker: {
+            color: tp.color,
+        },
         name: key
     };
 };

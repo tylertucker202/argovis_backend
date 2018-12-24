@@ -56,7 +56,7 @@ var ProfileSchema = Schema(
     pres_max_for_PSAL: {type: Number, required: false},
     pres_min_for_TEMP: {type: Number, required: false},
     pres_min_for_PSAL: {type: Number, required: false},
-    containsBGC: {type: Schema.Types.Mixed, required: false}, // may be number or boolean
+    containsBGC: {type: Boolean, required: false},
     isDeep: {type: Boolean, required: false},
     BASIN: {type: Number, required: false},
   },
