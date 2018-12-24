@@ -25,7 +25,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['xlabel'] = 'conductivity: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' mohms/m'
-            traceParam['title'] = "Electrical <br>Conductivity <br>[mohms/m]"
+            traceParam['title'] = "Electrical Conductivity <br>[mohms/m]"
             break;
         case 'bbp':
             waveLength = paramKey.replace(/[a-z]/g, '')
@@ -33,7 +33,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['xlabel'] = 'backscattering: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' 1/m'
-            traceParam['title'] = 'Particle <br>backscattering at <br>' + waveLength + 'nanometers [1/m]'
+            traceParam['title'] = 'Particle backscattering at <br>' + waveLength + 'nanometers [1/m]'
             break;
         case 'cp':
         waveLength = paramKey.replace(/[a-z]/g, '')
@@ -41,14 +41,14 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['xlabel'] = 'beam attenuation: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' 1/m'
-            traceParam['title'] = 'Particle beam <br>attenuation at <br>' + waveLength + 'nanometers [1/m]'
+            traceParam['title'] = 'Particle beam attenuation at <br>' + waveLength + 'nanometers [1/m]'
             break;
         case 'doxy':
             traceParam['ylabel'] = 'pressure: '
             traceParam['xlabel'] = 'doxy: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' micromole/kg'
-            traceParam['title'] = "Dissolved <br>Oxygen <br>[micromole/kg]"
+            traceParam['title'] = "Dissolved Oxygen <br>[micromole/kg]"
             break;
         case 'chla':
             traceParam['ylabel'] = 'pressure: '
@@ -76,7 +76,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['xlabel'] = 'turbidity: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' ntu'
-            traceParam['title'] = "Sea water <br>turbidity [ntu]"
+            traceParam['title'] = "Sea water turbidity [ntu]"
             break;
         case 'bisulfide':
             traceParam['ylabel'] = 'pressure: '
@@ -98,7 +98,7 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['xlabel'] = 'irradiance: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' W/m^2/nm'
-            traceParam['title'] = 'Downwelling <br>irradiance at <br>' + waveLength + ' nanometers [W/m^2/nm]'
+            traceParam['title'] = 'Downwelling irradiance at <br>' + waveLength + ' nanometers [W/m^2/nm]'
             break;
             case 'up_irradiance':
             waveLength = paramKey.replace(/[a-z]/g, '')
@@ -106,14 +106,14 @@ const getTraceParams = function (paramKey, idx) {
             traceParam['xlabel'] = 'irradiance: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' W/m^2/nm'
-            traceParam['title'] = 'Upwelling <br>irradiance at <br>' + waveLength + ' nanometers [W/m^2/nm]'
+            traceParam['title'] = 'Upwelling irradiance at <br>' + waveLength + ' nanometers [W/m^2/nm]'
             break;
         case 'downwelling_par':
             traceParam['ylabel'] = 'pressure: '
             traceParam['xlabel'] = 'irradiance: '
             traceParam['yunits'] = ' dbar'
             traceParam['xunits'] = ' uMol Quanta/m^2/sec'
-            traceParam['title'] = "Downwelling <br>photosynthetic <br>available <br>radiation [uMol Quanta/m^2/sec]"
+            traceParam['title'] = "Downwelling photosynthetic <br> available radiation <br> [uMol Quanta/m^2/sec]"
             break;
         default:
             traceParam['ylabel'] = 'pressure: '
