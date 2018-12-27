@@ -56,7 +56,7 @@ exports.profile_detail = function (req, res, next) {
             if (req.params.format==='page'){
                 if (profile === null) { res.send('profile not found'); }
                 else {
-                    profileDate = moment.utc(profile.date).format("YYYY-MM-DD HH:mm")
+                    profileDate = moment.utc(profile.date).format('YYYY-MM-DD HH:mm')
                     res.render('profile_page', {title: req.params._id, profile: profile, platform_number: profile.platform_number, profileDate: profileDate});
                 }
             }
@@ -65,10 +65,10 @@ exports.profile_detail = function (req, res, next) {
                 if (profile.bgcMeas === null) { res.send('profile does not have bgc'); }
                 else {
                     keys = Object.keys(profile.bgcMeas[0].toObject());
-                    paramKeys = keys.filter(s=>!s.includes("_qc"))
+                    paramKeys = keys.filter(s=>!s.includes('_qc'))
                     //paramKeys = Object.keys(profile.bgcMeas[0].toObject());
                     //paramKeys = paramKeys.map(x => ' '+x)
-                    profileDate = moment.utc(profile.date).format("YYYY-MM-DD HH:mm")
+                    profileDate = moment.utc(profile.date).format('YYYY-MM-DD HH:mm')
                     res.render('bgc_profile_page', {title: req.params._id, profile: profile, platform_number: profile.platform_number, paramKeys: paramKeys, profileDate: profileDate});
                 }
             }
@@ -91,7 +91,7 @@ exports.selected_profile_list = function(req, res , next) {
     req.sanitize('endDate').toDate();
 
     const shape = JSON.parse(req.query.shape);
-    var shapeJson = {"type": "Polygon", "coordinates": shape}
+    var shapeJson = {'type': 'Polygon', 'coordinates': shape}
     if (req.query.presRange) {
         var presRange = JSON.parse(req.query.presRange);
         var maxPres = Number(presRange[1]);
