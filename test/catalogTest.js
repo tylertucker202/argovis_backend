@@ -121,16 +121,29 @@ describe('/GET profile render', function() {
                                       'dac',
                                       'nc_url',
                                       'date',
+                                      'date_qc',
+                                      'max_pres',
                                       'position_qc',
                                       'lat',
                                       'lon',
                                       'cycle_number', 
                                       'measurements', 
                                       'geoLocation', 
-                                      'station_parameters', 
+                                      'station_parameters',
+                                      'station_parameters_in_nc',
+                                      'VERTICAL_SAMPLING_SCHEME',
+                                      'WMO_INST_TYPE',
+                                      'DATA_MODE',
+                                      'DATA_CENTRE',
+                                      'DIRECTION',
                                       'PI_NAME',
                                       'POSITIONING_SYSTEM',
-                                      'PLATFORM_TYPE');
+                                      'PLATFORM_TYPE',
+                                      'BASIN',
+                                      'pres_max_for_TEMP',
+                                      'pres_min_for_TEMP',
+                                      'pres_max_for_PSAL',
+                                      'pres_min_for_PSAL');
         a_profile._id.should.be.a('string');
         a_profile.platform_number.should.be.a('string');
         a_profile.dac.should.be.a('string');
