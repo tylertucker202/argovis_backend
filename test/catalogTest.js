@@ -25,7 +25,14 @@ describe('/GET catalog list of platforms', function() {
         //test an element of the response
         a_platform = res.body[0];
         //console.log('A platform is: ' + JSON.stringify(a_platform));
-        a_platform.should.include.keys('_id', 'most_recent_date', 'cycle_number', 'geoLocation');
+        a_platform.should.include.keys('_id',
+                                      'platform_number',
+                                      'most_recent_date',
+                                      'dac',
+                                      'number_of_profiles',
+                                      'cycle_number',
+                                      'geoLocation', 
+                                      'dac');
         a_platform._id.should.be.a('string');
         moment.utc(a_platform.most_recent_date).format('YYYY-MM-DD').should.be.a('string');
         (a_platform['platform_number'] * 1).should.be.a('number');
@@ -116,13 +123,15 @@ describe('/GET profile render', function() {
         //test overall response
         res.should.have.status(200);
         a_profile = res.body;
-        a_profile.should.include.keys('_id',
+        a_profile.should.include.keys('_id','id',
                                       'platform_number',
                                       'dac',
                                       'nc_url',
                                       'date',
                                       'date_qc',
+                                      'date_added',
                                       'max_pres',
+                                      'bgcMeas',
                                       'position_qc',
                                       'lat',
                                       'lon',
@@ -134,7 +143,7 @@ describe('/GET profile render', function() {
                                       'VERTICAL_SAMPLING_SCHEME',
                                       'WMO_INST_TYPE',
                                       'DATA_MODE',
-                                      'DATA_CENTRE',
+                                      //'DATA_CENTRE',
                                       'DIRECTION',
                                       'PI_NAME',
                                       'POSITIONING_SYSTEM',
@@ -143,7 +152,16 @@ describe('/GET profile render', function() {
                                       'pres_max_for_TEMP',
                                       'pres_min_for_TEMP',
                                       'pres_max_for_PSAL',
-                                      'pres_min_for_PSAL');
+                                      'pres_min_for_PSAL',
+                                      'formatted_station_parameters',
+                                      'date_formatted',
+                                      'ifremerProfile',
+                                      'jcompsPlatform',
+                                      'roundLat',
+                                      'roundLon',
+                                      'strLat',
+                                      'strLon',
+                                      'url');
         a_profile._id.should.be.a('string');
         a_profile.platform_number.should.be.a('string');
         a_profile.dac.should.be.a('string');

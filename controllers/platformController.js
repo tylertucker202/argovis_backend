@@ -5,6 +5,14 @@ var moment = require('moment');
 //station_parameters, lat, lon are needed for virtural fields
 const mapParams = 'platform_number date geoLocation cycle_number station_parameters lat lon DATA_MODE containsBGC isDeep DIRECTION';
 
+const platformAggregate = {_id: '$platform_number',
+                        'platform_number': {$first: '$platform_number'},
+                        'most_recent_date': {$first: '$date'},
+                        'number_of_profiles': {$sum: 1},
+                        'cycle_number': {$first: '$cycle_number'},
+                        'geoLocation': {$first: '$geoLocation'}, 
+                        'dac': {$first: '$dac'}}
+
 // Display list of all platforms
 exports.index = function(req, res) {   
     async.parallel({
@@ -25,13 +33,7 @@ exports.db_list = function(req, res) {
 exports.platform_list = function(req, res, next) {
     var query = Profile.aggregate([
                        {$sort: { 'date':-1}},
-                       {$group: {_id: '$platform_number',
-                                 'platform_number': {$first: '$platform_number'},
-                                 'most_recent_date': {$first: '$date'},
-                                 'number_of_profiles': {$sum: 1},
-                                 'cycle_number': {$first: '$cycle_number'},
-                                 'geoLocation': {$first: '$geoLocation'}, 
-                                 'dac': {$first: '$dac'}}}
+                       {$group: platformAggregate}
     ]);
     query.exec( function (err, profile) {
         if (err) return next(err);

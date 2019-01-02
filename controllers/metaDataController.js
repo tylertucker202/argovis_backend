@@ -3,40 +3,41 @@ var moment = require('moment');
 var config = require('config');
 
 const mapMetaAggregate = {_id: '$platform_number',
-    'platform_number': {$first: '$platform_number'},
-    'date': {$first: '$date'},
-    'cycle_number': {$first: '$cycle_number'},
-    'geoLocation': {$first: '$geoLocation'},
-    'DATA_MODE': {$first: '$DATA_MODE'},
-    'containsBGC': { $first: "$containsBGC"},
-    'isDeep': { $first: "$isDeep"},
-    'DIRECTION': { $first: "$DIRECTION"}
+    'platform_number': 1,
+    'date': 1,
+    'cycle_number': 1,
+    'geoLocation': 1,
+    'DATA_MODE': 1,
+    'containsBGC': 1,
+    'isDeep': 1,
+    'DIRECTION': 1
     }
 
-const monthYearAggregate = {_id: "$_id",
-    platform_number: { "$first": "$platform_number"},
-    date:  { "$first": "$date"},
-    date_added:  { "$first": "$date_added"},
-    date_qc: { "$first": "$date_qc"},
-    containsBGC: { "$first":  { $ifNull: [ "$containsBGC", 0 ] }},
-    PI_NAME: {"$first": "$PI_NAME"},
-    cycle_number:  { "$first": "$cycle_number"},
-    lat:  { "$first": "$lat"},
-    lon:  { "$first": "$lon"},
-    position_qc: {"$first": "$position_qc"},
-    PLATFORM_TYPE:  { "$first": "$PLATFORM_TYPE"},
-    POSITIONING_SYSTEM:  { "$first": "$POSITIONING_SYSTEM"},
-    DATA_MODE:  { "$first": "$DATA_MODE"},
-    station_parameters: { "$first": "$station_parameters"},
-    VERTICAL_SAMPLING_SCHEME: { "$first": "$VERTICAL_SAMPLING_SCHEME"},
-    STATION_PARAMETERS_inMongoDB: { "$first": "$station_parameters"},
-    cycle_number:  { "$first": "$cycle_number"},
-    dac:  { "$first": "$dac"},
-    pres_max_for_TEMP: { "$first": { $ifNull: [ "$pres_max_for_TEMP", -999 ] }},
-    pres_min_for_TEMP: { "$first": { $ifNull: [ "$pres_min_for_TEMP", -999 ] }},
-    pres_max_for_PSAL: { "$first": { $ifNull: [ "$pres_max_for_PSAL", -999 ] }},
-    pres_min_for_PSAL: { "$first": { $ifNull: [ "$pres_min_for_PSAL", -999 ] }},
-    BASIN: { "$first": "$BASIN"}
+const monthYearAggregate = {_id: 1,
+    platform_number: 1,
+    date:  1,
+    date_added:  1,
+    date_qc: 1,
+    containsBGC: { $ifNull: [ "$containsBGC", false ] },
+    isDeep: { $ifNull: [ "$containsBGC", false ] },
+    PI_NAME: 1,
+    cycle_number:  1,
+    lat:  1,
+    lon:  1,
+    position_qc: 1,
+    PLATFORM_TYPE:  1,
+    POSITIONING_SYSTEM:  1,
+    DATA_MODE:  1,
+    station_parameters: 1,
+    VERTICAL_SAMPLING_SCHEME: 1,
+    STATION_PARAMETERS_inMongoDB: 1,
+    cycle_number:  1,
+    dac:  1,
+    pres_max_for_TEMP: { $ifNull: [ "$pres_max_for_TEMP", -999 ] },
+    pres_min_for_TEMP: { $ifNull: [ "$pres_min_for_TEMP", -999 ] },
+    pres_max_for_PSAL: { $ifNull: [ "$pres_max_for_PSAL", -999 ] },
+    pres_min_for_PSAL: { $ifNull: [ "$pres_min_for_PSAL", -999 ] },
+    BASIN: 1
     }
 
 exports.month_year_profile_list = function(req, res, next) {
@@ -54,9 +55,8 @@ exports.month_year_profile_list = function(req, res, next) {
     const startDate = moment.utc(year + '-' + month + '-' + 01,'YYYY-MM-DD');
     const endDate = startDate.clone().endOf('month');
     const query = Profile.aggregate([
+        {$project: monthYearAggregate},
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-        {$unwind: "$measurements"},
-        {$group: monthYearAggregate},
         {$sort: { date: -1}},
     ]);
     const promise = query.exec();
@@ -79,10 +79,10 @@ exports.last_profile_list = function(req, res, next) {
         endDate = moment.utc(appStartDate);
     }
     var query = Profile.aggregate([
+        {$project: mapMetaAggregate},
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-        {$group: mapMetaAggregate},
-        {$limit : 500 },
-        {$sort: { 'date': -1}}
+        {$sort: { 'date': -1}},
+        {$limit : 500 }
     ]);
     query.exec( function (err, profiles) {
         if (err) { return next(err); }
@@ -105,7 +105,7 @@ exports.latest_profile_list = function(req,res, next) {
     var query = Profile.aggregate([ 
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
         {$sort: {'platform_number': -1, 'date': -1}},
-        {$group: mapMetaAggregate},
+        {$project: mapMetaAggregate},
         {$limit : 500 }
     ]);
     query.exec( function (err, profiles) {
@@ -139,10 +139,23 @@ exports.last_three_days = function(req,res, next) {
     var query = Profile.aggregate([
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
         {$sort: {'platform_number': -1, 'date': -1}},
-        {$group: mapMetaAggregate},
+        {$project: mapMetaAggregate},
     ]);
     query.exec( function (err, profiles) {
         if (err) { return next(err); }
         res.json(profiles);
     });
 };
+
+exports.db_overview = function(req, res, next) {
+    queries = [Profile.find({}).countDocuments(),
+               Profile.distinct('dac'),
+               Profile.find({'isDeep':true}).countDocuments(),
+               Profile.find({'containsBGC':true}).countDocuments(),
+               Profile.aggregate([{ $project: {'date_added': 1}},{ $sort: { date_added: -1 } },{ $limit : 1 }])]
+    Promise.all(queries).then( ([ numberOfProfiles, dacs, numberDeep, numberBgc, lastAdded ]) => {
+        date_added = moment(lastAdded[0].date_added).format('LLL')
+        overviewData = {'numberOfProfiles': numberOfProfiles, 'dacs': dacs, 'numberDeep':numberDeep, 'numberBgc':numberBgc, 'lastAdded': date_added}
+        res.json(overviewData);
+    });
+}

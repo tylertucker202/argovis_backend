@@ -22,4 +22,6 @@ router.get('/profiles/:format?', profile_controller.selected_profile_list);
 /* Get request for month year query */
 router.get('/profiles/:month/:year/:format?', meta_controller.month_year_profile_list);
 
+/* Get request for database overview */
+router.get('/overview', meta_controller.db_overview);
 module.exports = router;
