@@ -148,11 +148,15 @@ exports.last_three_days = function(req,res, next) {
 };
 
 exports.db_overview = function(req, res, next) {
+
+    var startDate = moment.utc().subtract(4, 'days');
+    var endDate = moment.utc().subtract(1, 'days');
+    
     queries = [Profile.find({}).countDocuments(),
                Profile.distinct('dac'),
                Profile.find({'isDeep':true}).countDocuments(),
                Profile.find({'containsBGC':true}).countDocuments(),
-               Profile.aggregate([{ $project: {'date_added': 1}},{ $sort: { date_added: -1 } },{ $limit : 1 }])]
+               Profile.aggregate([{$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}, { $project: {'date_added': 1}},{ $sort: { date_added: -1 } },{ $limit : 1 }])]
     Promise.all(queries).then( ([ numberOfProfiles, dacs, numberDeep, numberBgc, lastAdded ]) => {
         date_added = moment(lastAdded[0].date_added).format('LLL')
         overviewData = {'numberOfProfiles': numberOfProfiles, 'dacs': dacs, 'numberDeep':numberDeep, 'numberBgc':numberBgc, 'lastAdded': date_added}
