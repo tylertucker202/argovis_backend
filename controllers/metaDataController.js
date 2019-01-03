@@ -153,11 +153,12 @@ exports.db_overview = function(req, res, next) {
                Profile.distinct('dac'),
                Profile.find({'isDeep':true}).countDocuments(),
                Profile.find({'containsBGC':true}).countDocuments(),
-               Profile.aggregate([{ $project: {'date': 1}},{ $sort: { date: -1 } },{ $limit : 1 }])
+               //Profile.aggregate([{ $project: {'date': 1}},{ $sort: { date: -1 } },{ $limit : 1 }])
             ]
     
     Promise.all(queries).then( ([ numberOfProfiles, dacs, numberDeep, numberBgc, lastAdded ]) => {
-        date_added = moment(lastAdded[0].date_added).format('LLL')
+        //date_added = moment(lastAdded[0].date_added).format('LLL')
+        date_added = 'December 31, 1900 12:00 AM' //filler until I can speed up query
         overviewData = {'numberOfProfiles': numberOfProfiles, 'dacs': dacs, 'numberDeep':numberDeep, 'numberBgc':numberBgc, 'lastAdded': date_added}
         res.json(overviewData);
     });
