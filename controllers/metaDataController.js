@@ -55,9 +55,9 @@ exports.month_year_profile_list = function(req, res, next) {
     const startDate = moment.utc(year + '-' + month + '-' + 01,'YYYY-MM-DD');
     const endDate = startDate.clone().endOf('month');
     const query = Profile.aggregate([
-        {$project: monthYearAggregate},
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
         {$sort: { date: -1}},
+        {$project: monthYearAggregate},
     ]);
     const promise = query.exec();
     promise.then(function (profiles) {
@@ -149,22 +149,15 @@ exports.last_three_days = function(req,res, next) {
 
 exports.db_overview = function(req, res, next) {
     queries = [//Profile.find({}).countDocuments(),
-               Profile.count({}),
+               Profile.estimatedDocumentCount({}),
                Profile.distinct('dac'),
                Profile.find({'isDeep':true}).countDocuments(),
                Profile.find({'containsBGC':true}).countDocuments(),
-               //Profile.aggregate([{ $project: {'date': 1}},{ $sort: { date: -1 } },{ $limit : 1 }])
+               Profile.aggregate([{ $sort: { date: -1 } }, {$project: {'date_added': 1}}, { $limit : 1 }])
             ]
     
     Promise.all(queries).then( ([ numberOfProfiles, dacs, numberDeep, numberBgc, lastAdded ]) => {
-        //date_added = moment(lastAdded[0].date_added).format('LLL')
-        date_added = 'December 31, 1900 12:00 AM' //filler until I can speed up query
-        overviewData = {'numberOfProfiles': numberOfProfiles, 'dacs': dacs, 'numberDeep':numberDeep, 'numberBgc':numberBgc, 'lastAdded': date_added}
+        overviewData = {'numberOfProfiles': numberOfProfiles, 'dacs': dacs, 'numberDeep':numberDeep, 'numberBgc':numberBgc, 'lastAdded': lastAdded}
         res.json(overviewData);
     });
-    
-
-   //date_added = 'December 31, 1900 12:00 AM' //filler until I can speed up query
-   //overviewData = {'numberOfProfiles': 0, 'dacs': ['fill'], 'numberDeep':0, 'numberBgc':0, 'lastAdded': date_added}
-   //res.json(overviewData);
 }

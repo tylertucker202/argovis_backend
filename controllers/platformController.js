@@ -46,6 +46,11 @@ exports.platform_detail = function (req, res, next) {
     req.sanitize('platform_number').escape();
 
     var query = Profile.find({platform_number: req.params.platform_number});
+
+    if (req.params.format==='page'){ // bgc not needed for page view
+        query.select('-bgcMeas')
+    }
+
     query.sort({date: -1});
     if (req.params.format==='map') {
         query.select(mapParams);

@@ -26,6 +26,35 @@ const mapProjWithCount = {platform_number: -1,
                 DIRECTION: 1,
                 }
 
+const pageSelectionBase = { //need to include all fields that you wish to keep.
+    platform_number: 1,
+    date:  1,
+    date_qc: 1,
+    containsBGC: 1,
+    isDeep: 1,
+    PI_NAME: 1,
+    cycle_number: 1,
+    lat: 1,
+    lon: 1,
+    position_qc: 1,
+    PLATFORM_TYPE: 1,
+    POSITIONING_SYSTEM: 1,
+    DATA_MODE: 1,
+    station_parameters: 1,
+    VERTICAL_SAMPLING_SCHEME: 1,
+    STATION_PARAMETERS_inMongoDB: 1,
+    WMO_INST_TYPE: 1,
+    cycle_number: 1,
+    dac: 1,
+    basin: 1,
+    nc_url: 1,
+    geoLocation: 1,
+    station_parameters: 1,
+    maximum_pressure: 1,
+    POSITIONING_SYSTEM: 1,
+    DATA_MODE: 1,
+    PLATFORM_TYPE: 1,
+    DIRECTION: 1}
 
 // Display list of all Profiles
 exports.profile_list = function(req, res, next) {
@@ -66,8 +95,7 @@ exports.profile_detail = function (req, res, next) {
                 else {
                     keys = Object.keys(profile.bgcMeas[0].toObject());
                     paramKeys = keys.filter(s=>!s.includes('_qc'))
-                    //paramKeys = Object.keys(profile.bgcMeas[0].toObject());
-                    //paramKeys = paramKeys.map(x => ' '+x)
+                    paramKeys = paramKeys.map( s => s.replace(' ',''))
                     profileDate = moment.utc(profile.date).format('YYYY-MM-DD HH:mm')
                     res.render('bgc_profile_page', {title: req.params._id, profile: profile, platform_number: profile.platform_number, paramKeys: paramKeys, profileDate: profileDate});
                 }
@@ -144,87 +172,35 @@ exports.selected_profile_list = function(req, res , next) {
         }
         else if (req.params.format === 'map' && !presRange) {
             var query = Profile.aggregate([
+                {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
+                {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
                 {$project: mapProj},
-                { $match: { $and: [ {geoLocation: {$geoWithin: {$geometry: shapeJson}}},
-                    {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} ] } },
                 {$limit: 1001},
             ]);
         }
         else if (req.params.format !== 'map' && presRange) {
+            let pageSelectionMap = pageSelectionBase
+            pageSelectionMap['measurements'] = {
+                                                    $filter: {
+                                                        input: '$measurements',
+                                                        as: 'item',
+                                                        cond: { 
+                                                            $and: [
+                                                                {$gt: ['$$item.pres', minPres]},
+                                                                {$lt: ['$$item.pres', maxPres]}
+                                                            ]},
+                                                    },
+                                                }
+            
+            pageSelectionFinalMap = pageSelectionMap
+            pageSelectionFinalMap['measurements'] = 1
+            pageSelectionFinalMap['count'] = { $size:'$measurements' }
+
             var query = Profile.aggregate([
                 {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
                 {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-                {$project: { //need to include all fields that you wish to keep.
-                    platform_number: 1,
-                    date:  1,
-                    date_qc: 1,
-                    containsBGC: 1,
-                    isDeep: 1,
-                    PI_NAME: 1,
-                    cycle_number: 1,
-                    lat: 1,
-                    lon: 1,
-                    position_qc: 1,
-                    PLATFORM_TYPE: 1,
-                    POSITIONING_SYSTEM: 1,
-                    DATA_MODE: 1,
-                    station_parameters: 1,
-                    VERTICAL_SAMPLING_SCHEME: 1,
-                    STATION_PARAMETERS_inMongoDB: 1,
-                    WMO_INST_TYPE: 1,
-                    cycle_number: 1,
-                    dac: 1,
-                    basin: 1,
-                    nc_url: 1,
-                    geoLocation: 1,
-                    station_parameters: 1,
-                    maximum_pressure: 1,
-                    POSITIONING_SYSTEM: 1,
-                    DATA_MODE: 1,
-                    PLATFORM_TYPE: 1,
-                    DIRECTION: 1,
-                    measurements: {
-                        $filter: {
-                            input: '$measurements',
-                            as: 'item',
-                            cond: { 
-                                $and: [
-                                    {$gt: ['$$item.pres', minPres]},
-                                    {$lt: ['$$item.pres', maxPres]}
-                                ]},
-                        },
-                    },
-                }},
-                {$project: { // return profiles with measurements
-                    platform_number: 1,
-                    date:  1,
-                    date_qc: 1,
-                    containsBGC: 1,
-                    isDeep: 1,
-                    PI_NAME: 1,
-                    cycle_number: 1,
-                    lat: 1,
-                    lon: 1,
-                    position_qc: 1,
-                    PLATFORM_TYPE: 1,
-                    POSITIONING_SYSTEM: 1,
-                    DATA_MODE: 1,
-                    station_parameters: 1,
-                    VERTICAL_SAMPLING_SCHEME: 1,
-                    STATION_PARAMETERS_inMongoDB: 1,
-                    WMO_INST_TYPE: 1,
-                    cycle_number: 1,
-                    dac: 1,
-                    basin: 1,
-                    nc_url: 1,
-                    geoLocation: 1,
-                    station_parameters: 1,
-                    maximum_pressure: 1,
-                    POSITIONING_SYSTEM: 1,
-                    DATA_MODE: 1,
-                    measurements: 1,
-                    count: { $size:'$measurements' },
-                }},
+                {$project: pageSelectionMap},
+                {$project: pageSelectionFinalMap},
                 {$match: {count: {$gt: 0}}},
                 {$sort: { date: -1}},
                 ]);
