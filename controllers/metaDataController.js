@@ -157,7 +157,8 @@ exports.db_overview = function(req, res, next) {
             ]
     
     Promise.all(queries).then( ([ numberOfProfiles, dacs, numberDeep, numberBgc, lastAdded ]) => {
-        overviewData = {'numberOfProfiles': numberOfProfiles, 'dacs': dacs, 'numberDeep':numberDeep, 'numberBgc':numberBgc, 'lastAdded': lastAdded}
+        const date = lastAdded[0].date_added
+        overviewData = {'numberOfProfiles': numberOfProfiles, 'dacs': dacs, 'numberDeep':numberDeep, 'numberBgc':numberBgc, 'lastAdded': date}
         res.json(overviewData);
     });
 }
