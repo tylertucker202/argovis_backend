@@ -62,7 +62,7 @@ html(lang='en')
         plotDivs = {}
         for (idx in sp ){
             paramKey = sp[idx]
-            if (paramKey===' pres') {continue}
+            if (paramKey==='pres') {continue}
             plotDivs[paramKey] = document.createElement('div');
             plotDivs[paramKey].setAttribute("id", paramKey+'_chart');
             
