@@ -1,6 +1,48 @@
 var Profile = require('../models/profile');
 var moment = require('moment');
 
+const metaDateSliceParams = {date: -1, lat: -1, lon: -1};
+
+exports.meta_date_selection = function(req, res, next) {
+
+    req.sanitize('startDate').toDate();
+    req.sanitize('endDate').toDate();
+
+    const startDate = moment.utc(req.params.startDate)
+    const endDate = moment.utc(req.params.endDate)
+
+    console.log(req.params.startDate)
+    console.log(req.params.endDate)
+
+    console.log(startDate.toDate())
+    console.log(endDate.toDate())
+
+    req.getValidationResult().then(function (result) {
+        if (!result.isEmpty()) {
+            console.log('an error!')
+            var errors = result.array().map(function (elem) {
+                return elem.msg;
+            });
+            console.log(errors)
+            res.render('error', { errors: errors });
+        }
+        else {
+            var query = Profile.aggregate([
+                {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}, 
+                {$project: metaDateSliceParams},
+            ]);
+
+            let promise = query.exec();
+            promise
+            .then(function (profiles) {
+                    res.json(profiles);
+                }
+            )
+            .catch(function(err) { return next(err)})
+        }
+    })
+}
+
 exports.pres_layer_selection = function(req, res , next) {
 
     req.checkQuery('startDate', 'startDate should be specified.').notEmpty();

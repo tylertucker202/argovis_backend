@@ -6,6 +6,7 @@ router.get('/', function(req, res, next) {
   res.render('dist/index');
 });
 
+
 router.get('/map', function(req,res) {
         res.render('map_web_mercator', {
             lat : 0,
