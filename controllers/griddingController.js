@@ -1,7 +1,7 @@
 var Profile = require('../models/profile');
 var moment = require('moment');
 
-const metaDateSliceParams = {date: -1, lat: -1, lon: -1};
+const metaDateSliceParams = {date: -1, lat: -1, lon: -1}, ;
 
 exports.meta_date_selection = function(req, res, next) {
 

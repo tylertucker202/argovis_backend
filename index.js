@@ -14,6 +14,14 @@ router.get('/map', function(req,res) {
         });
 });
 
+router.get('/grid', function(req,res) {
+  res.render('gridPage', {
+      lat : 0,
+      lng : 0
+  });
+});
+
+
 router.get('/covarMap', function(req,res) {
   res.render('covarPage', {
       lat : 0,

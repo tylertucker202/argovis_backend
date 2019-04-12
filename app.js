@@ -14,6 +14,7 @@ var catalog = require('./routes/catalog');  //Import routes for "catalog" area o
 var selection = require('./routes/selection');  //Import routes for "selection" area of site
 var gridding = require('./routes/gridding');  //Import routes for "gridding" area of site
 var covarGrid = require('./routes/covarGrid'); //Import used for gridding
+var rgGrid = require('./routes/rgGrid'); //Import used for gridding
 
 var compression = require('compression'); //All routs are compressed
 var helmet = require('helmet'); //sets appropriate HTTP headers
@@ -84,7 +85,8 @@ app.use('/', index);
 app.use('/catalog', catalog);
 app.use('/selection', selection);
 app.use('/gridding', gridding);
-app.use('/covarGrid', covarGrid)
+app.use('/covarGrid', covarGrid);
+app.use('/rgGrid', rgGrid);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
