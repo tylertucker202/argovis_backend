@@ -27,7 +27,7 @@ html(lang='en')
     script(type='text/javascript').
         //stereographic projection
 
-        var map = L.map('map', {maxZoom: 13, minZoom: 1, zoomDelta: 0.25, zoomSnap: 0}).setView([#{lat},#{lng}], 1);
+        var map = L.map('map', {maxZoom: 13, minZoom: 1, zoomDelta: 1}).setView([#{lat},#{lng}], 1);
         const satelliteMap = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
                                     {attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
         });
@@ -42,11 +42,12 @@ html(lang='en')
                                     {attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri',
         });
         var gridLayer = new L.layerGroup();
+        gridLayer.addTo(map)
         var forcastLength = '60days'
         L.control.layers({
             'Esri World Imagery ': satelliteMap.addTo(map),
-            'Google': googleMap.addTo(map), 
-            'Ocean basemap': Esri_OceanBasemap.addTo(map),
+            //'Google': googleMap.addTo(map), 
+            //'Ocean basemap': Esri_OceanBasemap.addTo(map),
             },
             { 'Display grid': gridLayer },
             { position: 'topleft', collapsed: false }
@@ -85,7 +86,7 @@ html(lang='en')
         //- /* An ASCIIGrid Raster */
         //- d3.text('images/u_noaa.asc', function (asc) {
         //-     let s = L.ScalarField.fromASCIIGrid(asc);
-        //-     //console.log(s)
+        //-     console.log(s)
         //-     let c = chroma.scale('OrRd').domain(s.range);
         //-     let layer = L.canvasLayer.scalarField(s, {
         //-         color: c,
@@ -123,14 +124,22 @@ html(lang='en')
                     //console.log('i have this')
                     //console.log(grid)
                     let s = new L.ScalarField(grid)
-                    //console.log('i made this')
-                    //console.log(s)
+                    s.cellXSize = 1
+                    s.cellYSize = 1
+                    console.log('i made this')
+                    console.log(s)
                     let c = chroma.scale('OrRd').domain(s.range);
+
                     let layer = L.canvasLayer.scalarField(s, {
                         color: c,
                         interpolate: true
                     }).addTo(map);
-                    layer.setOpacity(0.8);
+                    //layer.setOpacity(0.8);
+                    console.log(layer)
+
+                    gridLayer.addLayer(layer)
+
+                    console.log(gridLayer)
                     map.fitBounds(layer.getBounds());
 
                     layer.on('click', function (e) {

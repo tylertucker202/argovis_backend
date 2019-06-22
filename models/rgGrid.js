@@ -13,4 +13,4 @@ var RGSchema = Schema(
   },
 );
 
-module.exports = mongoose.model('rgGrid', RGSchema, 'rgGrids');
+module.exports = mongoose.model('rg', RGSchema, 'rg');
