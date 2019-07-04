@@ -31,6 +31,7 @@ router.get('/map', function(req,res) {
             lng : 0
         });
 });
+*/
 
 router.get('/covarMap', function(req,res) {
   res.render('covarPage', {
@@ -38,6 +39,8 @@ router.get('/covarMap', function(req,res) {
       lng : 0
   });
 });
+
+/*
 
 router.get('/grid', function(req,res) {
   res.render('gridPage', {
