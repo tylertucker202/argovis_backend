@@ -1,10 +1,10 @@
-var RGGrid = require('../models/rgGrid');
+var Grid = require('../models/grid');
+var RGGrid = Grid.RGGrid
 var GJV = require('geojson-validation');
 
 exports.find_one = function(req, res , next) {
     var query = RGGrid.find({}, {});
     query.limit(1)
-    //var query = RGGrid.findOne({time: .5})
     query.exec( function (err, grid) {
         if (err) { return next(err); }
         res.json(grid);

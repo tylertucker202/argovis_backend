@@ -14,7 +14,7 @@ exports.radius_selection = function(req, res , next) {
     req.sanitize('lon').escape();
     req.sanitize('lon').trim();
 
-     if(req.params.forcast) {
+     if(req.params.forcast === undefined) {
          forcast = req.params.forcast
          if (forcast == '60days') {
             Covar = CovarExports.shortCovar

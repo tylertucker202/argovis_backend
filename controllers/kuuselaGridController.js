@@ -1,9 +1,12 @@
-var kuuselaGrid = require('../models/kuuselaGrid');
+var Grid = require('../models/grid');
+var KuuselaGrid = Grid.KuuselaGrid
 var GJV = require('geojson-validation');
 var moment = require('moment');
 
+
 exports.find_one = function(req, res , next) {
-    var query = kuuselaGrid.find({}, {});
+    console.log('inside find_one()')
+    var query = KuuselaGrid.find({}, {});
     query.limit(1)
     query.exec( function (err, grid) {
         if (err) { return next(err); }
@@ -12,6 +15,7 @@ exports.find_one = function(req, res , next) {
 }
 
 exports.get_window = function(req, res , next) {
+    console.log('inside get_window()')
     req.checkQuery('pres', 'pres should be numeric.').isNumeric();
 
     req.sanitize('latRange').escape();
@@ -54,7 +58,7 @@ exports.get_window = function(req, res , next) {
     console.log(monthYear)
     console.log(pres)
 
-    var query = kuuselaGrid.aggregate([
+    var query = KuuselaGrid.aggregate([
         {$match: {pres: pres}},
         {$match: {date: monthYear.toDate()}},
         {$project: { // query for lat lng ranges

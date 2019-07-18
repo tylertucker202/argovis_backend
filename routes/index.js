@@ -11,14 +11,6 @@ router.get('/ng/*', function(req, res, next) {
   res.sendFile(path.join(__dirname, '../../dist/', 'index.html'));
 })
 
-// router.get('/home', function(req, res, next) {
-//   res.redirect('/')
-// });
-
-// router.get('/grid', function(req, res, next) {
-//   res.redirect('/')
-// });
-/*
 router.get('/ng/home', function(req, res, next) {
   const mpath = path.join(__dirname, '../../dist/', 'index.html')
   console.log(mpath)
@@ -31,7 +23,7 @@ router.get('/map', function(req,res) {
             lng : 0
         });
 });
-*/
+
 
 router.get('/covarMap', function(req,res) {
   res.render('covarPage', {
@@ -40,7 +32,7 @@ router.get('/covarMap', function(req,res) {
   });
 });
 
-/*
+
 
 router.get('/grid', function(req,res) {
   res.render('gridPage', {
@@ -70,5 +62,5 @@ router.get('/mapEQUIREC', function(req,res) {
       lng : 0
   });
 });
-*/
+
 module.exports = router;
