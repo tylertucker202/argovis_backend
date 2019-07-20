@@ -5,7 +5,6 @@ var moment = require('moment');
 
 
 exports.find_one = function(req, res , next) {
-    console.log('inside find_one()')
     var query = KuuselaGrid.find({}, {});
     query.limit(1)
     query.exec( function (err, grid) {
@@ -15,7 +14,6 @@ exports.find_one = function(req, res , next) {
 }
 
 exports.get_window = function(req, res , next) {
-    console.log('inside get_window()')
     req.checkQuery('pres', 'pres should be numeric.').isNumeric();
 
     req.sanitize('latRange').escape();
@@ -24,6 +22,8 @@ exports.get_window = function(req, res , next) {
     req.sanitize('lonRange').trim();
     req.sanitize('monthYear').escape();
     req.sanitize('monthYear').trim();
+
+    console.log(req.query)
 
     if (req.query.latRange) {
         var latRange = JSON.parse(req.query.latRange);
@@ -46,8 +46,8 @@ exports.get_window = function(req, res , next) {
         var monthYear = moment('01-2010', 'MM-YYYY').utc()
     }
 
-    if (req.query.pres) {
-        var pres = req.query.pres
+    if (req.query.presLevel) {
+        var pres = JSON.parse(req.query.presLevel)
     }
     else {
         var pres = 10;
@@ -55,7 +55,7 @@ exports.get_window = function(req, res , next) {
 
     console.log(latRange)
     console.log(lonRange)
-    console.log(monthYear)
+    console.log(monthYear.toDate())
     console.log(pres)
 
     var query = KuuselaGrid.aggregate([

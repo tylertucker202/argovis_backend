@@ -37,15 +37,13 @@ exports.radius_selection = function(req, res , next) {
     GJV.valid(point);
     GJV.isPoint(point);
 
-
     var query = Covar.findOne({geoLocation: {
                                 $near: {
                                     $geometry: point,
                                     //$maxDistance: radius
                                 }
                             }
-                            })
-
+                            });
     query.exec(function (err, covars) {
         if (err) return next(err);
         res.json(covars);
