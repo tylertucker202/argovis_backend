@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 // Require controller modules
-var grid_controller = require('../controllers/kuuselaGridController.js')
+var grid_controller = require('../controllers/griddedProductController.js')
 
 router.get('/', grid_controller.get_window);
 

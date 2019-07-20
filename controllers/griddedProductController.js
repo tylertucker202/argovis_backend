@@ -1,17 +1,24 @@
 var Grid = require('../models/grid');
-var KuuselaGrid = Grid.KuuselaGrid
 var GJV = require('geojson-validation');
 var moment = require('moment');
 
-
 exports.find_one = function(req, res , next) {
-    var query = KuuselaGrid.find({}, {});
+    let GridModel
+    console.log(req.baseUrl)
+    if (req.baseUrl === '/kuuselaGrid') {
+        GridModel = Grid.KuuselaGrid
+    }
+    else if (req.baseUrl === '/rgGrid') {
+        GridModel = Grid.RGGrid
+    }
+    var query = GridModel.find({}, {});
     query.limit(1)
     query.exec( function (err, grid) {
         if (err) { return next(err); }
         res.json(grid);
     });
 }
+
 
 exports.get_window = function(req, res , next) {
     req.checkQuery('pres', 'pres should be numeric.').isNumeric();
@@ -53,12 +60,20 @@ exports.get_window = function(req, res , next) {
         var pres = 10;
     }
 
+    let GridModel
+    if (req.baseUrl === '/kuuselaGrid') {
+        GridModel = Grid.KuuselaGrid
+    }
+    else if (req.baseUrl === '/rgGrid') {
+        GridModel = Grid.RGGrid
+    }
+
     console.log(latRange)
     console.log(lonRange)
     console.log(monthYear.toDate())
     console.log(pres)
 
-    var query = KuuselaGrid.aggregate([
+    var query = GridModel.aggregate([
         {$match: {pres: pres}},
         {$match: {date: monthYear.toDate()}},
         {$project: { // query for lat lng ranges
