@@ -22,7 +22,7 @@ router.get('/platforms', platform_controller.platform_list);
 router.get('/profiles/:_id/:format?', profile_controller.profile_detail);
 
 /* GET request for list of all profile items. */
-router.get('/profiles', profile_controller.profile_list);
+router.get('/mprofiles/:format?', profile_controller.profile_list);
 
 
 /// DAC ROUTES ///

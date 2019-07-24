@@ -1,12 +1,18 @@
 var Profile = require('../models/profile');
 var moment = require('moment');
 
-const metaDateSliceParams = {date: -1, lat: -1, lon: -1}
+const metaDateSliceParams = {date: -1, lat: -1, lon: -1, BASIN: -1};
 
 exports.meta_date_selection = function(req, res, next) {
 
     req.sanitize('startDate').toDate();
     req.sanitize('endDate').toDate();
+
+
+    if (req.query.basin) {
+        var basin = JSON.parse(req.query.basin)
+        console.log(basin)
+    }
 
     const startDate = moment.utc(req.params.startDate)
     const endDate = moment.utc(req.params.endDate)
@@ -26,20 +32,28 @@ exports.meta_date_selection = function(req, res, next) {
             console.log(errors)
             res.render('error', { errors: errors });
         }
-        else {
+        else if (basin) {
+            var match = {$match:  {$and: [ {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}},
+                                           {BASIN: basin}]}
+                        }
             var query = Profile.aggregate([
-                {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}, 
+                match, 
                 {$project: metaDateSliceParams},
-            ]);
-
-            let promise = query.exec();
-            promise
-            .then(function (profiles) {
-                    res.json(profiles);
-                }
-            )
-            .catch(function(err) { return next(err)})
+            ]);        
         }
+        else {
+            var match = {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}
+            var query = Profile.aggregate([ match, 
+                                            {$project: metaDateSliceParams},
+            ]);
+        }
+        let promise = query.exec();
+        promise
+        .then(function (profiles) {
+                res.json(profiles);
+            }
+        )
+        .catch(function(err) { return next(err)})    
     })
 }
 

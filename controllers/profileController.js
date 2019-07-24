@@ -59,11 +59,20 @@ const profProjectWithPresRange =  { // return profiles with measurements
 
 // Display list of all Profiles
 exports.profile_list = function(req, res, next) {
-    var query = Profile.find({},{});
-    query.select(mapParams);
-    query.exec( function (err, profile) {
+
+    console.log(req.query.myids)
+    var _ids = JSON.parse(req.query.myids.replace(/'/g, '"'))
+
+    var query = Profile.find({ _id: { $in: _ids } },{});
+
+    //var query = Profile.find({},{});
+
+    if (req.params.format==='map') {
+        query.select(mapParams);
+    }
+    query.exec( function (err, profiles) {
         if (err) { return next(err); }
-        res.json(profile);
+        res.json(profiles);
     });
 };
 
