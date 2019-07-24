@@ -57,19 +57,85 @@ const profProjectWithPresRange =  { // return profiles with measurements
     }
 
 
-// Display list of all Profiles
+// Display list of Profiles in a list of _ids
 exports.profile_list = function(req, res, next) {
+    req.checkQuery('ids', 'ids should be specified.').notEmpty();
+    //req.sanitize('ids').escape();
+    req.sanitize('ids').trim();
+    req.sanitize('presRange').escape();
+    req.sanitize('presRange').trim();
 
-    console.log(req.query.myids)
-    var _ids = JSON.parse(req.query.myids.replace(/'/g, '"'))
+    const errors = req.validationErrors();
 
-    var query = Profile.find({ _id: { $in: _ids } },{});
-
-    //var query = Profile.find({},{});
-
-    if (req.params.format==='map') {
-        query.select(mapParams);
+    if (errors) {
+        res.send(errors)
     }
+
+    console.log(req.query.ids)
+    const _ids = JSON.parse(req.query.ids.replace(/'/g, '"'))
+
+    let presRange = null;
+    let maxPres = null;
+    let minPres = null;
+    if (req.query.presRange) {
+        presRange = JSON.parse(req.query.presRange);
+        maxPres = Number(presRange[1]);
+        minPres = Number(presRange[0]);
+    }
+
+
+    idMatch = {$match: {_id: { $in: _ids}}}
+    let idAgg = []
+    idAgg.push(idMatch)
+    if (presRange){
+        idProject = {$project: { //need to include all fields that you wish to keep.
+            platform_number: 1,
+            date:  1,
+            date_qc: 1,
+            geo2DLocation: 1,
+            PI_NAME: 1,
+            cycle_number: 1,
+            lat: 1,
+            lon: 1,
+            position_qc: 1,
+            PLATFORM_TYPE: 1,
+            POSITIONING_SYSTEM: 1,
+            DATA_MODE: 1,
+            station_parameters: 1,
+            VERTICAL_SAMPLING_SCHEME: 1,
+            STATION_PARAMETERS_inMongoDB: 1,
+            WMO_INST_TYPE: 1,
+            cycle_number: 1,
+            dac: 1,
+            basin: 1,
+            nc_url: 1,
+            geoLocation: 1,
+            station_parameters: 1,
+            maximum_pressure: 1,
+            POSITIONING_SYSTEM: 1,
+            DATA_MODE: 1,
+            PLATFORM_TYPE: 1,
+            measurements: {
+                $filter: {
+                    input: '$measurements',
+                    as: 'item',
+                    cond: { 
+                        $and: [
+                            {$gt: ['$$item.pres', minPres]},
+                            {$lt: ['$$item.pres', maxPres]}
+                        ]},
+                },
+            },
+        }},
+        idAgg.push(idProject)
+    }
+    idAgg.push({$limit: 5})
+    idAgg.push({$project: profProjectWithPresRange})
+    idAgg.push({$match: {count: {$gt: 0}}})
+    idAgg.push({$sort: { date: -1}})
+
+    let query = Profile.aggregate(idAgg);
+
     query.exec( function (err, profiles) {
         if (err) { return next(err); }
         res.json(profiles);
@@ -78,25 +144,28 @@ exports.profile_list = function(req, res, next) {
 
 exports.profile_detail = function (req, res, next) {
     req.checkParams('_id', 'Profile id should be specified.').notEmpty();
-    var errors = req.validationErrors();
+    const errors = req.validationErrors();
     req.sanitize('_id').escape();
 
     if (errors) {
         res.send(errors)
     }
     else {
-        var query = Profile.findOne({ _id: req.params._id })
+        let query = Profile.findOne({ _id: req.params._id })
         if (req.params.format==='map') {
             query.select(mapParams);
         }
-        var promise = query.exec();
+        let promise = query.exec();
+
         promise
         .then(function (profile) {
             if (req.params.format==='page'){
                 if (profile === null) { res.send('profile not found'); }
                 else {
                     profileDate = moment.utc(profile.date).format('YYYY-MM-DD HH:mm')
-                    res.render('profile_page', {title: req.params._id, profile: profile, platform_number: profile.platform_number, profileDate: profileDate});
+                    res.render('profile_page', {title: req.params._id, profile: profile,
+                                                       platform_number: profile.platform_number,
+                                                       profileDate: profileDate});
                 }
             }
             else if (req.params.format==='bgcPage'){
@@ -107,7 +176,9 @@ exports.profile_detail = function (req, res, next) {
                     paramKeys = keys.filter(s=>!s.includes('_qc'))
                     paramKeys = paramKeys.map( s => s.replace(' ',''))
                     profileDate = moment.utc(profile.date).format('YYYY-MM-DD HH:mm')
-                    res.render('bgc_profile_page', {title: req.params._id, profile: profile, platform_number: profile.platform_number, paramKeys: paramKeys, profileDate: profileDate});
+                    res.render('bgc_profile_page', {title: req.params._id, profile: profile,
+                                                    platform_number: profile.platform_number,
+                                                    paramKeys: paramKeys, profileDate: profileDate});
                 }
             }
             else {
@@ -129,11 +200,16 @@ exports.selected_profile_list = function(req, res , next) {
     req.sanitize('endDate').toDate();
 
     const shape = JSON.parse(req.query.shape);
-    var shapeJson = {'type': 'Polygon', 'coordinates': shape}
+    const shapeJson = {'type': 'Polygon', 'coordinates': shape}
+
+    let presRange = null;
+    let maxPres = null;
+    let minPres = null;
+
     if (req.query.presRange) {
-        var presRange = JSON.parse(req.query.presRange);
-        var maxPres = Number(presRange[1]);
-        var minPres = Number(presRange[0]);
+        presRange = JSON.parse(req.query.presRange);
+        maxPres = Number(presRange[1]);
+        minPres = Number(presRange[0]);
     }
 
     const startDate = moment.utc(req.query.startDate, 'YYYY-MM-DD');
@@ -143,14 +219,15 @@ exports.selected_profile_list = function(req, res , next) {
 
     req.getValidationResult().then(function (result) {
     if (!result.isEmpty()) {
-        var errors = result.array().map(function (elem) {
+        const errors = result.array().map(function (elem) {
             return elem.msg;
         });
         res.render('error', { errors: errors });
     }
     else {
+        let query = null
         if (req.params.format === 'map' && presRange) {
-            var query = Profile.aggregate([
+            query = Profile.aggregate([
                 {$project: { // this projection has to be defined here
                     platform_number: -1,
                     date: -1,
@@ -181,7 +258,7 @@ exports.selected_profile_list = function(req, res , next) {
                 ]);
         }
         else if (req.params.format === 'map' && !presRange) {
-            var query = Profile.aggregate([
+            query = Profile.aggregate([
                 {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
                 {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
                 {$project: mapProj},
@@ -189,7 +266,7 @@ exports.selected_profile_list = function(req, res , next) {
             ]);
         }
         else if (req.params.format !== 'map' && presRange) {
-            var query = Profile.aggregate([
+            query = Profile.aggregate([
                 {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
                 {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
                 {$project: { //need to include all fields that you wish to keep.
@@ -237,15 +314,15 @@ exports.selected_profile_list = function(req, res , next) {
                 ]);
         }
         else {
-            var query = Profile.aggregate([
+            query = Profile.aggregate([
                 {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
                 {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}]);
         }
-        var promise = query.exec();
+        let promise = query.exec();
         promise
         .then(function (profiles) {
             //create virtural fields.
-            for(var idx=0; idx < profiles.length; idx++){
+            for(let idx=0; idx < profiles.length; idx++){
                 let lat = profiles[idx].lat;
                 let lon = profiles[idx].lon;
                 profiles[idx].roundLat = Number(lat).toFixed(3);
