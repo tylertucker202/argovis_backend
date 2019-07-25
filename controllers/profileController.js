@@ -129,7 +129,6 @@ exports.profile_list = function(req, res, next) {
         }},
         idAgg.push(idProject)
     }
-    idAgg.push({$limit: 5})
     idAgg.push({$project: profProjectWithPresRange})
     idAgg.push({$match: {count: {$gt: 0}}})
     idAgg.push({$sort: { date: -1}})
