@@ -49,6 +49,10 @@ router.get('/mapNPS', function(req,res) {
   });
 });
 
+router.get('/geotiff', function(req,res) {
+  res.render('d3grid');
+});
+
 router.get('/mapSPS', function(req,res) {
   res.render('map_south_polar_stereo', {
       lat : -89,
