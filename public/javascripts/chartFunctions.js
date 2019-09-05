@@ -120,7 +120,7 @@ const makeHistogram = function(x, xtitle) {
             autorange: true,
             title: xtitle
         },
-        xaxis: {
+        yaxis: {
             autorange: true,
             title: 'frequency'
         },
@@ -132,6 +132,9 @@ const makeHistogram = function(x, xtitle) {
 const makeMap = function(lats, longs, ids) {
     const longRange = [Math.min(...longs)-5, Math.max(...longs)+5]
     const latRange = [Math.min(...lats)-5, Math.max(...lats)+5]
+
+    const midLong = (longRange[1] + longRange[0])/2
+    const midLat = (latRange[1] + latRange[0])/2
     const data = [{
         type: 'scattergeo',
         mode: 'markers',
@@ -152,6 +155,13 @@ const makeMap = function(lats, longs, ids) {
             size: 16
         },
         geo: {
+        projection: {
+            type: 'orthographic',
+            rotation: {
+                lon: midLong,
+                lat: midLat
+            },
+        },
             resolution: 50,
             lonaxis: {
                 'range': longRange
