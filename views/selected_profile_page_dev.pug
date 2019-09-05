@@ -16,14 +16,21 @@ html(lang='en')
 
     block content
         div(class='selection_and_catalog_page')
-            div(class='col-lg-3')
-                #map_plot
-            div(class='col-lg-3')
-                #PRES_V_TEMP_PLOT
-            div(class='col-lg-3')
-                #PRES_V_PSAL_PLOT
-            div(class='col-lg-3')
-                #TEMP_V_PSAL_PLOT
+            div(class='row')
+                div(class='col-lg-3')
+                    #map_plot
+                div(class='col-lg-3')
+                    #PRES_V_TEMP_PLOT
+                div(class='col-lg-3')
+                    #PRES_V_PSAL_PLOT
+                div(class='col-lg-3')
+                    #TEMP_V_PSAL_PLOT
+            div(class='row')
+                div(class='col-lg-3')
+                    #temp_histogram_chart
+                div(class='col-lg-3')
+                    #psal_histogram_chart
+            div(class='row')
             p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
             div(class='top')
                 button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
@@ -206,6 +213,11 @@ html(lang='en')
 
         Plotly.plot('map_plot', mapData.data, mapData.layout)
 
+        const tempHistData = makeHistogram(chartData.tempForPres, 'Temperature [Celsius]')
+        Plotly.plot('temp_histogram_chart', tempHistData.data, tempHistData.layout)
+
+        const psalHistData = makeHistogram(chartData.psalForPres, 'Salinity [psu]')
+        Plotly.plot('psal_histogram_chart', psalHistData.data, psalHistData.layout)
 
          // Upon click a new tab opens to the corresponding profile.
         PRES_V_TEMP_PLOT.on('plotly_click', function(data){
@@ -223,5 +235,6 @@ html(lang='en')
         map_plot.on('plotly_click', function(data){
             mapLinkToProfilePage(data)
         })
+
 
         })

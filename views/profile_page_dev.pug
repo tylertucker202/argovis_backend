@@ -51,10 +51,16 @@ html(lang='en')
                 tr
                     td Data mode: #{profile.DATA_MODE}
             button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
-            div(class='col-lg-3')
-                #map_plot
-            div(class='col-lg-9')
-                #TPS_CHART
+            div(class='row')
+                div(class='col-lg-3')
+                    #map_chart
+                div(class='col-lg-9')
+                    #TPS_CHART
+            div(class='row')
+                div(class='col-lg-3')
+                    #temp_histogram_chart
+                div(class='col-lg-3')
+                    #psal_histogram_chart
 
     script(type='text/javascript').
         $.when(
@@ -212,6 +218,13 @@ html(lang='en')
         }
         Plotly.plot('TPS_CHART', ['pres_v_temp', 'pres_v_psal', 'temp_v_psal'].map(makeProfileTrace), layout)
 
+
         const mapData = makeMap([lat], [lon], [_id])
-        Plotly.plot('map_plot', mapData.data, mapData.layout)
+        Plotly.plot('map_chart', mapData.data, mapData.layout)
+
+        const tempHistData = makeHistogram(tempForPres, 'Temperature [Celsius]')
+        Plotly.plot('temp_histogram_chart', tempHistData.data, tempHistData.layout)
+
+        const psalHistData = makeHistogram(psalForPres, 'Salinity [psu]')
+        Plotly.plot('psal_histogram_chart', psalHistData.data, psalHistData.layout)
         })

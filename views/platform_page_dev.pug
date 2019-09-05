@@ -17,11 +17,17 @@ html(lang='en')
     body
     block content
         div(class='selection_and_catalog_page')
-            div(class='col-lg-3')
-                #map_plot
-            div(class='col-lg-9')
-                #pres_v_temp_plot
-                #pres_v_psal_plot
+            div(class='row')
+                div(class='col-lg-3')
+                    #map_plot
+                div(class='col-lg-9')
+                    #pres_v_temp_plot
+                    #pres_v_psal_plot
+            div(class='row')
+                div(class='col-lg-3')
+                    #temp_histogram_chart
+                div(class='col-lg-3')
+                    #psal_histogram_chart
             p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
             button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
             div(class='top')
@@ -142,6 +148,12 @@ html(lang='en')
         Plotly.plot('pres_v_psal_plot', 
                     makeColorChartTrace( measurements['pres_v_psal'], 'pres_v_psal'),
                     psal_layout)
+
+        const tempHistData = makeHistogram(chartData.tempForPres, 'Temperature [Celsius]')
+        Plotly.plot('temp_histogram_chart', tempHistData.data, tempHistData.layout)
+
+        const psalHistData = makeHistogram(chartData.psalForPres, 'Salinity [psu]')
+        Plotly.plot('psal_histogram_chart', psalHistData.data, psalHistData.layout)
 
         mapData = makeMap(dataArrays.lats, dataArrays.longs, dataArrays.ids)
 

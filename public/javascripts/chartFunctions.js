@@ -104,6 +104,31 @@ const getMaskForTrio = function(arrayOne, arrayTwo, arrayThree) {
     return(mask);
 }
 
+const makeHistogram = function(x, xtitle) {
+    const data = [{
+        type: 'histogram',
+        x: x,
+    }]
+
+    const layout = {
+        title: 'Histogram of: ' + xtitle,
+        width: 500,
+        titlefont: {
+            size: 16
+        },
+        xaxis: {
+            autorange: true,
+            title: xtitle
+        },
+        xaxis: {
+            autorange: true,
+            title: 'frequency'
+        },
+    }
+
+    return ({data: data, layout: layout})
+}
+
 const makeMap = function(lats, longs, ids) {
     const longRange = [Math.min(...longs)-5, Math.max(...longs)+5]
     const latRange = [Math.min(...lats)-5, Math.max(...lats)+5]
