@@ -109,6 +109,7 @@ exports.pres_layer_selection = function(req, res , next) {
                     _id: 1,
                     nc_url: 1,
                     position_qc: 1,
+                    date_qc: 1,
                     cycle_number: 1,
                     dac: 1,
                     date:1,
