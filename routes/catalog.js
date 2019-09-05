@@ -21,7 +21,7 @@ router.get('/platforms', platform_controller.platform_list);
 /* GET request for one profile. */
 router.get('/profiles/:_id/:format?', profile_controller.profile_detail);
 
-/* GET request for list of all profile items. */
+/* GET request for list of profile items in a list. */
 router.get('/mprofiles/:format?', profile_controller.profile_list);
 
 

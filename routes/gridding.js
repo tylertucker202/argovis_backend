@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 // Require controller modules
-var gridding_controller = require('../controllers/griddingController')
+var gridding_controller = require('../controllers/griddedProfileController')
 
 /* Get request for month year query */
 

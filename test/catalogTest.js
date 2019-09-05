@@ -115,6 +115,38 @@ describe('/GET catalog dacs', function() {
   });
 });
 
+describe('/GET a list of profiles from a list', function() {
+  this.timeout(5000);
+  const list = "ids=['4902323_45D','3900740_34']"
+  const presRange = "&presRange=[0,20]"
+  it('it should GET a list of profiles', (done) => {
+    const urlQuery = '/catalog/mprofiles/?' + list
+    chai.request(app)
+    .get(urlQuery)
+    .end((err, res) => {
+      res.should.have.status(200);
+      a_profile = res.body[0];
+      assert(a_profile._id === "4902323_45D", 'wrong profile returned');
+      assert(a_profile.count === 564, 'check the length of measurements');
+      done()
+    })
+  })
+  it('it should GET a list of selected profiles within a pressure range', (done) => {
+    const urlQuery = '/catalog/mprofiles/?' + list + presRange
+    chai.request(app)
+    .get(urlQuery)
+    .end((err, res) => {
+      res.should.have.status(200);
+      a_profile = res.body[0];
+      a_measurement = a_profile.measurements
+      assert(a_profile._id === "4902323_45D", 'wrong profile returned');
+      assert(a_profile.count === 15, 'there should be fewer measurements');
+      done();
+    })
+  })
+
+})
+
 describe('/GET profile render', function() {
   this.timeout(500);
   it('it should GET the selected profile.', (done) => {
@@ -181,3 +213,5 @@ describe('/GET profile render', function() {
     });
   });
 });
+
+

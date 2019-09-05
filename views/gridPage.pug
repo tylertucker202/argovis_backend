@@ -1,0 +1,160 @@
+doctype html
+html(lang='en')
+    head
+        title= title
+        meta(charset='utf-8')
+        meta(name='viewport', content='width=device-width, initial-scale=1')
+        link(rel='stylesheet', href='/stylesheets/external-css/leaflet.css')
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        link(rel='stylesheet', href='/stylesheets/external-css/leaflet-draw.css')
+        //link(rel="stylesheet" href='/stylesheets/external-css/Leaflet.Coordinates-0.1.5.css')
+        script(src='/javascripts/external-js/jquery.min.js')
+        script(src="/javascripts/external-js/leaflet.js")
+        script(src="/javascripts/external-js/Leaflet.Coordinates-0.1.5.min.js")
+        link(rel='stylesheet', href='/stylesheets/external-css/bootstrap.css')
+        script(src='/javascripts/external-js/bootstrap.min.js')
+        script(src='/javascripts/external-js/leaflet.ajax.min.js')
+
+        script(src='/javascripts/external-js/leaflet.canvaslayer.field.js')
+        script(src="https://d3js.org/d3.v4.min.js")
+        script(src="https://npmcdn.com/geotiff@0.3.6/dist/geotiff.js")
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.3.4/chroma.min.js")
+
+        script(src='/javascripts/external-js/jquery.min.js')
+
+    body
+    #map
+    script(type='text/javascript').
+        //stereographic projection
+
+        var map = L.map('map', {maxZoom: 13, minZoom: 1, zoomDelta: 1}).setView([#{lat},#{lng}], 1);
+        const satelliteMap = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                                    {attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        });
+        const googleMap = L.tileLayer('http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}',
+                                    {attribution: 'google'
+        });
+        const watercolor = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}',
+                                    {attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                                     subdomains: 'abcd',
+        });
+        const Esri_OceanBasemap = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}',
+                                    {attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri',
+        });
+        var gridLayer = new L.layerGroup();
+        gridLayer.addTo(map)
+        var forcastLength = '60days'
+        L.control.layers({
+            'Esri World Imagery ': satelliteMap.addTo(map),
+            //'Google': googleMap.addTo(map), 
+            //'Ocean basemap': Esri_OceanBasemap.addTo(map),
+            },
+            { 'Display grid': gridLayer },
+            { position: 'topleft', collapsed: false }
+        ).addTo(map);
+        //map.scrollWheelZoom.disable();
+
+        var adjLatLng = function(lat, lon) {
+            if (lat > 0) {
+                var strLat = Math.abs(lat).toFixed(2).toString() + ' N';
+            }
+            else {
+                var strLat = Math.abs(lat).toFixed(2).toString() + ' S';
+            }
+            if (lon > 0) {
+                var strLon = Math.abs(lon).toFixed(2).toString() + ' E';
+            }
+            else {
+                var strLon = Math.abs(lon).toFixed(2).toString() + ' W';
+            }
+            return([strLat, strLon])
+        }
+        map.on('mousemove', function (e) {
+            let latLon = adjLatLng(e.latlng.lat, e.latlng.lng)
+            info._div.innerHTML = 'Longitude: ' + latLon[1] + '<br />' +
+                                    'Latitude: ' + latLon[0];
+        });
+
+        var info = L.control({position: 'topright'});
+        info.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+            return this._div;
+        };
+        info.addTo(map);
+
+        //- /* Simple layer with points at the center of ScalarField cells */
+        //- /* An ASCIIGrid Raster */
+        //- d3.text('images/u_noaa.asc', function (asc) {
+        //-     let s = L.ScalarField.fromASCIIGrid(asc);
+        //-     console.log(s)
+        //-     let c = chroma.scale('OrRd').domain(s.range);
+        //-     let layer = L.canvasLayer.scalarField(s, {
+        //-         color: c,
+        //-         interpolate: true
+        //-     }).addTo(map);
+        //-     layer.setOpacity(0.8);
+        //-     map.fitBounds(layer.getBounds());
+
+        //-     layer.on('click', function (e) {
+        //-         if (e.value !== null) {
+        //-             let v = e.value.toFixed(3);
+        //-             let html = `<span class="popupText">NOAA wind_u component ${v} m/s</span>`;
+        //-             let popup = L.popup().setLatLng(e.latlng).setContent(html).openOn(map);
+        //-         }
+        //-     });
+        //- });
+
+        const displayGrid = function(latRange=[-90,90], lonRange=[-360,360]) {
+
+            let url = 'http://localhost:3000/rgGrid?'
+            url += 'latRange=' + JSON.stringify(latRange)
+            url += '&lonRange=' + JSON.stringify(lonRange)
+            console.log(url)
+            //console.log(url);
+            $.getJSON(url, function(gridList){
+                if (gridList.length == 0) {
+                    console.log('No grid cells inside this region')
+                }
+                else if (gridList.length !== 1) {
+                    console.log('Should only be one grid')
+                }
+                else {
+                    var grid = gridList[0]
+                    //console.log(grid)
+                    //console.log('i have this')
+                    //console.log(grid)
+                    let s = new L.ScalarField(grid)
+                    s.cellXSize = 1
+                    s.cellYSize = 1
+                    console.log('i made this')
+                    console.log(s)
+                    let c = chroma.scale('OrRd').domain(s.range);
+
+                    let layer = L.canvasLayer.scalarField(s, {
+                        color: c,
+                        interpolate: true
+                    }).addTo(map);
+                    //layer.setOpacity(0.8);
+                    console.log(layer)
+
+                    gridLayer.addLayer(layer)
+
+                    console.log(gridLayer)
+                    map.fitBounds(layer.getBounds());
+
+                    layer.on('click', function (e) {
+                        if (e.value !== null) {
+                            let v = e.value.toFixed(3);
+                            let html = `<span class="popupText">Temperature Anomoly ${v} Deg</span>`;
+                            let popup = L.popup().setLatLng(e.latlng).setContent(html).openOn(map);
+                        }
+                    });
+                }
+            }).fail(function() {
+                console.log('grid not loaded');
+            })
+        };
+
+        displayGrid()
+
+        

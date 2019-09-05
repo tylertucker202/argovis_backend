@@ -14,7 +14,7 @@ exports.radius_selection = function(req, res , next) {
     req.sanitize('lon').escape();
     req.sanitize('lon').trim();
 
-     if(req.params.forcast) {
+     if(req.params.forcast === undefined) {
          forcast = req.params.forcast
          if (forcast == '60days') {
             Covar = CovarExports.shortCovar
@@ -37,15 +37,13 @@ exports.radius_selection = function(req, res , next) {
     GJV.valid(point);
     GJV.isPoint(point);
 
-
     var query = Covar.findOne({geoLocation: {
                                 $near: {
                                     $geometry: point,
                                     //$maxDistance: radius
                                 }
                             }
-                            })
-
+                            });
     query.exec(function (err, covars) {
         if (err) return next(err);
         res.json(covars);
