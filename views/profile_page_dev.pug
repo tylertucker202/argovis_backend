@@ -1,0 +1,217 @@
+doctype html
+html(lang='en')
+    head
+        title=title
+        meta(charset='utf-8')
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        script(type="text/javascript", src='https://cdn.plot.ly/plotly-latest.min.js')
+        link(rel='stylesheet', href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css")
+        script(src='/javascripts/external-js/FileSaver.min.js')
+        script(src='/javascripts/external-js/jquery.min.js')
+        script(src='/javascripts/external-js/bootstrap.min.js')
+    body
+
+    block content
+        div(class='selection_and_catalog_page')
+            h1 Core page for profile Id: #{title}
+            table(style='width:100%',border='0')
+                tr
+                    td Date: #{profileDate}
+                    td Links to other Argovis pages:
+                tr
+                    td Cycle number: #{profile.cycle_number}
+                    td 
+                        a(href='/catalog/platforms/'+ platform_number + '/page' target='_blank') Link to platform #{profile.platform_number} page                                          
+                tr
+                    td Latitude: #{profile.strLat}
+                    td 
+                        a(href='/' ) Back to map                    
+                tr
+                    td Longitude: #{profile.strLon}
+                    if profile.containsBGC
+                        td 
+                            a(href='/catalog/profiles/'+ title + '/bgcPage'  style="color:green" target='_blank') To BGC Page
+                tr
+                    td Position QC: #{profile.position_qc}
+                    td External links:                       
+                tr
+                    td Dac: #{profile.dac}
+                    td 
+                        a(href=profile.nc_url) Link to profile data on Argo GDAC   
+                tr
+                    td Parameters: #{profile.formatted_station_parameters}
+                    td 
+                        a(href=profile.ifremerProfile target='_blank') Link to Ifremer visualization of this profile
+                tr
+                    td Positioning system: #{profile.POSITIONING_SYSTEM}
+                    td 
+                        a(href=profile.jcompsPlatform target='_blank') Link to platform on JCOMMOPS
+                tr
+                    td Platform type: #{profile.PLATFORM_TYPE}
+                tr
+                    td Data mode: #{profile.DATA_MODE}
+            button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
+            div(class='col-lg-3')
+                #map_plot
+            div(class='col-lg-9')
+                #TPS_CHART
+
+    script(type='text/javascript').
+        $.when(
+        $.getScript( "/javascripts/chartFunctions.js" ),
+        $.Deferred(function( deferred ){
+            $( deferred.resolve )
+        })
+        ).done(function(){
+        $('#downloadProfiles').on('click', function(){
+            var url = '/catalog/profiles/' + `#{title}`
+            window.open(url,'_blank')
+        })
+
+        function collateMeasurements(list) {
+            var map = {}
+            var keys = Object.keys(list[0])
+            map.pres = []
+            map.temp = []
+            map.psal = []
+
+            for (var i = 0; i < list.length; ++i) {
+                map.pres.push(list[i].pres)
+                map.temp.push(list[i].temp)
+                map.psal.push(list[i].psal)
+            }
+            return map
+        }
+
+        const lat = !{profile.lat}
+        const lon = !{profile.lon}
+        const _id = JSON.stringify(#{profile.platform_number}) + '_' + JSON.stringify(#{profile.cycle_number})
+
+        let meas = [!{profile.measurements}];
+        meas = collateMeasurements(meas)
+
+
+        //-999 signify empty values. These need to be removed from the arrays that will be used to make traces.
+        var temp = meas.temp
+        var psal = meas.psal
+        var pres = meas.pres
+
+        presVsTempMask = getMaskForPair(temp, pres)
+        presVsPsalMask = getMaskForTrio(psal, pres, temp)
+        tempVsPsalMask = getMaskForPair(psal, temp)
+
+        presForTemp = pres.filter((item, i) => presVsTempMask[i])
+        tempForPres = temp.filter((item, i) => presVsTempMask[i])
+
+        presForPsal = pres.filter((item, i) => presVsPsalMask[i])
+        psalForPres = psal.filter((item, i) => presVsPsalMask[i])
+
+        psalForTemp = psal.filter((item, i) => tempVsPsalMask[i])
+        tempForPsal = temp.filter((item, i) => tempVsPsalMask[i])
+        const roundArray = function (value){ return(Number(value).toFixed(3)) }
+
+        const measurements = {'temp_v_psal': {'yvalues': tempForPsal.map(roundArray),
+                                              'xvalues': psalForTemp.map(roundArray),
+                                              'yaxis': 'y1',
+                                              'xaxis': 'x1',
+                                              'ylabel': 'temperature: ',
+                                              'xlabel': 'salinity: ',
+                                              'yunits': ' C',
+                                              'xunits': ' psu'
+                                              },
+                              'pres_v_psal': {'yvalues': presForPsal.map(roundArray),
+                                              'xvalues': psalForPres.map(roundArray),
+                                              'yaxis': 'y2',
+                                              'xaxis': 'x2',
+                                              'ylabel': 'pressure: ',
+                                              'xlabel': 'salinity: ',
+                                              'yunits': ' dbar',
+                                              'xunits': ' psu'
+                                                },
+                              'pres_v_temp': {'yvalues': presForTemp.map(roundArray),
+                                              'xvalues': tempForPres.map(roundArray),
+                                              'yaxis': 'y3',
+                                              'xaxis': 'x3',
+                                              'ylabel': 'pressure: ',
+                                              'xlabel': 'temperature: ',
+                                              'yunits': ' dbar',
+                                              'xunits': ' C'
+                                                }
+                                }
+
+        let makeProfileText = function(ylabel, yunits, yvalue, xlabel, xunits, xvalue) {
+            text = "<br>" + ylabel + yvalue.toString() + yunits
+                 + "<br>" + xlabel + xvalue.toString() + xunits
+            return (text)
+        }
+
+        const makeProfileTrace =function(key) {
+            meas = measurements[key]
+            let hovorText = []
+            for(let idx=0; idx < meas.yvalues.length; idx++){
+                let pointText = makeProfileText(meas.ylabel,
+                                         meas.yunits,
+                                         meas.yvalues[idx],
+                                         meas.xlabel,
+                                         meas.xunits,
+                                         meas.xvalues[idx])
+                hovorText.push(pointText)
+            }
+            return {
+                y: meas.yvalues,
+                x: meas.xvalues,
+                text: hovorText,
+                hoverinfo: 'text',
+                xaxis: meas.xaxis,
+                yaxis: meas.yaxis,
+                mode: 'markers',
+                type: 'scatter',
+                name: key
+            }
+        }
+
+        const layout = {
+            title: "Profile measurements",
+            autosize: false,
+            height: 400, 
+            width: 1200, 
+
+            xaxis3: {
+                domain: [0, 0.266],
+                autorange: true,
+                title: "Temperature [Celsius]"
+            }, 
+            xaxis2: {
+                domain: [.366, 0.633],
+                autorange: true,
+                title: "Salinity [psu]"
+            }, 
+            xaxis: {
+                domain: [.733, 1],
+                autorange: true, 
+                title: "Salinity [psu]"
+            },
+            yaxis3: {
+                anchor: "x3",
+                autorange: 'reversed', 
+                type: "linear", 
+                title: "Pressure [dbar]"
+            },  
+            yaxis2: {
+                anchor: "x2",
+                autorange: 'reversed',
+                title: "Pressure [dbar]",
+            }, 
+            yaxis: {
+                anchor: "x1",
+                autorange: true, 
+                title: "Temperature [Celsius]"
+            }, 
+            hovermode: "closest", 
+            showlegend: false
+        }
+        Plotly.plot('TPS_CHART', ['pres_v_temp', 'pres_v_psal', 'temp_v_psal'].map(makeProfileTrace), layout)
+
+        const mapData = makeMap([lat], [lon], [_id])
+        Plotly.plot('map_plot', mapData.data, mapData.layout)
+        })

@@ -1,0 +1,227 @@
+doctype html
+html(lang='en')
+    head
+        title=title
+        meta(charset='utf-8')
+        link(rel='stylesheet', href='/stylesheets/style.css')
+        script(type="text/javascript", src='https://cdn.plot.ly/plotly-latest.min.js')
+        link(rel='stylesheet', href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css")
+        link(rel='stylesheet', href='/stylesheets/external-css/bootstrap-table.css')
+        script(src='/javascripts/external-js/FileSaver.min.js')
+        script(src='/javascripts/external-js/jquery.min.js')
+        script(src='/javascripts/external-js/bootstrap.min.js')
+        script(src='/javascripts/external-js/tableexport.min.js')
+        script(src="/javascripts/external-js/bootstrap-table.js")
+    body
+
+    block content
+        div(class='selection_and_catalog_page')
+            div(class='col-lg-3')
+                #map_plot
+            div(class='col-lg-3')
+                #PRES_V_TEMP_PLOT
+            div(class='col-lg-3')
+                #PRES_V_PSAL_PLOT
+            div(class='col-lg-3')
+                #TEMP_V_PSAL_PLOT
+            p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
+            div(class='top')
+                button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
+            div(class='bottom')
+                a(href='/' ) To main page
+            table(class="table table-striped", data-toggle="table")
+                thead(height='50px')
+                    tr
+                        th Link to GDAC data
+                        th(data-sortable='true') Dac
+                        th(data-sortable='true') Parameters
+                        th Link to profile page
+                        th(data-sortable='true') Date reported
+                        th(data-sortable='true') Cycle number
+                        th(data-sortable='true') Positioning system
+                        th(data-sortable='true' data-sorter="latSorter") Lat
+                        th(data-sortable='true' data-sorter="lonSorter") Lon
+                        th(data-sortable='true') Data mode
+                        th(data-sortable='true') Num. of meas.
+                tbody(overflow='auto', height='150px')
+                    each profile, i in JSON.parse(profiles)
+                        tr
+                            td
+                                a(href=profile.nc_url) #{profile._id} data
+                            td #{profile.dac}
+                            td #{profile.formatted_station_parameters}
+                            td
+                                a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
+                            td #{moment.utc(profile.date).format("YYYY-MM-DD HH:mm")}
+                            td #{profile.cycle_number}
+                            td #{profile.POSITIONING_SYSTEM}
+                            td #{profile.strLat}
+                            td #{profile.strLon}
+                            td #{profile.DATA_MODE}
+                            td #{profile.measurements.length}
+
+    script(type='text/javascript').
+        TableExport(document.getElementsByTagName("table"), {
+            headers: true,                              // (Boolean), display table headers (th or td elements) in the <thead>, (default: true)
+            footers: true,                              // (Boolean), display table footers (th or td elements) in the <tfoot>, (default: false)
+            formats: ['csv', 'xlsx', 'xls', 'txt'],             // (String[]), filetype(s) for the export, (default: ['xls', 'csv', 'txt'])
+            filename: 'selection_table',                             // (id, String), filename for the downloaded file, (default: 'id')
+            bootstrap: true,                           // (Boolean), style buttons using bootstrap, (default: true)
+            exportButtons: true,                        // (Boolean), automatically generate the built-in export buttons for each of the specified formats (default: true)
+            position: 'bottom',                         // (top, bottom), position of the caption element relative to table, (default: 'bottom')
+            ignoreRows: null,                           // (Number, Number[]), row indices to exclude from the exported file(s) (default: null)
+            ignoreCols: null,                           // (Number, Number[]), column indices to exclude from the exported file(s) (default: null)
+            trimWhitespace: true                        // (Boolean), remove all leading/trailing newlines, spaces, and tabs from cell text in the exported file(s) (default: false)
+        })
+
+        $('#downloadProfiles').on('click', function(){
+            var url =  window.location.href.replace("page", "")
+            window.open(url,'_blank');
+        })
+
+    script(type='text/javascript').
+        $.when(
+        $.getScript( "/javascripts/chartFunctions.js" ),
+        $.getScript( "/javascripts/scatterChartFunctions.js" ),
+        $.Deferred(function( deferred ){
+            $( deferred.resolve )
+        })
+        ).done(function(){
+        const profiles = !{profiles}
+
+        const dataArrays = makeScatterChartDataArrays(profiles)
+        const chartData = filterScatterChartDataArrays(dataArrays)
+
+
+        const profileScl2 = [[0.0,   'rgb(166,206,227)'],
+                           [0.125, 'rgb(31,120,180)'],
+                           [0.25,  'rgb(178,223,138)'],
+                           [0.375, 'rgb(51,160,44)'],
+                           [0.5,   'rgb(251,154,153)'],
+                           [0.625, 'rgb(227,26,28)'],
+                           [0.75,  'rgb(253,191,111)'],
+                           [0.875, 'rgb(255,127,0)'],
+                           [1.0,   'rgb(202,178,214)']]
+
+        pres_v_temp_trace = makeScatterChartTrace(chartData.tempForPres.map(roundArray),
+                                      chartData.presForTemp.map(roundArray),
+                                      chartData.cvaluesForTempVsPres.map(roundArray),
+                                      chartData._idsForTempVsPres,
+                                      'pres_v_temp',
+                                      profileScl2,
+                                      'pressure: ',
+                                      'temperature: ',
+                                      ' dbar',
+                                      ' C')
+        pres_v_psal_trace = makeScatterChartTrace(chartData.psalForPres.map(roundArray),
+                                      chartData.presForPsal.map(roundArray),
+                                      chartData.cvaluesForPsalVsPres.map(roundArray),
+                                      chartData._idsForPsalVsPres,
+                                      'pres_v_psal',
+                                      profileScl2,
+                                      'pressure: ',
+                                      'salinity: ',
+                                      ' dbar',
+                                      ' psu')
+        temp_v_psal_trace = makeScatterChartTrace(chartData.psalForTemp.map(roundArray),
+                                      chartData.tempForPsal.map(roundArray),
+                                      chartData.cvaluesForTempVsPsal.map(roundArray),
+                                      chartData._idsForTempVsPsal,
+                                      'temp_v_psal',
+                                      profileScl2,
+                                      'temperature: ',
+                                      'salinity: ',
+                                      ' C',
+                                      ' psu')
+
+        //create layouts.
+        const pres_v_temp_layout = {
+            title: "Pressure vs Temperature",
+            autosize: true,
+            height: 500, 
+            width: 500,
+            xaxis: {
+                autorange: true,
+                title: "Temperature [Celsius]"
+            },
+            yaxis: {
+                showticklabels: true,
+                autorange: 'reversed',
+                type: "linear",
+                title: "Pressure [dbar]"
+            },
+            hovermode: "closest", 
+            showlegend: false
+        }
+
+        const pres_v_psal_layout = {
+            title: "Pressure vs Salinity",
+            autosize: true,
+            height: 500, 
+            width: 500,
+            xaxis: {
+                autorange: true, 
+                title: "Salinity [psu]"
+            },
+            yaxis: {
+                showticklabels: true,
+                autorange: 'reversed',
+                type: "linear",
+                title: "Pressure [dbar]"
+            },
+            hovermode: "closest", 
+            showlegend: false
+        }
+
+        const temp_v_psal_layout = {
+            title: "Temperature vs Salinity",
+            autosize: true,
+            height: 500, 
+            width: 500,
+            xaxis: {
+                autorange: true, 
+                title: "Salinity [psu]"
+            },
+            yaxis: {
+                showticklabels: true,
+                autorange: true,
+                type: "linear",
+                title: "Temperature [Celsius]"
+            }, 
+            hovermode: "closest", 
+            showlegend: false
+        }
+        
+        Plotly.plot('PRES_V_TEMP_PLOT',
+                    pres_v_temp_trace,
+                    pres_v_temp_layout)
+        Plotly.plot('PRES_V_PSAL_PLOT',
+                    pres_v_psal_trace,
+                    pres_v_psal_layout)
+        Plotly.plot('TEMP_V_PSAL_PLOT',
+                    temp_v_psal_trace,
+                    temp_v_psal_layout)
+
+        const mapData = makeMap(dataArrays.lats, dataArrays.longs, dataArrays.ids)
+
+        Plotly.plot('map_plot', mapData.data, mapData.layout)
+
+
+         // Upon click a new tab opens to the corresponding profile.
+        PRES_V_TEMP_PLOT.on('plotly_click', function(data){
+            linkToProfilePage(data)
+        })
+                 // Upon click a new tab opens to the corresponding profile.
+        PRES_V_PSAL_PLOT.on('plotly_click', function(data){
+            linkToProfilePage(data)
+        })
+                 // Upon click a new tab opens to the corresponding profile.
+        TEMP_V_PSAL_PLOT.on('plotly_click', function(data){
+            linkToProfilePage(data)
+        })
+
+        map_plot.on('plotly_click', function(data){
+            mapLinkToProfilePage(data)
+        })
+
+        })

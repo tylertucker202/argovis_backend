@@ -10,6 +10,8 @@ let chaiHttp = require('chai-http');
 let app = require('../app');
 let should = chai.should();
 let generate = require('./../public/javascripts/generate_arrays_for_plotting.js')
+
+
 chai.use(chaiHttp);
 
 /* Test catalog */

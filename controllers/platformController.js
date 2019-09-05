@@ -66,7 +66,19 @@ exports.platform_detail = function (req, res, next) {
         else if (req.params.format==='page2'){
             if (profiles.length === 0) { res.send('platform not found'); }
             else {
-                res.render('selected_profile_page_collated', {title:req.params.platform_number, profiles: JSON.stringify(profiles), moment: moment })
+                res.render('platform_page_2', {title:req.params.platform_number, profiles: JSON.stringify(profiles), moment: moment })
+            }
+        }
+        else if (req.params.format==='devpage'){
+            if (profiles.length === 0) { res.send('platform not found'); }
+            else {
+                res.render('platform_page_dev', {title:req.params.platform_number, profiles: JSON.stringify(profiles), moment: moment })
+            }
+        }
+        else if (req.params.format==='devpage2'){
+            if (profiles.length === 0) { res.send('platform not found'); }
+            else {
+                res.render('platform_page_2_dev', {title:req.params.platform_number, profiles: JSON.stringify(profiles), moment: moment })
             }
         }
         else if (req.params.format==='bgcPage'){

@@ -1,4 +1,6 @@
 module.exports = {
+
+
 collateProfileMeasurements: function(profile) {
     var collatedProfiles = {};
     let num_measurements = profile.length;
