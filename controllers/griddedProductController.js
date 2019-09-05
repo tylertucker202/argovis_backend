@@ -68,11 +68,6 @@ exports.get_window = function(req, res , next) {
         GridModel = Grid.RGGrid
     }
 
-    console.log(latRange)
-    console.log(lonRange)
-    console.log(monthYear.toDate())
-    console.log(pres)
-
     var query = GridModel.aggregate([
         {$match: {pres: pres}},
         {$match: {date: monthYear.toDate()}},

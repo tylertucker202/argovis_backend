@@ -12,40 +12,13 @@ let should = chai.should();
 
 chai.use(chaiHttp);
 
-/* Test selection */
 describe('/GET map from /', function() {
-    this.timeout(500);
+    this.timeout(3000);
     it('it successfully get the angular map page from /.', (done) => {
           chai.request(app)
           .get('/')
           .end((err, res) => {
-              //test overall response
-              res.should.have.status(200);
-              done();
-          });
-    });
-  });
-
-describe('/GET map', function() {
-    this.timeout(500);
-    it('it successfully get the pug map page from /map.', (done) => {
-          chai.request(app)
-          .get('/map')
-          .end((err, res) => {
-              //test overall response
-              res.should.have.status(200);
-              done();
-          });
-    });
-  });
-
-  describe('/GET map', function() {
-    this.timeout(500);
-    it('it successfully get the angular map page from /map=WM.', (done) => {
-          chai.request(app)
-          .get('/?map=WM')
-          .end((err, res) => {
-              //test overall response
+              const status = res.status
               res.should.have.status(200);
               done();
           });
