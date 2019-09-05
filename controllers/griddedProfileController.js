@@ -11,17 +11,10 @@ exports.meta_date_selection = function(req, res, next) {
 
     if (req.query.basin) {
         var basin = JSON.parse(req.query.basin)
-        console.log(basin)
     }
 
     const startDate = moment.utc(req.params.startDate)
     const endDate = moment.utc(req.params.endDate)
-
-    console.log(req.params.startDate)
-    console.log(req.params.endDate)
-
-    console.log(startDate.toDate())
-    console.log(endDate.toDate())
 
     req.getValidationResult().then(function (result) {
         if (!result.isEmpty()) {
@@ -87,6 +80,7 @@ exports.pres_layer_selection = function(req, res , next) {
                 {$project: { //need to include all fields that you wish to keep.
                     nc_url: 1,
                     position_qc: 1,
+                    date_qc: 1,
                     cycle_number: 1,
                     dac: 1,
                     date:1,
