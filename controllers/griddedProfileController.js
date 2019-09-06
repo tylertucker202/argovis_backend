@@ -16,7 +16,7 @@ exports.meta_date_selection = function(req, res, next) {
                 }
     }
     else{
-       var match = {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}
+       var match = { $match: {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} }
     }
 
     const startDate = moment.utc(req.params.startDate)
@@ -68,7 +68,7 @@ exports.pres_layer_selection = function(req, res , next) {
                 }
     }
     else{
-        var match = {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}
+        var match = { $match: {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} }
     }
 
 
