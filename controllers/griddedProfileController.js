@@ -9,8 +9,15 @@ exports.meta_date_selection = function(req, res, next) {
     req.sanitize('endDate').toDate();
 
 
+    const match
     if (req.query.basin) {
         var basin = JSON.parse(req.query.basin)
+        match = {$match:  {$and: [ {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}},
+                        {BASIN: basin}]}
+                }
+    }
+    else{
+        match = {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}
     }
 
     const startDate = moment.utc(req.params.startDate)
@@ -25,20 +32,8 @@ exports.meta_date_selection = function(req, res, next) {
             console.log(errors)
             res.render('error', { errors: errors });
         }
-        else if (basin) {
-            var match = {$match:  {$and: [ {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}},
-                                           {BASIN: basin}]}
-                        }
-            var query = Profile.aggregate([
-                match, 
-                {$project: metaDateSliceParams},
-            ]);        
-        }
         else {
-            var match = {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}
-            var query = Profile.aggregate([ match, 
-                                            {$project: metaDateSliceParams},
-            ]);
+            var query = Profile.aggregate([ match, {$project: metaDateSliceParams} ]);
         }
         let promise = query.exec();
         promise
@@ -67,6 +62,19 @@ exports.pres_layer_selection = function(req, res , next) {
     const startDate = moment.utc(req.query.startDate, 'YYYY-MM-DD');
     const endDate = moment.utc(req.query.endDate, 'YYYY-MM-DD');
 
+    const match
+    if (req.query.basin) {
+        var basin = JSON.parse(req.query.basin)
+        match = {$match:  {$and: [ {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}},
+                        {BASIN: basin}]}
+                }
+    }
+    else{
+        match = {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}
+    }
+
+
+
     req.getValidationResult().then(function (result) {
         if (!result.isEmpty()) {
             var errors = result.array().map(function (elem) {
@@ -76,11 +84,12 @@ exports.pres_layer_selection = function(req, res , next) {
         }
         else {
             var query = Profile.aggregate([
-                {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+                {$match:  match,
                 {$project: { //need to include all fields that you wish to keep.
                     nc_url: 1,
                     position_qc: 1,
                     date_qc: 1,
+                    basin: 1,
                     cycle_number: 1,
                     dac: 1,
                     date:1,
@@ -110,6 +119,7 @@ exports.pres_layer_selection = function(req, res , next) {
                     nc_url: 1,
                     position_qc: 1,
                     date_qc: 1,
+                    basin: 1,
                     cycle_number: 1,
                     dac: 1,
                     date:1,
