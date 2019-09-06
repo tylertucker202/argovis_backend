@@ -9,15 +9,14 @@ exports.meta_date_selection = function(req, res, next) {
     req.sanitize('endDate').toDate();
 
 
-    const match
     if (req.query.basin) {
-        var basin = JSON.parse(req.query.basin)
-        match = {$match:  {$and: [ {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}},
+        const basin = JSON.parse(req.query.basin)
+        var match = {$match:  {$and: [ {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}},
                         {BASIN: basin}]}
                 }
     }
     else{
-        match = {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}
+       var match = {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}
     }
 
     const startDate = moment.utc(req.params.startDate)
@@ -62,15 +61,14 @@ exports.pres_layer_selection = function(req, res , next) {
     const startDate = moment.utc(req.query.startDate, 'YYYY-MM-DD');
     const endDate = moment.utc(req.query.endDate, 'YYYY-MM-DD');
 
-    const match
     if (req.query.basin) {
-        var basin = JSON.parse(req.query.basin)
-        match = {$match:  {$and: [ {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}},
+        const basin = JSON.parse(req.query.basin)
+        var match = {$match:  {$and: [ {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}},
                         {BASIN: basin}]}
                 }
     }
     else{
-        match = {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}
+        var match = {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}
     }
 
 
@@ -84,7 +82,7 @@ exports.pres_layer_selection = function(req, res , next) {
         }
         else {
             var query = Profile.aggregate([
-                {$match:  match,
+                match,
                 {$project: { //need to include all fields that you wish to keep.
                     nc_url: 1,
                     position_qc: 1,
