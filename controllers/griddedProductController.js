@@ -45,7 +45,6 @@ exports.get_window = function(req, res , next) {
     else {
         var lonRange = [40, 45]
     }
-
     if (req.query.monthYear) {
         var monthYear = moment(req.query.monthYear, 'MM-YYYY').utc().startOf('day')
     }
