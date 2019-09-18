@@ -12,6 +12,8 @@ router.get('/', function(req, res) {
 
 router.get('/presSlice/:format?', gridding_controller.pres_layer_selection);
 
+router.get('/presSliceForInterpolation/:format?', gridding_controller.layer_for_interpolation);
+
 router.get('/metaDate/:startDate/:endDate?', gridding_controller.meta_date_selection);
 
 module.exports = router;
