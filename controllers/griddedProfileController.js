@@ -284,7 +284,6 @@ exports.layer_for_interpolation = function(req, res , next) {
                     DATA_MODE: 1,
                     measurements: { $concatArrays: [ "$upperMeas", "$lowerMeas" ] }  
                 }},
-                {$limit : 5 }
                 ]);
         }
         var promise = query.exec();
