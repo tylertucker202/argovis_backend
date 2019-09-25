@@ -4,6 +4,7 @@ var Schema = mongoose.Schema;
 var GridSchema = Schema(
   {
     _id: {type: String, required: true, max: 100},
+    gridName: {type: String, required: false},
     dataVal: {type: String, required: true},
     data: [{ LONGITUDE: {type: Number, required: true},
              LATITUDE: {type: Number, required: true},
@@ -17,5 +18,7 @@ var GridSchema = Schema(
 );
 
 module.exports = {}
-module.exports.KuuselaGrid = mongoose.model('kuusela', GridSchema, 'kuusela');
-module.exports.RGGrid = mongoose.model('rgTempAnom', GridSchema, 'rgTempAnom');
+module.exports.ksSpaceTempNoTrend = mongoose.model('ksSpaceTempNoTrend', GridSchema, 'ksSpaceTempNoTrend');
+module.exports.ksSpaceTempTrend = mongoose.model('ksSpaceTempTrend', GridSchema, 'ksSpaceTempTrend');
+module.exports.ksSpaceTempTrend2 = mongoose.model('ksSpaceTempTrend2', GridSchema, 'ksSpaceTempTrend2');
+module.exports.rgTempAnom = mongoose.model('rgTempAnom', GridSchema, 'rgTempAnom');

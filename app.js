@@ -13,8 +13,7 @@ var index = require('./routes/index');
 var catalog = require('./routes/catalog');  //Import routes for "catalog" area of site
 var selection = require('./routes/selection');  //Import routes for "selection" area of site
 var gridding = require('./routes/gridding');  //Import routes for "selection" area of site
-var kuuselaGrid = require('./routes/kuuselaGrid');  //Import routes for "gridding" area of site
-var rgGrid = require('./routes/rgGrid');  //Import routes for "gridding" area of site
+var griddedProducts = require('./routes/griddedProducts');  //Import routes for "griddedProduct" area of site
 var covarGrid = require('./routes/covarGrid'); //Import used for gridding
 
 
@@ -89,8 +88,7 @@ app.use('/catalog', catalog);
 app.use('/selection', selection);
 app.use('/gridding', gridding);
 app.use('/covarGrid', covarGrid);
-app.use('/kuuselaGrid', kuuselaGrid);
-app.use('/rgGrid', rgGrid);
+app.use('/griddedProducts', griddedProducts);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
