@@ -55,8 +55,10 @@ exports.platform_detail = function (req, res, next) {
     if (req.params.format==='map') {
         query.select(mapParams);
     }
+    
     query.exec(function (err, profiles) {
         if (err) return next(err);
+
         if (req.params.format==='page'){
             if (profiles.length === 0) { res.send('platform not found'); }
             else {

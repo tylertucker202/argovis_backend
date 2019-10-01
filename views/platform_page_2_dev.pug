@@ -25,11 +25,6 @@ html(lang='en')
                     #PRES_V_PSAL_PLOT
                 div(class='col-lg-3')
                     #TEMP_V_PSAL_PLOT
-            div(class='row')
-                div(class='col-lg-3')
-                    #temp_histogram_chart
-                div(class='col-lg-3')
-                    #psal_histogram_chart
             p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
             div(class='top')
                 button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
@@ -47,7 +42,7 @@ html(lang='en')
                         th(data-sortable='true') Positioning system
                         th(data-sortable='true' data-sorter="latSorter") Lat
                         th(data-sortable='true' data-sorter="lonSorter") Lon
-                        th(data-sortable='true') Data mode
+                        th(data-sortable='true') Core Data mode
                         th(data-sortable='true') Num. of meas.
                 tbody(overflow='auto', height='150px')
                     each profile, i in JSON.parse(profiles)
@@ -63,7 +58,7 @@ html(lang='en')
                             td #{profile.POSITIONING_SYSTEM}
                             td #{profile.strLat}
                             td #{profile.strLon}
-                            td #{profile.DATA_MODE}
+                            td #{profile.core_data_mode}
                             td #{profile.measurements.length}
 
     script(type='text/javascript').
@@ -113,6 +108,7 @@ html(lang='en')
                                       chartData.presForTemp.map(roundArray),
                                       chartData.cvaluesForTempVsPres.map(roundArray),
                                       chartData._idsForTempVsPres,
+                                      chartData.data_modesForTempVsPres,
                                       'pres_v_temp',
                                       profileScl2,
                                       'pressure: ',
@@ -123,6 +119,7 @@ html(lang='en')
                                       chartData.presForPsal.map(roundArray),
                                       chartData.cvaluesForPsalVsPres.map(roundArray),
                                       chartData._idsForPsalVsPres,
+                                      chartData.data_modesForPsalVsPres,
                                       'pres_v_psal',
                                       profileScl2,
                                       'pressure: ',
@@ -133,6 +130,7 @@ html(lang='en')
                                       chartData.tempForPsal.map(roundArray),
                                       chartData.cvaluesForTempVsPsal.map(roundArray),
                                       chartData._idsForTempVsPsal,
+                                      chartData.data_modesForTempVsPsal,
                                       'temp_v_psal',
                                       profileScl2,
                                       'temperature: ',
@@ -211,12 +209,6 @@ html(lang='en')
         const mapData = makeMap(dataArrays.lats, dataArrays.longs, dataArrays.ids)
 
         Plotly.plot('map_plot', mapData.data, mapData.layout)
-
-        const tempHistData = makeHistogram(chartData.tempForPres, 'Temperature [Celsius]')
-        Plotly.plot('temp_histogram_chart', tempHistData.data, tempHistData.layout)
-
-        const psalHistData = makeHistogram(chartData.psalForPres, 'Salinity [psu]')
-        Plotly.plot('psal_histogram_chart', psalHistData.data, psalHistData.layout)
 
 
          // Upon click a new tab opens to the corresponding profile.

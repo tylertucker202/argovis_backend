@@ -71,6 +71,22 @@ ProfileSchema
 });
 
 ProfileSchema
+.virtual('core_data_mode')
+.get(function() {
+  let core_data_mode
+  if (this.DATA_MODE) {
+    core_data_mode = this.DATA_MODE
+  }
+  else if (this.PARAMETER_DATA_MODE.length > 0) {
+    core_data_mode = this.PARAMETER_DATA_MODE[0]
+  }
+  else {
+    core_data_mode = 'Unknown'
+  }
+  return core_data_mode
+})
+
+ProfileSchema
 .virtual('jcompsPlatform')
 .get(function () {
   return 'http://www.jcommops.org/board/wa/Platform?ref=' + this.platform_number

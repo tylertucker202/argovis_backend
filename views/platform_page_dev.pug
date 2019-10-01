@@ -23,11 +23,6 @@ html(lang='en')
                 div(class='col-lg-9')
                     #pres_v_temp_plot
                     #pres_v_psal_plot
-            div(class='row')
-                div(class='col-lg-3')
-                    #temp_histogram_chart
-                div(class='col-lg-3')
-                    #psal_histogram_chart
             p Disclaimer: profiles with Iridium (Positioning System GPS) plot only 200 points max.
             button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
             div(class='top')
@@ -49,7 +44,7 @@ html(lang='en')
                         th Link to profile page
                         th(data-sortable='true') Date reported
                         th(data-sortable='true') Cycle number
-                        th(data-sortable='true') Data mode
+                        th(data-sortable='true') Core Data mode
                         th(data-sortable='true') Num. of meas.
                 tbody(overflow='auto', height='150px')
                     each profile, i in JSON.parse(profiles)
@@ -65,7 +60,7 @@ html(lang='en')
                                 a(href='/catalog/profiles/'+profile._id + '/page' target='_blank') #{profile._id} page
                             td #{moment.utc(profile.date).format("YYYY-MM-DD HH:mm")}
                             td #{profile.cycle_number}
-                            td #{profile.DATA_MODE}
+                            td #{profile.core_data_mode}
                             td #{profile.measurements.length}
 
     script(type='text/javascript').
@@ -148,12 +143,6 @@ html(lang='en')
         Plotly.plot('pres_v_psal_plot', 
                     makeColorChartTrace( measurements['pres_v_psal'], 'pres_v_psal'),
                     psal_layout)
-
-        const tempHistData = makeHistogram(chartData.tempForPres, 'Temperature [Celsius]')
-        Plotly.plot('temp_histogram_chart', tempHistData.data, tempHistData.layout)
-
-        const psalHistData = makeHistogram(chartData.psalForPres, 'Salinity [psu]')
-        Plotly.plot('psal_histogram_chart', psalHistData.data, psalHistData.layout)
 
         mapData = makeMap(dataArrays.lats, dataArrays.longs, dataArrays.ids)
 

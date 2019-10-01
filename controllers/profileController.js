@@ -254,6 +254,7 @@ exports.selected_profile_list = function(req, res , next) {
                         },
                     },
                     DATA_MODE: -1,
+                    core_data_mode: 1,
                 }},
                 { $match: { $and: [ {geoLocation: {$geoWithin: {$geometry: shapeJson}}},
                                     {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} ] } },
@@ -285,9 +286,6 @@ exports.selected_profile_list = function(req, res , next) {
                     lat: 1,
                     lon: 1,
                     position_qc: 1,
-                    PLATFORM_TYPE: 1,
-                    POSITIONING_SYSTEM: 1,
-                    DATA_MODE: 1,
                     station_parameters: 1,
                     VERTICAL_SAMPLING_SCHEME: 1,
                     STATION_PARAMETERS_inMongoDB: 1,
@@ -297,10 +295,10 @@ exports.selected_profile_list = function(req, res , next) {
                     basin: 1,
                     nc_url: 1,
                     geoLocation: 1,
-                    station_parameters: 1,
                     maximum_pressure: 1,
                     POSITIONING_SYSTEM: 1,
                     DATA_MODE: 1,
+                    core_data_mode: 1,
                     PLATFORM_TYPE: 1,
                     measurements: {
                         $filter: {
@@ -328,7 +326,21 @@ exports.selected_profile_list = function(req, res , next) {
         promise
         .then(function (profiles) {
             //create virtural fields.
+
+
             for(let idx=0; idx < profiles.length; idx++){
+                let core_data_mode
+                if (profiles[idx].DATA_MODE) {
+                  core_data_mode = profiles[idx].DATA_MODE
+                }
+                else if (profiles[idx].PARAMETER_DATA_MODE) {
+                  core_data_mode = profiles[idx].PARAMETER_DATA_MODE[0]
+                }
+                else {
+                  core_data_mode = 'Unknown'
+                }
+                profiles[idx].core_data_mode =  core_data_mode
+
                 let lat = profiles[idx].lat;
                 let lon = profiles[idx].lon;
                 profiles[idx].roundLat = Number(lat).toFixed(3);
