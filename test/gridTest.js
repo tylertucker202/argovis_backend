@@ -9,9 +9,9 @@ var moment = require('moment');
 chai.use(chaiHttp);
 
 /* Test rgGrid */
-describe('/GET get a rgTempAnom object', function() {
+describe('/GET get a RG temp anom object', function() {
     this.timeout(5000);
-    const url = '/rgGrid/find'
+    const url = '/griddedProducts/rgTempAnom/find'
     it('it should a get a rgTempAnom object', (done) => {
       chai.request(app)
       .get(url)
@@ -34,9 +34,9 @@ describe('/GET get a rgTempAnom object', function() {
     });
   });
 
-  describe('/GET get a kuuselaGrid object', function() {
+  describe('/GET get a ksSpaceTempTrend object', function() {
     this.timeout(5000);
-    const url = '/kuuselaGrid/find'
+    const url = '/griddedProducts/ksSpaceTempTrend/find'
     it('it should a get a kuuselaGrid object', (done) => {
       chai.request(app)
       .get(url)
