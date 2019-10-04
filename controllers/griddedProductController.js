@@ -1,4 +1,5 @@
 var Grid = require('../models/grid');
+var GridParam = require('../models/gridParam');
 var GJV = require('geojson-validation');
 var moment = require('moment');
 
@@ -13,6 +14,15 @@ const get_grid_model = function(grid) {
             break;
         case 'ksSpaceTempTrend2':
             GridModel = Grid.ksSpaceTempTrend2
+            break;
+        case 'ksSpaceTimeTempNoTrend':
+            GridModel = Grid.ksSpaceTimeTempNoTrend
+            break;
+        case 'ksSpaceTimeTempTrend':
+            GridModel = Grid.ksSpaceTimeTempTrend
+            break;
+        case 'ksSpaceTimeTempTrend2':
+            GridModel = Grid.ksSpaceTimeTempTrend2
             break;
         case 'rgGrid':
             GridModel = Grid.rgTempAnom
@@ -30,6 +40,37 @@ exports.find_one = function(req, res , next) {
     let GridModel = get_grid_model(gridStr)
     console.log('my grid is', gridStr)
     var query = GridModel.find({}, {});
+    query.limit(1)
+    query.exec( function (err, grid) {
+        if (err) { return next(err); }
+        res.json(grid);
+    });
+}
+
+exports.find_grid_param = function(req, res , next) {
+    req.sanitize('measurement').escape();
+    req.sanitize('measurement').trim();
+    req.sanitize('pres').escape();
+    req.sanitize('pres').trim();
+    req.sanitize('model').escape();
+    req.sanitize('model').trim();
+    req.sanitize('trend').escape();
+    req.sanitize('trend').trim();
+    req.sanitize('param').escape();
+    req.sanitize('param').trim();
+
+    req.checkParams('pres', 'pres should be numeric.').isNumeric();
+    req.checkParams('model', 'model should be string.').isAlpha();
+    req.checkParams('trend', 'trend should be alphanumeric string (Trend, Trend2, NoTrend).').isAlphanumeric();
+    req.checkParams('param', 'param should be string.').isAlpha();
+
+    const pres = req.params.pres
+    const model = req.params.model
+    const trend = req.params.trend
+    const param = req.params.param
+
+    console.log(req.params)
+    const query = GridParam.find({pres: pres, model: model, trend: trend, param: param}, {model: 1, param:1, measurement: 1, trend: 1, pres: 1});
     query.limit(1)
     query.exec( function (err, grid) {
         if (err) { return next(err); }
