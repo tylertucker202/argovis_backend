@@ -1,11 +1,12 @@
 var Grid = require('../models/grid');
-var GridParam = require('../models/gridParam');
-var GJV = require('geojson-validation');
+var GridParameter = require('../models/gridParam');
 var moment = require('moment');
 
 const get_grid_name= function(grid, param) {
+    grid = grid.replace('ks', 'kslocalMLE')
+    grid = grid.replace('Temp', '')
     let trend = 'Trend'
-    if (grid.contains('NoTrend')) {
+    if (grid.includes('NoTrend')) {
         trend = 'NoTrend'
     }
     const paramTrend = param + trend
@@ -43,13 +44,13 @@ const get_grid_model = function(grid) {
     return GridModel
 }
 
-exports.find_one = function(req, res , next) {
+exports.find_grid = function(req, res , next) {
     req.sanitize('grid').escape();
     req.sanitize('grid').trim();
     const gridStr = req.params.grid
-    let GridModel = get_grid_model(gridStr)
+    const GridModel = get_grid_model(gridStr)
     console.log('my grid is', gridStr)
-    var query = GridModel.find({}, {});
+    const query = GridModel.find({}, {});
     query.limit(1)
     query.exec( function (err, grid) {
         if (err) { return next(err); }
@@ -60,21 +61,23 @@ exports.find_one = function(req, res , next) {
 exports.find_grid_param = function(req, res , next) {
     req.sanitize('grid').escape();
     req.sanitize('grid').trim();
-    req.sanitize('pres').escape();
-    req.sanitize('pres').trim();
+    req.sanitize('presLevel').escape();
+    req.sanitize('presLevel').trim();
     req.sanitize('param').escape();
     req.sanitize('param').trim();
 
-    req.checkParams('pres', 'pres should be numeric.').isNumeric();
+    req.checkParams('presLevel', 'pres should be numeric.').isNumeric();
     req.checkParams('param', 'param should be string.').isAlpha();
     req.checkParams('grid', 'grid should be string.').isAlphanumeric();
-    const pres = JSON.parse(req.query.pres)
+    const pres = JSON.parse(req.query.presLevel)
     const grid = req.query.grid
     const param = req.query.param
 
     const gridName = get_grid_name(grid, param)
+
+    console.log(pres, gridName)
     
-    const query = GridParam.find({pres: pres, gridName}, {model: 1, param:1, measurement: 1, trend: 1, pres: 1});
+    const query = GridParameter.find({pres: pres, gridName}, {model: 1, param:1, measurement: 1, trend: 1, pres: 1});
     query.limit(1)
     query.exec( function (err, grid) {
         if (err) { return next(err); }
@@ -86,49 +89,29 @@ exports.find_grid_param = function(req, res , next) {
 exports.get_grid_window = function(req, res , next) {
     req.sanitize('grid').escape();
     req.sanitize('grid').trim();
-
-    req.checkQuery('pres', 'pres should be numeric.').isNumeric();
+    req.sanitize('presLevel').escape();
+    req.sanitize('presLevel').trim();
     req.sanitize('latRange').escape();
     req.sanitize('latRange').trim();
     req.sanitize('lonRange').escape();
     req.sanitize('lonRange').trim();
+    req.sanitize('param').escape();
+    req.sanitize('param').trim();
     req.sanitize('monthYear').escape();
     req.sanitize('monthYear').trim();
 
-    const gridStr = req.params.grid
-    console.log('my grid is', gridStr)
-    console.log(req.query)
+    req.checkParams('presLevel', 'presLevel should be numeric.').isNumeric();
+    req.checkParams('param', 'param should be string.').isAlpha();
+    req.checkParams('grid', 'grid should be string.').isAlphanumeric();
+    const pres = JSON.parse(req.query.presLevel)
+    const gridStr = req.query.grid
+    const latRange = JSON.parse(req.query.latRange)
+    const lonRange = JSON.parse(req.query.lonRange)
+    const monthYear = moment(req.query.monthYear, 'MM-YYYY').utc().startOf('D')
 
-    if (req.query.latRange) {
-        var latRange = JSON.parse(req.query.latRange);
-    }
-    else {
-        var latRange = [-5, 5]
-    }
+    const GridModel = get_grid_model(gridStr)
 
-    if (req.query.lonRange) {
-        var lonRange = JSON.parse(req.query.lonRange);
-    }
-    else {
-        var lonRange = [40, 45]
-    }
-    if (req.query.monthYear) {
-        var monthYear = moment(req.query.monthYear, 'MM-YYYY').utc().startOf('D')
-    }
-    else {
-        var monthYear = moment('02-2007', 'MM-YYYY').utc().startOf('D')
-    }
-
-    if (req.query.presLevel) {
-        var pres = JSON.parse(req.query.presLevel)
-    }
-    else {
-        var pres = 10;
-    }
-
-    let GridModel = get_grid_model(gridStr)
-
-    var query = GridModel.aggregate([
+    const query = GridModel.aggregate([
         {$match: {pres: pres}},
         {$match: {date: monthYear.toDate()}},
         {$project: { // query for lat lng ranges
@@ -192,8 +175,8 @@ exports.get_grid_window = function(req, res , next) {
 exports.get_param_window = function(req, res , next) {
     req.sanitize('grid').escape();
     req.sanitize('grid').trim();
-    req.sanitize('pres').escape();
-    req.sanitize('pres').trim();
+    req.sanitize('presLevel').escape();
+    req.sanitize('presLevel').trim();
     req.sanitize('latRange').escape();
     req.sanitize('latRange').trim();
     req.sanitize('lonRange').escape();
@@ -201,10 +184,10 @@ exports.get_param_window = function(req, res , next) {
     req.sanitize('param').escape();
     req.sanitize('param').trim();
 
-    req.checkParams('pres', 'pres should be numeric.').isNumeric();
+    req.checkParams('presLevel', 'presLevel should be numeric.').isNumeric();
     req.checkParams('param', 'param should be string.').isAlpha();
     req.checkParams('grid', 'grid should be string.').isAlphanumeric();
-    const pres = JSON.parse(req.query.pres)
+    const pres = JSON.parse(req.query.presLevel)
     const grid = req.query.grid
     const param = req.query.param
 
@@ -212,14 +195,18 @@ exports.get_param_window = function(req, res , next) {
     const lonRange = JSON.parse(req.query.lonRange)
     const gridName = get_grid_name(grid, param)
 
-    var query = GridParam.aggregate([
-        {$match: {pres: pres, gridName}},
+    console.log(gridName, pres)
+
+
+    const query = GridParameter.aggregate([
+        {$match: {pres: pres, gridName: gridName}},
         {$project: { // query for lat lng ranges
             pres: -1,
             cellsize: -1,
             NODATA_value: -1,
             gridName: -1,
             measurement: -1,
+            param: -1,
             data: {
                 $filter: {
                     input: '$data',
@@ -239,6 +226,7 @@ exports.get_param_window = function(req, res , next) {
         {$group: {_id: '$_id', //collection for nrows and ncolumns
                         'pres': {$first: '$pres'},
                         'measurement': {$first: '$measurement'},
+                        'param': {$first: '$param'},
                         'cellXSize': {$first: '$cellsize'},
                         'cellYSize': {$first: '$cellsize'},
                         'noDataValue': {$first: '$NODATA_value'},
@@ -257,6 +245,7 @@ exports.get_param_window = function(req, res , next) {
             noDataValue: -1,
             gridName: -1,
             measurement: -1,
+            param: -1,
             nRows: { $size: '$lats'},
             nCols: { $size: '$lons'},
             xllCorner: { $min: '$lons'},
