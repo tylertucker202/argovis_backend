@@ -41,17 +41,23 @@ const get_grid_model = function(grid) {
         default:
             GridModel = Grid.ksSpaceTempNoTrend
       } 
+    console.log('Grid model is', grid)
     return GridModel
 }
 
 exports.find_grid = function(req, res , next) {
     req.sanitize('grid').escape();
     req.sanitize('grid').trim();
-    const gridStr = req.params.grid
+    const gridStr = req.query.grid
     const GridModel = get_grid_model(gridStr)
-    console.log('my grid is', gridStr)
-    const query = GridModel.find({}, {});
-    query.limit(1)
+    //console.log('my grid model is', GridModel)
+
+    const monthYear = moment.utc('01-2007', 'MM-YYYY').startOf('D')
+    const pres = 10
+    console.log(pres, monthYear.toDate())
+    const query = GridModel.aggregate([
+        {$match: {pres: pres, date: monthYear.toDate()}}])
+    //const query = GridModel.find({},{}).limit(1)    
     query.exec( function (err, grid) {
         if (err) { return next(err); }
         res.json(grid);
@@ -107,13 +113,13 @@ exports.get_grid_window = function(req, res , next) {
     const gridStr = req.query.grid
     const latRange = JSON.parse(req.query.latRange)
     const lonRange = JSON.parse(req.query.lonRange)
-    const monthYear = moment(req.query.monthYear, 'MM-YYYY').utc().startOf('D')
+    const monthYear = moment.utc(req.query.monthYear, 'MM-YYYY').startOf('D')
 
     const GridModel = get_grid_model(gridStr)
+    console.log(pres, monthYear, gridStr)
 
     const query = GridModel.aggregate([
-        {$match: {pres: pres}},
-        {$match: {date: monthYear.toDate()}},
+        {$match: {pres: pres, date: monthYear.toDate()}},
         {$project: { // query for lat lng ranges
             pres: -1,
             date: -1,
@@ -147,7 +153,6 @@ exports.get_grid_window = function(req, res , next) {
                         'lats': { $addToSet: "$data.LATITUDE"},
                         'zs': {$push : "$data.value" // values should be in sorted order
                                 },
-          
             }
         },
         {$project: {
@@ -224,18 +229,17 @@ exports.get_param_window = function(req, res , next) {
         { $unwind : '$data' }, //allows sorting
         {$sort:  {'data.LATITUDE': -1, 'data.LONGITUDE': 1}},
         {$group: {_id: '$_id', //collection for nrows and ncolumns
-                        'pres': {$first: '$pres'},
-                        'measurement': {$first: '$measurement'},
-                        'param': {$first: '$param'},
-                        'cellXSize': {$first: '$cellsize'},
-                        'cellYSize': {$first: '$cellsize'},
-                        'noDataValue': {$first: '$NODATA_value'},
-                        'gridName': {$first: '$gridName'},
-                        'lons': { $addToSet: "$data.LONGITUDE" },
-                        'lats': { $addToSet: "$data.LATITUDE"},
-                        'zs': {$push : "$data.value" // values should be in sorted order
-                                },
-          
+                    'pres': {$first: '$pres'},
+                    'measurement': {$first: '$measurement'},
+                    'param': {$first: '$param'},
+                    'cellXSize': {$first: '$cellsize'},
+                    'cellYSize': {$first: '$cellsize'},
+                    'noDataValue': {$first: '$NODATA_value'},
+                    'gridName': {$first: '$gridName'},
+                    'lons': { $addToSet: "$data.LONGITUDE" },
+                    'lats': { $addToSet: "$data.LATITUDE"},
+                    'zs': {$push : "$data.value" // values should be in sorted order
+                    },
             }
         },
         {$project: {

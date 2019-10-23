@@ -5,6 +5,8 @@ var GridSchema = Schema(
   {
     _id: {type: String, required: true, max: 100},
     gridName: {type: String, required: false},
+    measurement: {type: String, required: true},
+    param: {type: String, required: true},
     dataVal: {type: String, required: true},
     data: [{ LONGITUDE: {type: Number, required: true},
              LATITUDE: {type: Number, required: true},
@@ -13,7 +15,7 @@ var GridSchema = Schema(
     pres: {type: Number, required: true},
     date: {type: Date, required: true},
     cellSize: {type: Number, required: true},
-    NODATA_value: {type: Number, required: true}
+    NODATA_value: {type: Number, required: true},
   },
 );
 

@@ -88,7 +88,7 @@ exports.profile_list = function(req, res, next) {
     let idAgg = []
     idAgg.push(idMatch)
     if (presRange){
-        idProject = {$project: { //need to include all fields that you wish to keep.
+        idProject = { $project: { //need to include all fields that you wish to keep.
             platform_number: 1,
             date:  1,
             date_qc: 1,
