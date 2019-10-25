@@ -35,13 +35,12 @@ const get_grid_model = function(grid) {
         case 'ksSpaceTimeTempTrend2':
             GridModel = Grid.ksSpaceTimeTempTrend2
             break;
-        case 'rgGrid':
+        case 'rgTempAnom':
             GridModel = Grid.rgTempAnom
             break;
         default:
             GridModel = Grid.ksSpaceTempNoTrend
       } 
-    console.log('Grid model is', grid)
     return GridModel
 }
 
@@ -56,8 +55,9 @@ exports.find_grid = function(req, res , next) {
     const pres = 10
     console.log(pres, monthYear.toDate())
     const query = GridModel.aggregate([
-        {$match: {pres: pres, date: monthYear.toDate()}}])
-    //const query = GridModel.find({},{}).limit(1)    
+        //{$match: {pres: pres, date: monthYear.toDate()}},
+        {$limit: 1}
+    ])
     query.exec( function (err, grid) {
         if (err) { return next(err); }
         res.json(grid);

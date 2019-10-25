@@ -44,8 +44,14 @@ exports.platform_list = function(req, res, next) {
 // Display platform detail form on GET
 exports.platform_detail = function (req, res, next) {
     req.sanitize('platform_number').escape();
+    req.sanitize('platform_number').trim();
+    //req.sanitize('platform_number').toNumber();
 
-    var query = Profile.find({platform_number: req.params.platform_number});
+    req.checkQuery('platform_number', 'platform_number should be numeric.').isNumeric();
+
+    const platform_number = JSON.parse(req.params.platform_number)
+
+    const query = Profile.find({platform_number: platform_number});
 
     if (req.params.format==='page'){ // bgc not needed for page view
         query.select('-bgcMeas')

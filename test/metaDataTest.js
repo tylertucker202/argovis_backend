@@ -1,17 +1,10 @@
-
-
 process.env.NODE_ENV = 'test';
 
 var chai = require('chai');
 var moment = require('moment');
-var assert = chai.assert;
-let mongoose = require("mongoose");
-let Profile = require('../models/profile');
 
 let chaiHttp = require('chai-http');
 let app = require('../app');
-
-let should = chai.should();
 
 chai.use(chaiHttp);
 
@@ -22,17 +15,14 @@ describe('/GET last reported profiles', function() {
           chai.request(app)
           .get('/selection/lastProfiles')
           .end((err, res) => {
-              //test overall response
               res.should.have.status(200);
               res.body.should.be.a('array');
-              //test an element of the response
               a_profile = res.body[0];
-              console.log('A profile is: ' + JSON.stringify(a_profile));
               a_profile.should.include.keys('_id', 'date', 'platform_number', 'cycle_number', 'geoLocation');
-              a_profile._id.should.be.a('string');
+              a_profile._id.should.be.a('number');
               moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
-              (a_profile.platform_number * 1).should.be.a('number');
-              (a_profile.cycle_number * 1).should.be.a('number');
+              a_profile.platform_number.should.be.a('number');
+              a_profile.cycle_number.should.be.a('number');
               a_profile.geoLocation.coordinates.should.be.a('array');
               a_profile.geoLocation.coordinates.length.should.be.eql(2);
               a_profile.geoLocation.type.should.be.eql('Point');
@@ -47,17 +37,14 @@ describe('/GET last reported profiles', function() {
           chai.request(app)
           .get('/selection/latestProfiles')
           .end((err, res) => {
-              //test overall response
               res.should.have.status(200);
               res.body.should.be.a('array');
-              //test an element of the response
               a_profile = res.body[0];
-              console.log('A profile is: ' + JSON.stringify(a_profile));
               a_profile.should.include.keys('_id', 'date', 'platform_number', 'cycle_number', 'geoLocation');
-              a_profile._id.should.be.a('string');
+              a_profile._id.should.be.a('number');
               moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
-              (a_profile.platform_number * 1).should.be.a('number');
-              (a_profile.cycle_number * 1).should.be.a('number');
+              a_profile.platform_number.should.be.a('number');
+              a_profile.cycle_number.should.be.a('number');
               a_profile.geoLocation.coordinates.should.be.a('array');
               a_profile.geoLocation.coordinates.length.should.be.eql(2);
               a_profile.geoLocation.type.should.be.eql('Point');
@@ -73,17 +60,14 @@ describe('/GET last reported profiles', function() {
           chai.request(app)
           .get('/selection/lastThreeDays/' + myDate)
           .end((err, res) => {
-              //test overall response
               res.should.have.status(200);
               res.body.should.be.a('array');
-              //test an element of the response
               a_profile = res.body[0];
-              console.log('A profile is: ' + JSON.stringify(a_profile));
               a_profile.should.include.keys('_id', 'date', 'platform_number', 'cycle_number', 'geoLocation');
-              a_profile._id.should.be.a('string');
+              a_profile._id.should.be.a('number');
               moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
-              (a_profile.platform_number * 1).should.be.a('number');
-              (a_profile.cycle_number * 1).should.be.a('number');
+              a_profile.platform_number.should.be.a('number');
+              a_profile.cycle_number.should.be.a('number');
               a_profile.geoLocation.coordinates.should.be.a('array');
               a_profile.geoLocation.coordinates.length.should.be.eql(2);
               a_profile.geoLocation.type.should.be.eql('Point');
@@ -100,12 +84,9 @@ describe('/GET last month year profiles', function() {
           chai.request(app)
           .get('/selection/profiles/' + month + '/' + year)
           .end((err, res) => {
-              //test overall response
               res.should.have.status(200);
               res.body.should.be.a('array');
-              //test an element of the response
               a_profile = res.body[0];
-              console.log('A profile is: ' + JSON.stringify(a_profile));
               a_profile.should.include.keys('_id',
                                             'platform_number',
                                             'dac',
@@ -131,8 +112,8 @@ describe('/GET last month year profiles', function() {
                                             'pres_min_for_PSAL');
               a_profile._id.should.be.a('string');
               moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
-              (a_profile.platform_number * 1).should.be.a('number');
-              (a_profile.cycle_number * 1).should.be.a('number');
+              a_profile.platform_number.should.be.a('number');
+              a_profile.cycle_number.should.be.a('number');
               done();
           });
     });

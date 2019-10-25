@@ -17,7 +17,6 @@ describe('/GET get an interpolatoin object', function() {
 
     let url = '/gridding/presSliceForInterpolation/?'
     url += startDate + '&' + endDate + '&' + presRange + '&' + intPres
-    //console.log('An intp query is: ' + url);
     it('it should a get an interpolated pressure object', (done) => {
       chai.request(app)
       .get(url)
@@ -38,7 +37,7 @@ describe('/GET get an interpolatoin object', function() {
               prof.position_qc.should.be.a('number')
               prof.cycle_number.should.be.a('number')
               prof.dac.should.be.a('string')
-              prof.platform_number.should.be.a('string')
+              prof.platform_number.should.be.a('number')
               prof.BASIN.should.be.a('number')
               prof.measurements.should.be.a('array')
 

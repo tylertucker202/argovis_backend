@@ -26,7 +26,6 @@ describe('/GET catalog list of platforms', function() {
         res.body.should.be.a('array');
         //test an element of the response
         a_platform = res.body[0];
-        //console.log('A platform is: ' + JSON.stringify(a_platform));
         a_platform.should.include.keys('_id',
                                       'platform_number',
                                       'most_recent_date',
@@ -35,10 +34,10 @@ describe('/GET catalog list of platforms', function() {
                                       'cycle_number',
                                       'geoLocation', 
                                       'dac');
-        a_platform._id.should.be.a('string');
+        a_platform._id.should.be.a('number');
         moment.utc(a_platform.most_recent_date).format('YYYY-MM-DD').should.be.a('string');
-        (a_platform['platform_number'] * 1).should.be.a('number');
-        (a_platform.cycle_number * 1).should.be.a('number');
+        a_platform.platform_number.should.be.a('number');
+        a_platform.cycle_number.should.be.a('number');
         a_platform.geoLocation.coordinates.should.be.a('array');
         a_platform.geoLocation.coordinates.length.should.be.eql(2);
         a_platform.geoLocation.type.should.be.eql('Point');
@@ -104,7 +103,6 @@ describe('/GET catalog dacs', function() {
         //res.body.length.should.be.eql(11);
         //test an element of the response
         a_dac = res.body[0];
-        //console.log('A dac is: ' + JSON.stringify(a_dac));
         a_dac.should.include.keys('_id', 'number_of_profiles', 'dac');
         a_dac._id.should.be.a('string');
         a_dac.number_of_profiles.should.be.a('number');
@@ -197,7 +195,7 @@ describe('/GET profile render', function() {
                                       'strLon',
                                       'url');
         a_profile._id.should.be.a('string');
-        a_profile.platform_number.should.be.a('string');
+        a_profile.platform_number.should.be.a('number');
         a_profile.dac.should.be.a('string');
         a_profile.nc_url.should.be.a('string');
         moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');

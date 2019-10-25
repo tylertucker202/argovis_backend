@@ -30,17 +30,15 @@ describe('/GET atlantic selection', function() {
                                     [-80.09,14.94]];
           const base = '/selection/profiles';
           const urlQuery = base+'?startDate='+startDate+'&endDate='+endDate+'&shape='+JSON.stringify([transformedShape]);
-          console.log('A selection query is: ' + urlQuery);
           chai.request(app)
           .get(urlQuery)
           .end((err, res) => {
               //test overall response
               res.should.have.status(200);
               res.body.should.be.a('array');
-              res.body.length.should.be.eql(6);
+              res.body.length.should.be.eql(4);
               //test an element of the response
               a_profile = res.body[0];
-              //console.log('A profile is: ' + JSON.stringify(a_profile));
               a_profile.should.include.keys('_id', 'date', 'cycle_number','platform_number', 'geoLocation');
               a_profile._id.should.be.a('string');
               moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
