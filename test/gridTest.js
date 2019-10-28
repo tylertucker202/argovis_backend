@@ -21,7 +21,7 @@ describe('/GET get a RG temp anom object', function() {
           //test an element of the response
           a_grid = res.body[0]
 
-          a_grid.should.include.keys('_id', 'date', 'data', 'gridName', 'measurement', 'units', 'param', 'pres', 'cellsize', 'NODATA_value')
+          a_grid.should.include.keys('_id', 'date', 'data', 'gridName', 'measurement', 'units', 'variable', 'pres', 'cellsize', 'NODATA_value')
           moment.utc(a_grid.date).format('YYYY-MM-DD').should.be.a('string');
           a_grid._id.should.be.a('string');
           a_grid.data.should.be.a('array');
@@ -47,7 +47,7 @@ describe('/GET get a RG temp anom object', function() {
           res.should.have.status(200);
           //test an element of the response
           a_grid = res.body[0]
-          a_grid.should.include.keys('_id', 'date', 'data', 'gridName', 'measurement', 'units', 'param', 'pres', 'cellsize', 'NODATA_value')
+          a_grid.should.include.keys('_id', 'date', 'data', 'gridName', 'measurement', 'units', 'variable', 'pres', 'cellsize', 'NODATA_value')
           moment.utc(a_grid.date).format('YYYY-MM-DD').should.be.a('string');
           a_grid._id.should.be.a('string');
           a_grid.data.should.be.a('array');

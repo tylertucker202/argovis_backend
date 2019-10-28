@@ -7,6 +7,7 @@ const ParamSchema = Schema(
     gridName: {type: String, required: true},
     model: {type: String, required: true},
     param: {type: String, required: true},
+    units: {type: String, required: false},
     trend: {type: String, required: true},
     measurement: {type: String, required: true},
     dataVal: {type: String, required: true},

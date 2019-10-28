@@ -2,17 +2,6 @@ var Grid = require('../models/grid');
 var GridParameter = require('../models/gridParam');
 var moment = require('moment');
 
-const get_grid_name= function(grid, param) {
-    grid = grid.replace('ks', 'kslocalMLE')
-    grid = grid.replace('Temp', '')
-    let trend = 'Trend'
-    if (grid.includes('NoTrend')) {
-        trend = 'NoTrend'
-    }
-    const paramTrend = param + trend
-    const gridName = grid.replace(trend, paramTrend)
-    return gridName
-}
 
 const get_grid_model = function(grid) {
     let GridModel
@@ -76,14 +65,12 @@ exports.find_grid_param = function(req, res , next) {
     req.checkParams('param', 'param should be string.').isAlpha();
     req.checkParams('grid', 'grid should be string.').isAlphanumeric();
     const pres = JSON.parse(req.query.presLevel)
-    const grid = req.query.grid
+    const gridName = req.query.grid
     const param = req.query.param
-
-    const gridName = get_grid_name(grid, param)
 
     console.log(pres, gridName)
     
-    const query = GridParameter.find({pres: pres, gridName}, {model: 1, param:1, measurement: 1, trend: 1, pres: 1});
+    const query = GridParameter.find({pres: pres, gridName: gridName, param: param}, {model: 1, param:1, measurement: 1, trend: 1, pres: 1});
     query.limit(1)
     query.exec( function (err, grid) {
         if (err) { return next(err); }
@@ -123,34 +110,42 @@ exports.get_grid_window = function(req, res , next) {
         {$project: { // query for lat lng ranges
             pres: -1,
             date: -1,
+            gridName: -1,
+            measurement: -1,
+            units: -1,
+            param: -1,
+            variable: -1,
             cellsize: -1,
             NODATA_value: -1,
-            gridName: -1,
             data: {
                 $filter: {
                     input: '$data',
                     as: 'item',
                     cond: {
                         $and: [
-                            {$gt: ['$$item.LATITUDE', latRange[0]]},
-                            {$lt: ['$$item.LATITUDE', latRange[1]]},
-                            {$gt: ['$$item.LONGITUDE', lonRange[0]]},
-                            {$lt: ['$$item.LONGITUDE', lonRange[1]]}
+                            {$gt: ['$$item.lat', latRange[0]]},
+                            {$lt: ['$$item.lat', latRange[1]]},
+                            {$gt: ['$$item.lon', lonRange[0]]},
+                            {$lt: ['$$item.lon', lonRange[1]]}
                         ]},
                 },
             },
         }},
         { $unwind : '$data' }, //allows sorting
-        {$sort:  {'data.LATITUDE': -1, 'data.LONGITUDE': 1}},
+        {$sort:  {'data.lat': -1, 'data.lon': 1}},
         {$group: {_id: '$_id', //collection for nrows and ncolumns
                         'pres': {$first: '$pres'},
                         'date': {$first: '$date'},
+                        'measurement': {$first: '$measurement'},
+                        'units': {$first: '$units'},
+                        'param': {$first: '$param'},
+                        'variable': {$first: '$variable'},
                         'cellXSize': {$first: '$cellsize'},
                         'cellYSize': {$first: '$cellsize'},
                         'noDataValue': {$first: '$NODATA_value'},
                         'gridName': {$first: '$gridName'},
-                        'lons': { $addToSet: "$data.LONGITUDE" },
-                        'lats': { $addToSet: "$data.LATITUDE"},
+                        'lons': { $addToSet: "$data.lon" },
+                        'lats': { $addToSet: "$data.lat"},
                         'zs': {$push : "$data.value" // values should be in sorted order
                                 },
             }
@@ -158,10 +153,14 @@ exports.get_grid_window = function(req, res , next) {
         {$project: {
             pres: -1,
             date: -1,
+            gridName: -1,
+            measurement: -1,
+            units: -1,
+            param: -1,
+            variable: -1,
             cellXSize: -1,
             cellYSize: -1,
             noDataValue: -1,
-            gridName: -1,
             nRows: { $size: '$lats'},
             nCols: { $size: '$lons'},
             xllCorner: { $min: '$lons'},
@@ -193,24 +192,24 @@ exports.get_param_window = function(req, res , next) {
     req.checkParams('param', 'param should be string.').isAlpha();
     req.checkParams('grid', 'grid should be string.').isAlphanumeric();
     const pres = JSON.parse(req.query.presLevel)
-    const grid = req.query.grid
+    const gridName = req.query.grid
     const param = req.query.param
 
     const latRange = JSON.parse(req.query.latRange)
     const lonRange = JSON.parse(req.query.lonRange)
-    const gridName = get_grid_name(grid, param)
 
-    console.log(gridName, pres)
+    console.log(gridName, param, pres)
 
 
     const query = GridParameter.aggregate([
-        {$match: {pres: pres, gridName: gridName}},
+        {$match: {pres: pres, gridName: gridName, param: param}},
         {$project: { // query for lat lng ranges
             pres: -1,
             cellsize: -1,
             NODATA_value: -1,
             gridName: -1,
             measurement: -1,
+            units: -1,
             param: -1,
             data: {
                 $filter: {
@@ -218,26 +217,27 @@ exports.get_param_window = function(req, res , next) {
                     as: 'item',
                     cond: {
                         $and: [
-                            {$gt: ['$$item.LATITUDE', latRange[0]]},
-                            {$lt: ['$$item.LATITUDE', latRange[1]]},
-                            {$gt: ['$$item.LONGITUDE', lonRange[0]]},
-                            {$lt: ['$$item.LONGITUDE', lonRange[1]]}
+                            {$gt: ['$$item.lat', latRange[0]]},
+                            {$lt: ['$$item.lat', latRange[1]]},
+                            {$gt: ['$$item.lon', lonRange[0]]},
+                            {$lt: ['$$item.lon', lonRange[1]]}
                         ]},
                 },
             },
         }},
         { $unwind : '$data' }, //allows sorting
-        {$sort:  {'data.LATITUDE': -1, 'data.LONGITUDE': 1}},
+        {$sort:  {'data.lat': -1, 'data.lon': 1}},
         {$group: {_id: '$_id', //collection for nrows and ncolumns
                     'pres': {$first: '$pres'},
                     'measurement': {$first: '$measurement'},
                     'param': {$first: '$param'},
+                    'units': {$first: '$units'},
                     'cellXSize': {$first: '$cellsize'},
                     'cellYSize': {$first: '$cellsize'},
                     'noDataValue': {$first: '$NODATA_value'},
                     'gridName': {$first: '$gridName'},
-                    'lons': { $addToSet: "$data.LONGITUDE" },
-                    'lats': { $addToSet: "$data.LATITUDE"},
+                    'lons': { $addToSet: "$data.lon" },
+                    'lats': { $addToSet: "$data.lat"},
                     'zs': {$push : "$data.value" // values should be in sorted order
                     },
             }
@@ -250,6 +250,7 @@ exports.get_param_window = function(req, res , next) {
             gridName: -1,
             measurement: -1,
             param: -1,
+            units: -1,
             nRows: { $size: '$lats'},
             nCols: { $size: '$lons'},
             xllCorner: { $min: '$lons'},
