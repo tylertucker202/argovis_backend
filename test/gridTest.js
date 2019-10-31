@@ -55,7 +55,7 @@ describe('/GET get a RG temp anom object', function() {
           a_grid.units.should.be.a('string');
           a_grid.pres.should.be.a('number');
           a_grid.cellsize.should.be.a('number');
-          a_grid.NODATA_value.should.be.a('number');
+          assert(a_grid.NODATA_value === null, 'no data value should be null')
 
           done();
       });
