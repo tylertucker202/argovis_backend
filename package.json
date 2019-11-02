@@ -34,7 +34,7 @@
     "leaflet-draw": "^0.4.12",
     "leaflet.coordinates": "^0.1.5",
     "moment": "^2.18.1",
-    "mongoose": "^4.11.10",
+    "mongoose": "^5.7.7",
     "morgan": "~1.8.1",
     "nouislider": "^10.1.0",
     "plotly": "^1.0.6",
