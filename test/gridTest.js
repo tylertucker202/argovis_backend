@@ -11,7 +11,7 @@ chai.use(chaiHttp);
 /* Test rgGrid */
 describe('/GET get a RG temp anom object', function() {
     this.timeout(5000);
-    const url = '/griddedProducts/grid/find?grid=rgTempAnom'
+    const url = '/griddedProducts/grid/find?gridName=rgTempAnom'
     it('it should a get a rgTempAnom object', (done) => {
       chai.request(app)
       .get(url)
@@ -29,7 +29,7 @@ describe('/GET get a RG temp anom object', function() {
           a_grid.units.should.be.a('string');
           a_grid.pres.should.be.a('number');
           a_grid.cellsize.should.be.a('number');
-          a_grid.NODATA_value.should.be.a('number');
+          assert(a_grid.NODATA_value === null, 'no data value should be null')
 
           done();
       });
@@ -38,7 +38,7 @@ describe('/GET get a RG temp anom object', function() {
 
   describe('/GET get a ksSpaceTempTrend2 object', function() {
     this.timeout(5000);
-    const url = '/griddedProducts/grid/find?grid=ksSpaceTimeTempTrend2'
+    const url = '/griddedProducts/grid/find?gridName=ksSpaceTimeTempTrend2'
     it('it should a get a kuuselaGrid object', (done) => {
       chai.request(app)
       .get(url)

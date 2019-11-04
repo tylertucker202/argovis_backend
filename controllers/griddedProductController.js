@@ -5,46 +5,38 @@ var moment = require('moment');
 
 const get_grid_model = function(grid) {
     let GridModel
-    switch(grid) {
-        case 'ksSpaceTempNoTrend':
-            GridModel = Grid.ksSpaceTempNoTrend
-            break;
-        case 'ksSpaceTempTrend':
-            GridModel = Grid.ksSpaceTempTrend
-            break;
-        case 'ksSpaceTempTrend2':
-            GridModel = Grid.ksSpaceTempTrend2
-            break;
-        case 'ksSpaceTimeTempNoTrend':
-            GridModel = Grid.ksSpaceTimeTempNoTrend
-            break;
-        case 'ksSpaceTimeTempTrend':
-            GridModel = Grid.ksSpaceTimeTempTrend
-            break;
-        case 'ksSpaceTimeTempTrend2':
-            GridModel = Grid.ksSpaceTimeTempTrend2
-            break;
-        case 'rgTempAnom':
-            GridModel = Grid.rgTempAnom
-            break;
-        default:
-            GridModel = Grid.ksSpaceTempNoTrend
-      } 
+    if (grid.includes('Mean') && grid.includes('ks')) {
+        console.log('ksTempMean collection selected')
+        GridModel = Grid.ksTempMean
+    }
+    else if  (!grid.includes('Mean') && grid.includes('ks')) {
+        console.log('ksTempAnom collection selected')
+        GridModel = Grid.ksTempAnom
+    }
+    else if  (grid.includes('Anom') && grid.includes('rg')) {
+        console.log('rgTempAnom collection selected')
+        GridModel = Grid.rgTempAnom
+    }
+    else {
+        console.log('grid collection not selected ', grid)
+    }
     return GridModel
 }
 
 exports.find_grid = function(req, res , next) {
-    req.sanitize('grid').escape();
-    req.sanitize('grid').trim();
-    const gridStr = req.query.grid
-    const GridModel = get_grid_model(gridStr)
+    req.sanitize('gridName').escape();
+    req.sanitize('gridName').trim();
+    req.sanitize('trend').escape();
+    req.sanitize('trend').trim();
+    const gridName = req.query.gridName
+    const GridModel = get_grid_model(gridName)
     //console.log('my grid model is', GridModel)
 
     const monthYear = moment.utc('01-2007', 'MM-YYYY').startOf('D')
     const pres = 10
-    console.log(pres, monthYear.toDate())
+    console.log(pres, monthYear.toDate(), gridName)
     const query = GridModel.aggregate([
-        //{$match: {pres: pres, date: monthYear.toDate()}},
+        {$match: {pres: pres, date: monthYear.toDate(), gridName: gridName}},
         {$limit: 1}
     ])
     query.exec( function (err, grid) {
@@ -54,8 +46,8 @@ exports.find_grid = function(req, res , next) {
 }
 
 exports.find_grid_param = function(req, res , next) {
-    req.sanitize('grid').escape();
-    req.sanitize('grid').trim();
+    req.sanitize('gridName').escape();
+    req.sanitize('gridName').trim();
     req.sanitize('presLevel').escape();
     req.sanitize('presLevel').trim();
     req.sanitize('param').escape();
@@ -65,7 +57,7 @@ exports.find_grid_param = function(req, res , next) {
     req.checkParams('param', 'param should be string.').isAlpha();
     req.checkParams('grid', 'grid should be string.').isAlphanumeric();
     const pres = JSON.parse(req.query.presLevel)
-    const gridName = req.query.grid
+    const gridName = req.query.gridName
     const param = req.query.param
 
     console.log(pres, gridName)
@@ -80,8 +72,8 @@ exports.find_grid_param = function(req, res , next) {
 
 
 exports.get_grid_window = function(req, res , next) {
-    req.sanitize('grid').escape();
-    req.sanitize('grid').trim();
+    req.sanitize('gridName').escape();
+    req.sanitize('grgridNameid').trim();
     req.sanitize('presLevel').escape();
     req.sanitize('presLevel').trim();
     req.sanitize('latRange').escape();
@@ -97,16 +89,16 @@ exports.get_grid_window = function(req, res , next) {
     req.checkParams('param', 'param should be string.').isAlpha();
     req.checkParams('grid', 'grid should be string.').isAlphanumeric();
     const pres = JSON.parse(req.query.presLevel)
-    const gridStr = req.query.grid
+    const gridName = req.query.gridName
     const latRange = JSON.parse(req.query.latRange)
     const lonRange = JSON.parse(req.query.lonRange)
     const monthYear = moment.utc(req.query.monthYear, 'MM-YYYY').startOf('D')
 
-    const GridModel = get_grid_model(gridStr)
-    console.log(pres, monthYear, gridStr)
+    const GridModel = get_grid_model(gridName)
+    console.log(pres, monthYear, gridName)
 
     const query = GridModel.aggregate([
-        {$match: {pres: pres, date: monthYear.toDate()}},
+        {$match: {pres: pres, date: monthYear.toDate(), gridName: gridName }},
         {$project: { // query for lat lng ranges
             pres: -1,
             date: -1,
@@ -177,8 +169,8 @@ exports.get_grid_window = function(req, res , next) {
 }
 
 exports.get_param_window = function(req, res , next) {
-    req.sanitize('grid').escape();
-    req.sanitize('grid').trim();
+    req.sanitize('gridName').escape();
+    req.sanitize('gridName').trim();
     req.sanitize('presLevel').escape();
     req.sanitize('presLevel').trim();
     req.sanitize('latRange').escape();
@@ -190,9 +182,9 @@ exports.get_param_window = function(req, res , next) {
 
     req.checkParams('presLevel', 'presLevel should be numeric.').isNumeric();
     req.checkParams('param', 'param should be string.').isAlpha();
-    req.checkParams('grid', 'grid should be string.').isAlphanumeric();
+    req.checkParams('gridName', 'gridName should be string.').isAlphanumeric();
     const pres = JSON.parse(req.query.presLevel)
-    const gridName = req.query.grid
+    const gridName = req.query.gridName
     const param = req.query.param
 
     const latRange = JSON.parse(req.query.latRange)
