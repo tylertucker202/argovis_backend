@@ -167,13 +167,6 @@ exports.profile_detail = function (req, res, next) {
                                                        profileDate: profileDate});
                 }
             }
-            else if (req.params.format==='devpage'){
-                if (profile === null) { res.send('profile not found'); }
-                else {
-                    profileDate = moment.utc(profile.date).format('YYYY-MM-DD HH:mm')
-                    res.render('profile_page_dev', {title: req.params._id, profile: profile, platform_number: profile.platform_number, profileDate: profileDate});
-                }
-            }
             else if (req.params.format==='bgcPage'){
                 if (profile === null) { res.send('profile not found'); }
                 if (profile.bgcMeas === null) { res.send('profile does not have bgc'); }
@@ -369,12 +362,6 @@ exports.selected_profile_list = function(req, res , next) {
                 if (profiles === null) { res.send('profile not found'); }
                 else {
                     res.render('selected_profile_page', {title:'Custom selection', profiles: JSON.stringify(profiles), moment: moment, url: req.originalUrl })
-                }
-            }
-            else if (req.params.format==='devpage'){
-                if (profiles === null) { res.send('profile not found'); }
-                else {
-                    res.render('selected_profile_page_dev', {title:'Custom selection', profiles: JSON.stringify(profiles), moment: moment, url: req.originalUrl })
                 }
             }
             else {

@@ -5,7 +5,7 @@ html(lang='en')
         meta(charset='utf-8')
         link(rel='stylesheet', href='/stylesheets/style.css')
         script(type="text/javascript", src='https://cdn.plot.ly/plotly-latest.min.js')
-        link(rel='stylesheet', href='/stylesheets/external-css/bootstrap.css')
+        link(rel='stylesheet', href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css")
         script(src='/javascripts/external-js/FileSaver.min.js')
         script(src='/javascripts/external-js/jquery.min.js')
         script(src='/javascripts/external-js/bootstrap.min.js')
@@ -51,91 +51,70 @@ html(lang='en')
                 tr
                     td Data mode: #{profile.DATA_MODE}
             button.btn.btn-primary.btn-block(type='submit', id='downloadProfiles') Download data as JSON
-            #TPS_CHART
+            div(class='row')
+                div(class='col-lg-3')
+                    #map_chart
+                div(class='col-lg-9')
+                    #TPS_CHART
+            div(class='row')
+                div(class='col-lg-3')
+                    #temp_histogram_chart
+                div(class='col-lg-3')
+                    #psal_histogram_chart
 
     script(type='text/javascript').
-
+        $.when(
+        $.getScript( "/javascripts/chartFunctions.js" ),
+        $.Deferred(function( deferred ){
+            $( deferred.resolve )
+        })
+        ).done(function(){
         $('#downloadProfiles').on('click', function(){
-            var url = '/catalog/profiles/' + `#{title}`;
-            window.open(url,'_blank');
-        });
+            var url = '/catalog/profiles/' + `#{title}`
+            window.open(url,'_blank')
+        })
 
         function collateMeasurements(list) {
-            var map = {};
-            var keys = Object.keys(list[0]);
-            map.pres = [];
-            map.temp = [];
-            map.psal = [];
+            var map = {}
+            var keys = Object.keys(list[0])
+            map.pres = []
+            map.temp = []
+            map.psal = []
 
             for (var i = 0; i < list.length; ++i) {
-                map.pres.push(list[i].pres);
-                map.temp.push(list[i].temp);
-                map.psal.push(list[i].psal);
+                map.pres.push(list[i].pres)
+                map.temp.push(list[i].temp)
+                map.psal.push(list[i].psal)
             }
-            return map;
+            return map
         }
 
-        var meas = [!{profile.measurements}];
-        meas = collateMeasurements(meas);
+        const lat = !{profile.lat}
+        const lon = !{profile.lon}
+        const _id = JSON.stringify(#{profile.platform_number}) + '_' + JSON.stringify(#{profile.cycle_number})
 
-        const getEmptyIdx = function(array) {
-            var indices = [];
-            var element = -999;
-            var idx = array.indexOf(element);
-            while (idx != -1) {
-                indices.push(idx);
-                idx = array.indexOf(element, idx + 1);
-            }
-            return(indices);
-        }
+        let meas = [!{profile.measurements}];
+        meas = collateMeasurements(meas)
+
 
         //-999 signify empty values. These need to be removed from the arrays that will be used to make traces.
-        var temp = meas.temp;
-        var psal = meas.psal;
-        var pres = meas.pres;
+        var temp = meas.temp
+        var psal = meas.psal
+        var pres = meas.pres
 
-        const getMaskForPair = function(arrayOne, arrayTwo) {
-            let mask = [];
-            const element = -999; // -999 is the actual nan value. -900 just in case of decimal
-            for(let idx=0; idx < arrayOne.length; idx++){
-                if (arrayOne[idx] === element || arrayTwo[idx] === element){
-                    mask.push(false);
-                }
-                else {
-                    mask.push(true)
-                }
-            }
-            return(mask);
-        }
+        presVsTempMask = getMaskForPair(temp, pres)
+        presVsPsalMask = getMaskForTrio(psal, pres, temp)
+        tempVsPsalMask = getMaskForPair(psal, temp)
 
-        //Used to for pres vs psal. if temp reporting nan, psal should be zero too.
-        const getMaskForTrio = function(arrayOne, arrayTwo, arrayThree) {
-            let mask = [];
-            const element = -999; // -999 is the actual nan value. -900 just in case of decimal
-            for(let idx=0; idx < arrayOne.length; idx++){
-                if (arrayOne[idx] === element || arrayTwo[idx] === element || arrayThree[idx] === element){
-                    mask.push(false);
-                }
-                else {
-                    mask.push(true)
-                }
-            }
-            return(mask);
-        }
+        presForTemp = pres.filter((item, i) => presVsTempMask[i])
+        tempForPres = temp.filter((item, i) => presVsTempMask[i])
 
-        presVsTempMask = getMaskForPair(temp, pres);
-        presVsPsalMask = getMaskForTrio(psal, pres, temp);
-        tempVsPsalMask = getMaskForPair(psal, temp);
+        presForPsal = pres.filter((item, i) => presVsPsalMask[i])
+        psalForPres = psal.filter((item, i) => presVsPsalMask[i])
 
-        presForTemp = pres.filter((item, i) => presVsTempMask[i]);
-        tempForPres = temp.filter((item, i) => presVsTempMask[i]);
-
-        presForPsal = pres.filter((item, i) => presVsPsalMask[i]);
-        psalForPres = psal.filter((item, i) => presVsPsalMask[i]);
-
-        psalForTemp = psal.filter((item, i) => tempVsPsalMask[i]);
-        tempForPsal = temp.filter((item, i) => tempVsPsalMask[i]);
-        const roundArray = function (value){ return(Number(value).toFixed(3)) };
+        psalForTemp = psal.filter((item, i) => tempVsPsalMask[i])
+        tempForPsal = temp.filter((item, i) => tempVsPsalMask[i])
+        const roundArray = function (value){ return(Number(value).toFixed(3)) }
 
         const measurements = {'temp_v_psal': {'yvalues': tempForPsal.map(roundArray),
                                               'xvalues': psalForTemp.map(roundArray),
@@ -164,25 +143,25 @@ html(lang='en')
                                               'yunits': ' dbar',
                                               'xunits': ' C'
                                                 }
-                                };
+                                }
 
-        let makeText = function(ylabel, yunits, yvalue, xlabel, xunits, xvalue) {
+        let makeProfileText = function(ylabel, yunits, yvalue, xlabel, xunits, xvalue) {
             text = "<br>" + ylabel + yvalue.toString() + yunits
                  + "<br>" + xlabel + xvalue.toString() + xunits
             return (text)
-        };
+        }
 
-        const makeTrace =function(key) {
-            meas = measurements[key];
-            let hovorText = [];
+        const makeProfileTrace =function(key) {
+            meas = measurements[key]
+            let hovorText = []
             for(let idx=0; idx < meas.yvalues.length; idx++){
-                let pointText = makeText(meas.ylabel,
+                let pointText = makeProfileText(meas.ylabel,
                                          meas.yunits,
                                          meas.yvalues[idx],
                                          meas.xlabel,
                                          meas.xunits,
                                          meas.xvalues[idx])
-                hovorText.push(pointText);
+                hovorText.push(pointText)
             }
             return {
                 y: meas.yvalues,
@@ -194,8 +173,8 @@ html(lang='en')
                 mode: 'markers',
                 type: 'scatter',
                 name: key
-            };
-        };
+            }
+        }
 
         const layout = {
             title: "Profile measurements",
@@ -236,5 +215,16 @@ html(lang='en')
             }, 
             hovermode: "closest", 
             showlegend: false
-        };
-        Plotly.plot('TPS_CHART', ['pres_v_temp', 'pres_v_psal', 'temp_v_psal'].map(makeTrace), layout);
+        }
+        Plotly.plot('TPS_CHART', ['pres_v_temp', 'pres_v_psal', 'temp_v_psal'].map(makeProfileTrace), layout)
+
+
+        const mapData = makeMap([lat], [lon], [_id])
+        Plotly.plot('map_chart', mapData.data, mapData.layout)
+
+        const tempHistData = makeHistogram(tempForPres, 'Temperature [Celsius]')
+        Plotly.plot('temp_histogram_chart', tempHistData.data, tempHistData.layout)
+
+        const psalHistData = makeHistogram(psalForPres, 'Salinity [psu]')
+        Plotly.plot('psal_histogram_chart', psalHistData.data, psalHistData.layout)
+        })
