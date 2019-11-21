@@ -3,7 +3,7 @@ var Schema = mongoose.Schema;
 
 var GridSchema = Schema(
   {
-    _id: {type: String, required: true, max: 100},
+    _id: {type: String, required: true},
     gridName: {type: String, required: false},
     measurement: {type: String, required: true},
     units: {type: String, required: true},
@@ -25,3 +25,4 @@ module.exports = {}
 module.exports.ksTempAnom = mongoose.model('ksTempAnom', GridSchema, 'ksTempAnom');
 module.exports.rgTempAnom = mongoose.model('rgTempAnom', GridSchema, 'rgTempAnom');
 module.exports.ksTempMean = mongoose.model('ksTempMean', GridSchema, 'ksTempMean')
+module.exports.ksTempTotal = mongoose.model('ksTempTotal', GridSchema, 'ksTempTotal');

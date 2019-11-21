@@ -1,7 +1,7 @@
 var Profile = require('../models/profile');
 var moment = require('moment');
+var helpfun = require('./helperFunctions');
 
-const metaDateSliceParams = {date: -1, lat: -1, lon: -1, BASIN: -1};
 
 exports.meta_date_selection = function(req, res, next) {
 
@@ -63,16 +63,12 @@ exports.pres_layer_selection = function(req, res , next) {
 
     console.log(startDate, endDate)
 
+    let basin = null
     if (req.query.basin) {
-        const basin = JSON.parse(req.query.basin)
-        var match = {$match:  {$and: [ {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}},
-                        {BASIN: basin}]}
-                }
-    }
-    else{
-        var match = { $match: {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} }
+        basin = JSON.parse(req.query.basin)
     }
 
+    const match = helpfun.makeMatch(startDate, endDate, basin);
 
 
     req.getValidationResult().then(function (result) {
@@ -85,57 +81,9 @@ exports.pres_layer_selection = function(req, res , next) {
         else {
             var query = Profile.aggregate([
                 match,
-                {$project: { //need to include all fields that you wish to keep.
-                    nc_url: 1,
-                    position_qc: 1,
-                    date_qc: 1,
-                    BASIN: 1,
-                    cycle_number: 1,
-                    dac: 1,
-                    date:1,
-                    lat: 1,
-                    lon: 1,
-                    platform_number: 1,
-                    geoLocation: 1,
-                    station_parameters: 1,
-                    maximum_pressure: 1,
-                    POSITIONING_SYSTEM: 1,
-                    DATA_MODE: 1,
-                    PLATFORM_TYPE: 1,
-                    measurements: {
-                        $filter: {
-                            input: '$measurements',
-                            as: 'item',
-                            cond: { 
-                                $and: [
-                                    {$gt: ['$$item.pres', minPres]},
-                                    {$lt: ['$$item.pres', maxPres]}
-                                ]},
-                        },
-                    },
-                }},
-                {$project: { // return profiles with measurements
-                    _id: 1,
-                    nc_url: 1,
-                    position_qc: 1,
-                    date_qc: 1,
-                    BASIN: 1,
-                    cycle_number: 1,
-                    dac: 1,
-                    date:1,
-                    lat: 1,
-                    lon: 1,
-                    platform_number: 1,
-                    geoLocation: 1,
-                    station_parameters: 1,
-                    maximum_pressure: 1,
-                    measurements: 1,
-                    POSITIONING_SYSTEM: 1,
-                    DATA_MODE: 1,
-                    PLATFORM_TYPE: 1,
-                    count: { $size:'$measurements' },
-                }},
-                {$match: {count: {$gt: 0}}}
+                helpfun.presSliceProject(minPres, maxPres),
+                helpfun.countProject,
+                helpfun.countMatch
                 ]);
         }
 
@@ -162,24 +110,28 @@ exports.layer_for_interpolation = function(req, res , next) {
     req.sanitize('startDate').toDate();
     req.sanitize('endDate').toDate();
 
-    const intPres = JSON.parse(req.query.intPres);
+    const intPres = JSON.parse(req.query.intPres)
+    let reduceMeas = null
+    if (req.query.reduceMeas) {   
+        reduceMeas = JSON.parse(req.query.reduceMeas)
+        console.log(reduceMeas)
+    }
 
-    const presRange = JSON.parse(req.query.presRange);
-    const maxPres = Number(presRange[1]);
-    const minPres = Number(presRange[0]);
+    const presRange = JSON.parse(req.query.presRange)
+    const maxPres = Number(presRange[1])
+    const minPres = Number(presRange[0])
 
-    const startDate = moment.utc(req.query.startDate);
-    const endDate = moment.utc(req.query.endDate);
+    const startDate = moment.utc(req.query.startDate)
+    const endDate = moment.utc(req.query.endDate)
 
+    let basin = null
     if (req.query.basin) {
-        const basin = JSON.parse(req.query.basin)
-        var match = {$match:  {$and: [ {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}},
-                        {BASIN: basin}]}
-                }
+        basin = JSON.parse(req.query.basin)
     }
-    else{
-        var match = { $match: {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} }
-    }
+
+    const match = helpfun.makeMatch(startDate, endDate, basin);
+
+    console.log(intPres, maxPres, minPres, startDate, endDate, basin, reduceMeas)
 
 
 
@@ -191,102 +143,17 @@ exports.layer_for_interpolation = function(req, res , next) {
             res.render('error', { errors: errors });
         }
         else {
-            var query = Profile.aggregate([
-                match,
-                {$project: { //need to include all fields that you wish to keep.
-                    position_qc: 1,
-                    date_qc: 1,
-                    BASIN: 1,
-                    cycle_number: 1,
-                    dac: 1,
-                    date:1,
-                    lat: 1,
-                    lon: 1,
-                    platform_number: 1,
-                    DATA_MODE: 1,
-                    measurements: {
-                        $filter: {
-                            input: '$measurements',
-                            as: 'item',
-                            cond: { 
-                                $and: [
-                                    {$gt: ['$$item.pres', minPres]},
-                                    {$lt: ['$$item.pres', maxPres]}
-                                ]},
-                        },
-                    },
-                }},
-                {$project: { // return profiles with measurements
-                    position_qc: 1,
-                    date_qc: 1,
-                    BASIN: 1,
-                    cycle_number: 1,
-                    dac: 1,
-                    date:1,
-                    lat: 1,
-                    lon: 1,
-                    platform_number: 1,
-                    DATA_MODE: 1,
-                    measurements: 1,
-                    count: { $size:'$measurements' },
-                }},
-                {$match: {count: {$gt: 0}}},
-                {$project: { // create lower and upper measurements
-                    position_qc: 1,
-                    date_qc: 1,
-                    BASIN: 1,
-                    cycle_number: 1,
-                    dac: 1,
-                    date:1,
-                    lat: 1,
-                    lon: 1,
-                    platform_number: 1,
-                    DATA_MODE: 1,
-                    measurements: 1,
-                    count: 1,
-                    upperMeas: {
-                        $filter: {
-                            input: '$measurements',
-                            as: 'item',
-                            cond: { $lt: ['$$item.pres', intPres]}      
-                        },
-                    },
-                    lowerMeas: {
-                        $filter: {
-                            input: '$measurements',
-                            as: 'item',
-                            cond: { $gte: ['$$item.pres', intPres]}      
-                        },
-                    },
-                }},
-                {$project: { // slice lower and upper measurements
-                    position_qc: 1,
-                    date_qc: 1,
-                    BASIN: 1,
-                    cycle_number: 1,
-                    dac: 1,
-                    date:1,
-                    lat: 1,
-                    lon: 1,
-                    platform_number: 1,
-                    DATA_MODE: 1,
-                    lowerMeas: { $slice: [ '$lowerMeas', 2 ] },
-                    upperMeas: { $slice: [ '$upperMeas', 2 ] },
-                }},
-                {$project: { //combine upper and lower measurements into one array
-                    position_qc: 1,
-                    date_qc: 1,
-                    BASIN: 1,
-                    cycle_number: 1,
-                    dac: 1,
-                    date:1,
-                    lat: 1,
-                    lon: 1,
-                    platform_number: 1,
-                    DATA_MODE: 1,
-                    measurements: { $concatArrays: [ "$upperMeas", "$lowerMeas" ] }  
-                }},
-                ]);
+            let agg = [match,
+                        helpfun.presSliceProject(minPres, maxPres),
+                        helpfun.countProject,
+                        helpfun.countMatch]
+
+            if (reduceMeas) {
+                console.log('reduce exists as', reduceMeas)
+                agg.concat(helpfun.reduceIntpMeas(intPres));
+            }
+            
+            var query = Profile.aggregate(agg);
         }
         var promise = query.exec();
         promise

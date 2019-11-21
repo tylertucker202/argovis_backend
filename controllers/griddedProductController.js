@@ -3,19 +3,23 @@ var GridParameter = require('../models/gridParam');
 var moment = require('moment');
 
 
-const get_grid_model = function(grid) {
+const get_grid_model = function(gridName) {
     let GridModel
-    if (grid.includes('Mean') && grid.includes('ks')) {
+    if (!gridName.includes('Total') && !gridName.includes('Space') && gridName.includes('ks')) {
         console.log('ksTempMean collection selected')
         GridModel = Grid.ksTempMean
     }
-    else if  (!grid.includes('Mean') && grid.includes('ks')) {
+    else if  (!gridName.includes('Total') && gridName.includes('Space') && gridName.includes('ks')) {
         console.log('ksTempAnom collection selected')
         GridModel = Grid.ksTempAnom
     }
-    else if  (grid.includes('Anom') && grid.includes('rg')) {
+    else if  (gridName.includes('Anom') && gridName.includes('rg')) {
         console.log('rgTempAnom collection selected')
         GridModel = Grid.rgTempAnom
+    }
+    else if (gridName.includes('Total') && gridName.includes('ks')) {
+        console.log('ksTempTotal collection selected')
+        GridModel = Grid.ksTempTotal
     }
     else {
         console.log('grid collection not selected ', grid)
@@ -73,7 +77,7 @@ exports.find_grid_param = function(req, res , next) {
 
 exports.get_grid_window = function(req, res , next) {
     req.sanitize('gridName').escape();
-    req.sanitize('grgridNameid').trim();
+    req.sanitize('gridName').trim();
     req.sanitize('presLevel').escape();
     req.sanitize('presLevel').trim();
     req.sanitize('latRange').escape();
