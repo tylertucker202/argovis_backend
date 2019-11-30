@@ -37,6 +37,7 @@ debug('mongodb: ' + mongoDB);
 mongoose.Promise = global.Promise;
 var mongooseOptions = {
   useNewUrlParser: true,
+  useUnifiedTopology: true,
   keepAlive: 1,
   connectTimeoutMS: 30000
 };
