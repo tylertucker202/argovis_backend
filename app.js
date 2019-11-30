@@ -67,6 +67,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(expressValidator()); // Add this after the bodyParser middlewares!
 
+<<<<<<< HEAD
 var originsWhitelist  = [
   'http://localhost:4200',      //this is my front-end url for development
 ];
@@ -83,6 +84,9 @@ app.use(cors(corsOptions));
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, './../dist'))); // Point static path to ng dist
+=======
+app.use(express.static('public'))
+>>>>>>> 2e2c33800c8bb896fc1378632764f41bd548f047
 app.use('/', index);
 app.use('/catalog', catalog);
 app.use('/selection', selection);
