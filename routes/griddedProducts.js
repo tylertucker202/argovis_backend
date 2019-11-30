@@ -1,8 +1,8 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+let router = express.Router();
 
 // Require controller modules
-var grid_controller = require('../controllers/griddedProductController')
+const grid_controller = require('../controllers/griddedProductController')
 
 router.get('/grid/window', grid_controller.get_grid_window);
 

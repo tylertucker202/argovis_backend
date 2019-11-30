@@ -1,13 +1,11 @@
-var Profile = require('../models/profile');
-var moment = require('moment');
-var helpfun = require('./helperFunctions');
-
+const Profile = require('../models/profile');
+const moment = require('moment');
+const helper = require('./profileHelperFunctions');
 
 exports.meta_date_selection = function(req, res, next) {
 
     req.sanitize('startDate').toDate();
     req.sanitize('endDate').toDate();
-
 
     if (req.query.basin) {
         const basin = JSON.parse(req.query.basin)
@@ -68,9 +66,7 @@ exports.pres_layer_selection = function(req, res , next) {
         basin = JSON.parse(req.query.basin)
     }
 
-    const match = helpfun.makeMatch(startDate, endDate, basin);
-
-
+    const match = helper.makeMatch(startDate, endDate, basin);
     req.getValidationResult().then(function (result) {
         if (!result.isEmpty()) {
             var errors = result.array().map(function (elem) {
@@ -81,9 +77,9 @@ exports.pres_layer_selection = function(req, res , next) {
         else {
             var query = Profile.aggregate([
                 match,
-                helpfun.presSliceProject(minPres, maxPres),
-                helpfun.countProject,
-                helpfun.countMatch
+                helper.presSliceProject(minPres, maxPres),
+                helper.countProject,
+                helper.countMatch
                 ]);
         }
 
@@ -129,33 +125,30 @@ exports.layer_for_interpolation = function(req, res , next) {
         basin = JSON.parse(req.query.basin)
     }
 
-    const match = helpfun.makeMatch(startDate, endDate, basin);
-
+    const match = helper.makeMatch(startDate, endDate, basin);
     console.log(intPres, maxPres, minPres, startDate, endDate, basin, reduceMeas)
-
-
 
     req.getValidationResult().then(function (result) {
         if (!result.isEmpty()) {
-            var errors = result.array().map(function (elem) {
+            const errors = result.array().map(function (elem) {
                 return elem.msg;
             });
             res.render('error', { errors: errors });
         }
         else {
             let agg = [match,
-                        helpfun.presSliceProject(minPres, maxPres),
-                        helpfun.countProject,
-                        helpfun.countMatch]
+                        helper.presSliceProject(minPres, maxPres),
+                        helper.countProject,
+                        helper.countMatch]
 
             if (reduceMeas) {
                 console.log('reduce exists as', reduceMeas)
-                agg.concat(helpfun.reduceIntpMeas(intPres));
+                agg.concat(helper.reduceIntpMeas(intPres));
             }
             
             var query = Profile.aggregate(agg);
         }
-        var promise = query.exec();
+        const promise = query.exec();
         promise
         .then(function (profiles) {
                 res.json(profiles);

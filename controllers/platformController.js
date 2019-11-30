@@ -1,6 +1,6 @@
-var Profile = require('../models/profile');
-var async = require('async');
-var moment = require('moment');
+const Profile = require('../models/profile');
+const async = require('async');
+const moment = require('moment');
 
 //station_parameters, lat, lon are needed for virtural fields
 const mapParams = 'platform_number date geoLocation cycle_number station_parameters lat lon DATA_MODE containsBGC isDeep DIRECTION';
@@ -31,7 +31,7 @@ exports.db_list = function(req, res) {
 
 // Display list of all platforms
 exports.platform_list = function(req, res, next) {
-    var query = Profile.aggregate([
+    const query = Profile.aggregate([
                        {$sort: { 'date':-1}},
                        {$group: platformAggregate}
     ]);

@@ -1,5 +1,5 @@
-var Covar = require('../models/covar');
-var GJV = require('geojson-validation');
+const Covar = require('../models/covar');
+const GJV = require('geojson-validation');
 
 exports.radius_selection = function(req, res , next) {
 
@@ -26,7 +26,7 @@ exports.radius_selection = function(req, res , next) {
     GJV.valid(point);
     GJV.isPoint(point);
 
-    var query = Covar.findOne({forcastDays: forcastDays, geoLocation: {
+    const query = Covar.findOne({forcastDays: forcastDays, geoLocation: {
                                 $near: {
                                     $geometry: point,
                                     //$maxDistance: radius

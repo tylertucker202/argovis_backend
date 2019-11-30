@@ -1,6 +1,6 @@
-var Profile = require('../models/profile');
-var moment = require('moment');
-var GJV = require('geojson-validation');
+const Profile = require('../models/profile');
+const moment = require('moment');
+const GJV = require('geojson-validation');
 
 //station_parameters, lat, lon are needed for virtural fields
 const mapParams = 'platform_number date geoLocation cycle_number station_parameters lat lon DATA_MODE containsBGC isDeep DIRECTION';

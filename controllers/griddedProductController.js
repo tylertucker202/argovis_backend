@@ -1,31 +1,8 @@
-var Grid = require('../models/grid');
-var GridParameter = require('../models/gridParam');
-var moment = require('moment');
+const Grid = require('../models/grid');
+const GridParameter = Grid.ksParams;
+const moment = require('moment');
 
-
-const get_grid_model = function(gridName) {
-    let GridModel
-    if (!gridName.includes('Total') && !gridName.includes('Space') && gridName.includes('ks')) {
-        console.log('ksTempMean collection selected')
-        GridModel = Grid.ksTempMean
-    }
-    else if  (!gridName.includes('Total') && gridName.includes('Space') && gridName.includes('ks')) {
-        console.log('ksTempAnom collection selected')
-        GridModel = Grid.ksTempAnom
-    }
-    else if  (gridName.includes('Anom') && gridName.includes('rg')) {
-        console.log('rgTempAnom collection selected')
-        GridModel = Grid.rgTempAnom
-    }
-    else if (gridName.includes('Total') && gridName.includes('ks')) {
-        console.log('ksTempTotal collection selected')
-        GridModel = Grid.ksTempTotal
-    }
-    else {
-        console.log('grid collection not selected ', grid)
-    }
-    return GridModel
-}
+const helper = require('./griddedHelperFunctions')
 
 exports.find_grid = function(req, res , next) {
     req.sanitize('gridName').escape();
@@ -33,7 +10,7 @@ exports.find_grid = function(req, res , next) {
     req.sanitize('trend').escape();
     req.sanitize('trend').trim();
     const gridName = req.query.gridName
-    const GridModel = get_grid_model(gridName)
+    const GridModel = helper.get_grid_model(Grid, gridName)
     //console.log('my grid model is', GridModel)
 
     const monthYear = moment.utc('01-2007', 'MM-YYYY').startOf('D')
@@ -98,74 +75,13 @@ exports.get_grid_window = function(req, res , next) {
     const lonRange = JSON.parse(req.query.lonRange)
     const monthYear = moment.utc(req.query.monthYear, 'MM-YYYY').startOf('D')
 
-    const GridModel = get_grid_model(gridName)
+    const GridModel = helper.get_grid_model(Grid, gridName)
     console.log(pres, monthYear, gridName)
 
-    const query = GridModel.aggregate([
-        {$match: {pres: pres, date: monthYear.toDate(), gridName: gridName }},
-        {$project: { // query for lat lng ranges
-            pres: -1,
-            date: -1,
-            gridName: -1,
-            measurement: -1,
-            units: -1,
-            param: -1,
-            variable: -1,
-            cellsize: -1,
-            NODATA_value: -1,
-            data: {
-                $filter: {
-                    input: '$data',
-                    as: 'item',
-                    cond: {
-                        $and: [
-                            {$gt: ['$$item.lat', latRange[0]]},
-                            {$lt: ['$$item.lat', latRange[1]]},
-                            {$gt: ['$$item.lon', lonRange[0]]},
-                            {$lt: ['$$item.lon', lonRange[1]]}
-                        ]},
-                },
-            },
-        }},
-        { $unwind : '$data' }, //allows sorting
-        {$sort:  {'data.lat': -1, 'data.lon': 1}},
-        {$group: {_id: '$_id', //collection for nrows and ncolumns
-                        'pres': {$first: '$pres'},
-                        'date': {$first: '$date'},
-                        'measurement': {$first: '$measurement'},
-                        'units': {$first: '$units'},
-                        'param': {$first: '$param'},
-                        'variable': {$first: '$variable'},
-                        'cellXSize': {$first: '$cellsize'},
-                        'cellYSize': {$first: '$cellsize'},
-                        'noDataValue': {$first: '$NODATA_value'},
-                        'gridName': {$first: '$gridName'},
-                        'lons': { $addToSet: "$data.lon" },
-                        'lats': { $addToSet: "$data.lat"},
-                        'zs': {$push : "$data.value" // values should be in sorted order
-                                },
-            }
-        },
-        {$project: {
-            pres: -1,
-            date: -1,
-            gridName: -1,
-            measurement: -1,
-            units: -1,
-            param: -1,
-            variable: -1,
-            cellXSize: -1,
-            cellYSize: -1,
-            noDataValue: -1,
-            nRows: { $size: '$lats'},
-            nCols: { $size: '$lons'},
-            xllCorner: { $min: '$lons'},
-            yllCorner: { $min: '$lats'},
-            zs: 1,
-            },
-        }
-        ]);
-    
+    let agg = []
+    agg.push({$match: {pres: pres, date: monthYear.toDate(), gridName: gridName }})
+    agg = helper.add_grid_projection(agg, latRange, longRange)
+    const query = GridModel.aggregate(agg)
     query.exec( function (err, grid) {
         if (err) { return next(err); }
         res.json(grid);
@@ -195,66 +111,11 @@ exports.get_param_window = function(req, res , next) {
     const lonRange = JSON.parse(req.query.lonRange)
 
     console.log(gridName, param, pres)
+    let agg = []
+    agg.push({$match: {pres: pres, gridName: gridName, param: param}})
+    agg = helper.add_param_proj(agg, latRange, lonRange)
 
-
-    const query = GridParameter.aggregate([
-        {$match: {pres: pres, gridName: gridName, param: param}},
-        {$project: { // query for lat lng ranges
-            pres: -1,
-            cellsize: -1,
-            NODATA_value: -1,
-            gridName: -1,
-            measurement: -1,
-            units: -1,
-            param: -1,
-            data: {
-                $filter: {
-                    input: '$data',
-                    as: 'item',
-                    cond: {
-                        $and: [
-                            {$gt: ['$$item.lat', latRange[0]]},
-                            {$lt: ['$$item.lat', latRange[1]]},
-                            {$gt: ['$$item.lon', lonRange[0]]},
-                            {$lt: ['$$item.lon', lonRange[1]]}
-                        ]},
-                },
-            },
-        }},
-        { $unwind : '$data' }, //allows sorting
-        {$sort:  {'data.lat': -1, 'data.lon': 1}},
-        {$group: {_id: '$_id', //collection for nrows and ncolumns
-                    'pres': {$first: '$pres'},
-                    'measurement': {$first: '$measurement'},
-                    'param': {$first: '$param'},
-                    'units': {$first: '$units'},
-                    'cellXSize': {$first: '$cellsize'},
-                    'cellYSize': {$first: '$cellsize'},
-                    'noDataValue': {$first: '$NODATA_value'},
-                    'gridName': {$first: '$gridName'},
-                    'lons': { $addToSet: "$data.lon" },
-                    'lats': { $addToSet: "$data.lat"},
-                    'zs': {$push : "$data.value" // values should be in sorted order
-                    },
-            }
-        },
-        {$project: {
-            pres: -1,
-            cellXSize: -1,
-            cellYSize: -1,
-            noDataValue: -1,
-            gridName: -1,
-            measurement: -1,
-            param: -1,
-            units: -1,
-            nRows: { $size: '$lats'},
-            nCols: { $size: '$lons'},
-            xllCorner: { $min: '$lons'},
-            yllCorner: { $min: '$lats'},
-            zs: 1,
-            },
-        }
-        ]);
+    const query = GridParameter.aggregate(agg);
     
     query.exec( function (err, grid) {
         if (err) { return next(err); }
