@@ -9,7 +9,8 @@
     "test": "export NODE_ENV=test && mocha",
     "start": "export NODE_ENV=production && node ./bin/www",
     "dockerstart": "export NODE_ENV=docker && node ./bin/www",
-    "devstart": "export NODE_ENV=development && nodemon ./bin/www"
+    "devstart": "export NODE_ENV=development && nodemon ./bin/www",
+    "jgstart": "export NODE_ENV=jg && nodemon ./bin/www"
   },
   "dependencies": {
     "acorn-globals": "^4.3.0",
