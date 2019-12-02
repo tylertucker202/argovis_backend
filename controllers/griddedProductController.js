@@ -2,7 +2,7 @@ const Grid = require('../models/grid');
 const GridParameter = Grid.ksParams;
 const moment = require('moment');
 
-const helper = require('./griddedHelperFunctions')
+const helper = require('../public/javascripts/controllers/griddedHelperFunctions')
 
 exports.find_grid = function(req, res , next) {
     req.sanitize('gridName').escape();
@@ -80,7 +80,7 @@ exports.get_grid_window = function(req, res , next) {
 
     let agg = []
     agg.push({$match: {pres: pres, date: monthYear.toDate(), gridName: gridName }})
-    agg = helper.add_grid_projection(agg, latRange, longRange)
+    agg = helper.add_grid_projection(agg, latRange, lonRange)
     const query = GridModel.aggregate(agg)
     query.exec( function (err, grid) {
         if (err) { return next(err); }

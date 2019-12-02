@@ -63,7 +63,7 @@ describe('/GET handles profiles containing nan for plotting', function() {
         .end((err, res) => {
           res.should.have.status(200)
           const profiles = res.body
-          assert(res.body.length == 6, 'there should be six profiles ')
+          assert(profiles.length == 6, 'there should be six profiles ')
   
           for(let idx=0; idx<profiles.length; idx++){
               const profile = profiles[idx]

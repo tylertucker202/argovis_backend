@@ -1,7 +1,8 @@
 const Profile = require('../models/profile');
 const moment = require('moment');
 const config = require('config');
-const helper = require('./profileHelperFunctions');
+const helper = require('../public/javascripts/controllers/profileHelperFunctions')
+const HELPER_CONST = require('../public/javascripts/controllers/profileHelperConstants')
 
 exports.month_year_profile_list = function(req, res, next) {
     req.checkQuery('month', 'month should be specified.').notEmpty();
@@ -20,7 +21,7 @@ exports.month_year_profile_list = function(req, res, next) {
     const query = Profile.aggregate([
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
         {$sort: { date: -1}},
-        {$project: helper.monthYearAggregate},
+        {$project: HELPER_CONST.MONTH_YEAR_AGGREGATE},
     ]);
     const promise = query.exec();
     promise.then(function (profiles) {
@@ -42,7 +43,7 @@ exports.last_profile_list = function(req, res, next) {
         endDate = moment.utc(appStartDate);
     }
     const query = Profile.aggregate([
-        {$project: helper.mapMetaAggregate},
+        {$project: HELPER_CONST.MAP_META_AGGREGATE},
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
         {$sort: { 'date': -1}},
         {$limit : 500 }
@@ -68,7 +69,7 @@ exports.latest_profile_list = function(req,res, next) {
     const query = Profile.aggregate([ 
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
         {$sort: {'platform_number': -1, 'date': -1}},
-        {$project: helper.mapMetaAggregate},
+        {$project: HELPER_CONST.MAP_META_AGGREGATE},
         {$limit : 500 }
     ]);
     query.exec( function (err, profiles) {
@@ -102,7 +103,7 @@ exports.last_three_days = function(req,res, next) {
     const query = Profile.aggregate([
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
         {$sort: {'platform_number': -1, 'date': -1}},
-        {$project: helper.mapMetaAggregate},
+        {$project: HELPER_CONST.MAP_META_AGGREGATE},
     ]);
     query.exec( function (err, profiles) {
         if (err) { return next(err); }
@@ -111,13 +112,13 @@ exports.last_three_days = function(req,res, next) {
 };
 
 exports.db_overview = function(req, res, next) {
-    queries = [//Profile.find({}).countDocuments(),
-               Profile.estimatedDocumentCount({}),
-               Profile.distinct('dac'),
-               Profile.find({'isDeep':true}).countDocuments(),
-               Profile.find({'containsBGC':true}).countDocuments(),
-               Profile.aggregate([{ $sort: { date: -1 } }, {$project: {'date_added': 1}}, { $limit : 1 }])
-            ]
+    queries = [
+        Profile.estimatedDocumentCount({}),
+        Profile.distinct('dac'),
+        Profile.find({'isDeep':true}).countDocuments(),
+        Profile.find({'containsBGC':true}).countDocuments(),
+        Profile.aggregate([{ $sort: { date: -1 } }, {$project: {'date_added': 1}}, { $limit : 1 }])
+    ]
     
     Promise.all(queries).then( ([ numberOfProfiles, dacs, numberDeep, numberBgc, lastAdded ]) => {
         const date = lastAdded[0].date_added

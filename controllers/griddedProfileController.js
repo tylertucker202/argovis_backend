@@ -1,6 +1,7 @@
 const Profile = require('../models/profile');
 const moment = require('moment');
-const helper = require('./profileHelperFunctions');
+const helper = require('../public/javascripts/controllers/profileHelperFunctions')
+const HELPER_CONST = require('../public/javascripts/controllers/profileHelperConstants')
 
 exports.meta_date_selection = function(req, res, next) {
 
@@ -30,7 +31,7 @@ exports.meta_date_selection = function(req, res, next) {
             res.render('error', { errors: errors });
         }
         else {
-            var query = Profile.aggregate([ match, {$project: metaDateSliceParams} ]);
+            var query = Profile.aggregate([ match, {$project: HELPER_CONST.META_DATE_SLICE_PARAMS} ]);
         }
         let promise = query.exec();
         promise
@@ -66,7 +67,7 @@ exports.pres_layer_selection = function(req, res , next) {
         basin = JSON.parse(req.query.basin)
     }
 
-    const match = helper.makeMatch(startDate, endDate, basin);
+    const match = helper.make_match(startDate, endDate, basin);
     req.getValidationResult().then(function (result) {
         if (!result.isEmpty()) {
             var errors = result.array().map(function (elem) {
@@ -78,8 +79,8 @@ exports.pres_layer_selection = function(req, res , next) {
             var query = Profile.aggregate([
                 match,
                 helper.presSliceProject(minPres, maxPres),
-                helper.countProject,
-                helper.countMatch
+                HELPER_CONST.COUNT_PROJECT,
+                HELPER_CONST.COUNT_MATCH
                 ]);
         }
 
@@ -125,7 +126,7 @@ exports.layer_for_interpolation = function(req, res , next) {
         basin = JSON.parse(req.query.basin)
     }
 
-    const match = helper.makeMatch(startDate, endDate, basin);
+    const match = helper.make_match(startDate, endDate, basin);
     console.log(intPres, maxPres, minPres, startDate, endDate, basin, reduceMeas)
 
     req.getValidationResult().then(function (result) {
@@ -138,8 +139,8 @@ exports.layer_for_interpolation = function(req, res , next) {
         else {
             let agg = [match,
                         helper.presSliceProject(minPres, maxPres),
-                        helper.countProject,
-                        helper.countMatch]
+                        HELPER_CONST.COUNT_PROJECT,
+                        HELPER_CONST.COUNT_MATCH]
 
             if (reduceMeas) {
                 console.log('reduce exists as', reduceMeas)

@@ -23,8 +23,8 @@ exports.radius_selection = function(req, res , next) {
     let forcastDays = JSON.parse(req.params.forcastDays)
 
     point = {'type': 'Point', 'coordinates': [lat, lon]}
-    GJV.valid(point);
-    GJV.isPoint(point);
+    GJV.valid(point)
+    GJV.isPoint(point)
 
     const query = Covar.findOne({forcastDays: forcastDays, geoLocation: {
                                 $near: {
