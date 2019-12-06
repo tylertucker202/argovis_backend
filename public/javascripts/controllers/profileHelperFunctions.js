@@ -146,14 +146,16 @@ const make_map_pres_agg = function(minPres, maxPres, shapeJson, startDate, endDa
 const make_pres_agg = function(minPres, maxPres, shapeJson, startDate, endDate) {
 
     let presProj = make_pres_project(minPres, maxPres)
-    pres_agg = [
+    console.log(presProj)
+    const pres_agg = [
         {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
         presProj,
-        {$project: HELPER_CONST.PROF_PROJECT_WITH_PRES_RANGE},
+        {$project: HELPER_CONST.PROF_PROJECT_WITH_PRES_RANGE_COUNT},
         {$match: {count: {$gt: 0}}},
         {$sort: { date: -1}},
     ]
+    console.log(pres_agg)
     return pres_agg
 }
 
