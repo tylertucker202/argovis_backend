@@ -132,7 +132,9 @@ exports.selected_profile_list = function(req, res , next) {
     else {
         let agg = []
         if (req.params.format === 'map' && presRange) {
+            
             agg = helper.make_map_pres_agg(minPres, maxPres, shapeJson, startDate, endDate)
+            console.log(agg)
         }
         else if (req.params.format === 'map' && !presRange) {
             agg = [ {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
@@ -149,6 +151,7 @@ exports.selected_profile_list = function(req, res , next) {
                     {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}
             ]
         }
+        console.log('now we agg')
         const query = Profile.aggregate(agg)
         let promise = query.exec()
         promise

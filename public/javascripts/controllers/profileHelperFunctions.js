@@ -110,9 +110,8 @@ const make_match = function(startDate, endDate, basin) {
 
 }
 
-const make_map_pres_agg = function(minPres, maxPres, shapeJson, endDate, startDate) {
-    let agg = []
-    agg = [{$project: { // this projection has to be defined here
+const make_map_pres_agg = function(minPres, maxPres, shapeJson, startDate, endDate) {
+    let agg = [{$project: { // this projection has to be defined here
             platform_number: -1,
             date: -1,
             geoLocation: 1,
