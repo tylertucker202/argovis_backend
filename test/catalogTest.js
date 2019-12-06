@@ -46,6 +46,22 @@ describe('/GET catalog list of platforms', function() {
   });
 });
 
+describe('/GET a bgc platform', function() {
+  this.timeout(9000);
+  it('it should GET one platform', (done) => {
+    chai.request(app)
+    .get('/catalog/platforms/5903260')
+    .end((err, res) => {
+        //test overall response
+        res.should.have.status(200);
+        let profiles = res.body;
+        const profile = profiles[1]
+        should.exist(profile.bgcMeas)
+        done();
+    })
+  })
+})
+
 describe('/GET a platform', function() {
   this.timeout(2000);
   it('it should GET one platform', (done) => {
@@ -54,6 +70,8 @@ describe('/GET a platform', function() {
     .end((err, res) => {
         //test overall response
         res.should.have.status(200);
+
+
 
         let profiles = res.body.splice(0);
         let psal = [];

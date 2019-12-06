@@ -13,9 +13,9 @@ var ProfileSchema = Schema(
     date_added: {type: Date, required: false},
     date_qc: {type: Number, required: false},
     max_pres: {type: Number, required: true}, // currently not being used by app.
-    measurements: [{ pres: {type: Number, required: true},
-                     temp: {type: Number, required: true},
-                     psal: {type: Number, required: true},
+    measurements: [{ pres: {type: Number, required: true, default: null},
+                     temp: {type: Number, required: true, default: null},
+                     psal: {type: Number, required: true, default: null},
                      }],
     bgcMeas: [{ pres: {type: Number, required: false},
                 pres_qc: {type: Number, required: false},

@@ -4,6 +4,7 @@ const moment = require('moment');
 const helper = require('../public/javascripts/controllers/profileHelperFunctions')
 const HELPER_CONST = require('../public/javascripts/controllers/profileHelperConstants')
 
+
 const platformAggregate = {_id: '$platform_number',
                         'platform_number': {$first: '$platform_number'},
                         'most_recent_date': {$first: '$date'},
@@ -52,9 +53,10 @@ exports.platform_detail = function (req, res, next) {
 
     const query = Profile.find({platform_number: platform_number});
 
-    if (req.params.format==='page'){ // bgc not needed for page view
+    if (req.params.format==='page' || req.params.format==='page2'){ // bgc not needed for page view
         query.select('-bgcMeas')
     }
+    
 
     query.sort({date: -1});
     if (req.params.format==='map') {
