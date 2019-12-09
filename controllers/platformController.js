@@ -51,17 +51,19 @@ exports.platform_detail = function (req, res, next) {
 
     const platform_number = JSON.parse(req.params.platform_number)
 
-    const query = Profile.find({platform_number: platform_number});
+    let query = Profile.find({platform_number: platform_number});
 
     if (req.params.format==='page' || req.params.format==='page2'){ // bgc not needed for page view
         query.select('-bgcMeas')
     }
     
 
-    query.sort({date: -1});
+    //query.sort({date: -1});
     if (req.params.format==='map') {
         query.select(HELPER_CONST.MAP_PARAMS);
     }
+
+    //query.limit(5)
     
     query.exec(function (err, profiles) {
         if (err) return next(err);

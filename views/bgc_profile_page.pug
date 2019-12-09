@@ -76,10 +76,14 @@ html(lang='en')
         presQc = meas['pres_qc']
         delete meas['pres'];
         delete meas['pres_qc'];
-        measKeys = Object.keys(meas);
+        measKeys = findKeys(meas);
         qcKeys = measKeys.filter(s=>s.includes("_qc"));
         paramKeys = measKeys.filter(s=>!s.includes("_qc"));
         plotAxes = {}
+
+        console.log(meas)
+
+        console.log(paramKeys)
 
         for (idx in paramKeys) {
             
@@ -105,6 +109,7 @@ html(lang='en')
         }
 
         plotKeys = Object.keys(plotAxes)
+        console.log(plotKeys)
 
         for (idx in plotKeys) {
             paramKey = plotKeys[idx]

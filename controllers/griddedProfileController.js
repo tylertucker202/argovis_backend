@@ -23,7 +23,6 @@ exports.meta_date_selection = function(req, res, next) {
 
     req.getValidationResult().then(function (result) {
         if (!result.isEmpty()) {
-            console.log('an error!')
             var errors = result.array().map(function (elem) {
                 return elem.msg;
             });
@@ -59,8 +58,6 @@ exports.pres_layer_selection = function(req, res , next) {
 
     const startDate = moment.utc(req.query.startDate);
     const endDate = moment.utc(req.query.endDate);
-
-    console.log(startDate, endDate)
 
     let basin = null
     if (req.query.basin) {
@@ -111,7 +108,6 @@ exports.layer_for_interpolation = function(req, res , next) {
     let reduceMeas = null
     if (req.query.reduceMeas) {   
         reduceMeas = JSON.parse(req.query.reduceMeas)
-        console.log(reduceMeas)
     }
 
     const presRange = JSON.parse(req.query.presRange)
@@ -127,7 +123,6 @@ exports.layer_for_interpolation = function(req, res , next) {
     }
 
     const match = helper.make_match(startDate, endDate, basin);
-    console.log(intPres, maxPres, minPres, startDate, endDate, basin, reduceMeas)
 
     req.getValidationResult().then(function (result) {
         if (!result.isEmpty()) {
@@ -143,7 +138,6 @@ exports.layer_for_interpolation = function(req, res , next) {
                         HELPER_CONST.COUNT_MATCH]
 
             if (reduceMeas) {
-                console.log('reduce exists as', reduceMeas)
                 agg.concat(helper.reduceIntpMeas(intPres));
             }
             

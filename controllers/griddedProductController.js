@@ -11,11 +11,9 @@ exports.find_grid = function(req, res , next) {
     req.sanitize('trend').trim();
     const gridName = req.query.gridName
     const GridModel = helper.get_grid_model(Grid, gridName)
-    //console.log('my grid model is', GridModel)
 
     const monthYear = moment.utc('01-2007', 'MM-YYYY').startOf('D')
     const pres = 10
-    console.log(pres, monthYear.toDate(), gridName)
     const query = GridModel.aggregate([
         {$match: {pres: pres, date: monthYear.toDate(), gridName: gridName}},
         {$limit: 1}
@@ -40,8 +38,6 @@ exports.find_grid_param = function(req, res , next) {
     const pres = JSON.parse(req.query.presLevel)
     const gridName = req.query.gridName
     const param = req.query.param
-
-    console.log(pres, gridName)
     
     const query = GridParameter.find({pres: pres, gridName: gridName, param: param}, {model: 1, param:1, measurement: 1, trend: 1, pres: 1});
     query.limit(1)
@@ -76,7 +72,6 @@ exports.get_grid_window = function(req, res , next) {
     const monthYear = moment.utc(req.query.monthYear, 'MM-YYYY').startOf('D')
 
     const GridModel = helper.get_grid_model(Grid, gridName)
-    console.log(pres, monthYear, gridName)
 
     let agg = []
     agg.push({$match: {pres: pres, date: monthYear.toDate(), gridName: gridName }})
@@ -110,7 +105,6 @@ exports.get_param_window = function(req, res , next) {
     const latRange = JSON.parse(req.query.latRange)
     const lonRange = JSON.parse(req.query.lonRange)
 
-    console.log(gridName, param, pres)
     let agg = []
     agg.push({$match: {pres: pres, gridName: gridName, param: param}})
     agg = helper.add_param_proj(agg, latRange, lonRange)

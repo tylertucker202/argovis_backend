@@ -36,7 +36,7 @@ describe('/GET atlantic selection', function() {
               //test overall response
               res.should.have.status(200);
               res.body.should.be.a('array');
-              res.body.length.should.be.eql(4);
+              res.body.length.should.be.eql(6);
               //test an element of the response
               a_profile = res.body[0];
               a_profile.should.include.keys('_id', 'date', 'cycle_number','platform_number', 'geoLocation');

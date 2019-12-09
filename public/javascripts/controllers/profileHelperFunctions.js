@@ -155,7 +155,6 @@ const make_pres_agg = function(minPres, maxPres, shapeJson, startDate, endDate) 
         {$match: {count: {$gt: 0}}},
         {$sort: { date: -1}},
     ]
-    console.log(pres_agg)
     return pres_agg
 }
 

@@ -77,7 +77,7 @@ const roundArray = function (value){ return(Number(value).toFixed(3)) };
 
 const getMaskForPair = function(arrayOne, arrayTwo) {
     let mask = [];
-    const element = -999; // -999 is the actual nan value. -900 just in case of decimal
+    const element = null; // fill value
     for(let idx=0; idx < arrayOne.length; idx++){
         if (arrayOne[idx] === element || arrayTwo[idx] === element){
             mask.push(false);
@@ -92,7 +92,7 @@ const getMaskForPair = function(arrayOne, arrayTwo) {
 //Used to for pres vs psal. if temp reporting nan, psal should be zero too.
 const getMaskForTrio = function(arrayOne, arrayTwo, arrayThree) {
     let mask = [];
-    const element = -999; // -999 is the actual nan value. -900 just in case of decimal
+    const element = null; // fill value
     for(let idx=0; idx < arrayOne.length; idx++){
         if (arrayOne[idx] === element || arrayTwo[idx] === element || arrayThree[idx] === element){
             mask.push(false);
@@ -133,8 +133,11 @@ const makeMap = function(lats, longs, ids) {
     const longRange = [Math.min(...longs)-5, Math.max(...longs)+5]
     const latRange = [Math.min(...lats)-5, Math.max(...lats)+5]
 
-    const midLong = (longRange[1] + longRange[0])/2
+    const midLong = (longRange[1] + longRange[0])/2 + longRange[0]
     const midLat = (latRange[1] + latRange[0])/2
+
+    console.log('mid lat lng', midLat, midLong)
+    console.log('latRange, longRange', latRange, longRange)
     const data = [{
         type: 'scattergeo',
         mode: 'markers',

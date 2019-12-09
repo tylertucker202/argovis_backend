@@ -13,9 +13,9 @@ var ProfileSchema = Schema(
     date_added: {type: Date, required: false},
     date_qc: {type: Number, required: false},
     max_pres: {type: Number, required: true}, // currently not being used by app.
-    measurements: [{ pres: {type: Number, required: true, default: null}, //defaulting to null may cause performance issues for profiles with all nan
-                     temp: {type: Number, required: true, default: null}, 
-                     psal: {type: Number, required: true, default: null}, //watch out for performances issues if filling null in for all empty psal
+    measurements: [{ pres: {type: Number, required: true}, //defaulting to null may cause performance issues for profiles with all nan
+                     temp: {type: Number, required: false, default: null}, 
+                     psal: {type: Number, required: false, default: null}, //watch out for performances issues if filling null in for all empty psal
                      }],
     bgcMeas: [{ pres: {type: Number, required: false},
                 pres_qc: {type: Number, required: false},

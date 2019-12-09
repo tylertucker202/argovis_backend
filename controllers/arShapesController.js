@@ -14,7 +14,6 @@ exports.findByDate = function(req, res , next) {
     req.sanitize('date').toDate();
 
     const date = req.query.date;
-    console.log('date', date)
 
     const query = arShapes.find({date: date});
     query.exec(function (err, arShape) {
