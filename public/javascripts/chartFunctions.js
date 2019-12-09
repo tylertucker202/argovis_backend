@@ -130,14 +130,13 @@ const makeHistogram = function(x, xtitle) {
 }
 
 const makeMap = function(lats, longs, ids) {
-    const longRange = [Math.min(...longs)-5, Math.max(...longs)+5]
+    const minLong = Math.min(...longs)
+    const maxLong = Math.max(...longs)
+    const longRange = [minLong-5, maxLong+5]
     const latRange = [Math.min(...lats)-5, Math.max(...lats)+5]
+    const midLong =  minLong + 5 //just make sure some of the points are in range
 
-    const midLong = (longRange[1] + longRange[0])/2 + longRange[0]
     const midLat = (latRange[1] + latRange[0])/2
-
-    console.log('mid lat lng', midLat, midLong)
-    console.log('latRange, longRange', latRange, longRange)
     const data = [{
         type: 'scattergeo',
         mode: 'markers',

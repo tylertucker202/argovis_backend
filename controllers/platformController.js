@@ -58,12 +58,10 @@ exports.platform_detail = function (req, res, next) {
     }
     
 
-    //query.sort({date: -1});
+    //query.sort({date: -1}); //TODO: check if sorting by date slows down query
     if (req.params.format==='map') {
         query.select(HELPER_CONST.MAP_PARAMS);
     }
-
-    //query.limit(5)
     
     query.exec(function (err, profiles) {
         if (err) return next(err);
