@@ -134,8 +134,11 @@ const makeMap = function(lats, longs, ids) {
     const maxLong = Math.max(...longs)
     const longRange = [minLong-5, maxLong+5]
     const latRange = [Math.min(...lats)-5, Math.max(...lats)+5]
-    const midLong =  minLong + 5 //just make sure some of the points are in range
 
+    let midLong =  minLong + 5 //just make sure some of the points are in range
+    if (longs.length === 1) {
+        midLong = longs[0]
+    }
     const midLat = (latRange[1] + latRange[0])/2
     const data = [{
         type: 'scattergeo',
