@@ -53,12 +53,10 @@ exports.platform_detail = function (req, res, next) {
 
     let query = Profile.find({platform_number: platform_number});
 
-    if (req.params.format==='page' || req.params.format==='page2'){ // bgc not needed for page view
-        query.select('-bgcMeas')
-    }
+    query.select('-bgcMeas') // BGC is usually too much data
     
 
-    //query.sort({date: -1}); //TODO: check if sorting by date slows down query
+    //query.sort({date: -1}); //TODO: check why sorting by date slows down query
     if (req.params.format==='map') {
         query.select(HELPER_CONST.MAP_PARAMS);
     }
