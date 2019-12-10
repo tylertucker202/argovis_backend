@@ -53,7 +53,9 @@ exports.platform_detail = function (req, res, next) {
 
     let query = Profile.find({platform_number: platform_number});
 
-    query.select('-bgcMeas') // BGC is usually too much data
+    if (req.param.format==='page' || req.param.format==='page2'){
+        query.select('-bgcMeas') // BGC is usually too much data
+    }
     
 
     //query.sort({date: -1}); //TODO: check why sorting by date slows down query
