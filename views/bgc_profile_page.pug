@@ -39,7 +39,7 @@ html(lang='en')
                     td 
                         a(href=profile.nc_url) Link to profile data on Argo GDAC   
                 tr
-                    td BGC Parameters: #{paramKeys}
+                    td Parameters reported in NC file: #{paramKeys}
                     td 
                         a(href=profile.ifremerProfile target='_blank') Link to Ifremer visualization of this profile
                 tr
@@ -56,7 +56,7 @@ html(lang='en')
     script(type='text/javascript').
         sp = '!{paramKeys}'
         sp = sp.split(',')
-        sp = sp.filter(s => s)
+        sp = sp.filter(s => s.toLowerCase())
 
         var parent = document.getElementById('chart-grid');
         plotDivs = {}
@@ -65,6 +65,7 @@ html(lang='en')
             if (paramKey==='pres') {continue}
             plotDivs[paramKey] = document.createElement('div');
             plotDivs[paramKey].setAttribute("id", paramKey+'_chart');
+            console.log(paramKey+'_chart')
             
             parent.append(plotDivs[paramKey]);
         }
@@ -76,26 +77,31 @@ html(lang='en')
         presQc = meas['pres_qc']
         delete meas['pres'];
         delete meas['pres_qc'];
-        measKeys = findKeys(meas);
-        qcKeys = measKeys.filter(s=>s.includes("_qc"));
-        paramKeys = measKeys.filter(s=>!s.includes("_qc"));
-        plotAxes = {}
-
+        let paramKeys = '!{paramKeys}'
+        paramKeys = paramKeys.split(',')
+        paramKeys = paramKeys.filter(s => s)
+        delete paramKeys['pres'];
+        const qcKeys = paramKeys.map(x => x + '_qc');
+        console.log(paramKeys, qcKeys)
         console.log(meas)
+        var plotAxes = {}
 
-        console.log(paramKeys)
-
-        for (idx in paramKeys) {
-            
-            if (!meas[paramKeys[idx]+'_qc']) { continue } //include param if param_qc exists
-            presVsParamMask = getMaskForPair(meas[paramKeys[idx]], pres)
+        for (let idx=0; idx<paramKeys.length; idx++) {
+            const key = paramKeys[idx].toLowerCase()
+            if (key ==='pres') { continue }
+            const paramMeas = meas[key]
+            const paramQC = meas[key + '_qc']
+            console.log('idx', idx, 'param', key, 'qc', paramQC)
+            if (!qcKeys.includes(key+'_qc') ) { continue } //include param if param_qc exists
+            console.log(paramMeas)
+            presVsParamMask = getMaskForPair(paramMeas, pres)
             presForParam = pres.filter((item, i) => presVsParamMask[i]);
             presQcForParam = presQc.filter((item, i) => presVsParamMask[i]);
 
-            paramForPres = meas[paramKeys[idx]].filter((item, i) => presVsParamMask[i]);
-            paramQcForPres = meas[paramKeys[idx]+'_qc'].filter((item, i) => presVsParamMask[i]);
-            plotAxes[paramKeys[idx]] = { 'pres': presForParam.map(roundArray), 'pres_qc': presQcForParam, 'param': paramForPres.map(roundArray), 'qc': paramQcForPres}
-
+            paramForPres = paramMeas.filter((item, i) => presVsParamMask[i]);
+            paramQcForPres = paramQC.filter((item, i) => presVsParamMask[i]);
+            //console.log(key)
+            plotAxes[key] = { 'pres': presForParam.map(roundArray), 'pres_qc': presQcForParam, 'param': paramForPres.map(roundArray), 'qc': paramQcForPres}
         }
 
         traces = []
@@ -108,26 +114,23 @@ html(lang='en')
             showlegend: false
         }
 
-        plotKeys = Object.keys(plotAxes)
-        console.log(plotKeys)
-
-        for (idx in plotKeys) {
-            paramKey = plotKeys[idx]
-            let traceParam = getTraceParams(paramKey, idx)
-            traceParam['xvalues'] = plotAxes[paramKey].param
-            traceParam['xqc'] = plotAxes[paramKey].qc
-            traceParam['yvalues'] = plotAxes[paramKey].pres
-            traceParam['yqc'] = plotAxes[paramKey].pres_qc
+        for (let idx=0; idx<paramKeys.length; idx++) {
+            const key = paramKeys[idx].toLowerCase()
+            if (key ==='pres') { continue }
+            console.log(key, idx)
+            let traceParam = getTraceParams(key, idx)
+            console.log(plotAxes)
+            traceParam['xvalues'] = plotAxes[key].param
+            traceParam['xqc'] = plotAxes[key].qc
+            traceParam['yvalues'] = plotAxes[key].pres
+            traceParam['yqc'] = plotAxes[key].pres_qc
             
-            trace = makeTrace(traceParam, paramKey)
-            traces.push(makeTrace(traceParam, paramKey))
+            trace = makeTrace(traceParam, key)
+            traces.push(makeTrace(traceParam, key))
 
             xLabel = traceParam['xlabel'] + '[' + traceParam['xunits'] + ' ]'
             layout = makeLayout(traceParam['title'], xLabel, traceParam['yaxis'])
 
-            div = document.getElementById(paramKey+'_chart')
-            //Plotly.newPlot(div, trace, layout);
-
+            div = document.getElementById(key+'_chart')
             Plotly.newPlot(div, [trace], layout);
         }
-        //Plotly.plot('TPS_CHART', traces, layout);

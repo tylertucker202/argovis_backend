@@ -34,6 +34,7 @@ var ProfileSchema = Schema(
                 nitrate: {type: Number, required: false},
                 nitrate_qc: {type: Number, required: false},
               }],
+    bgcMeasKeys: {type: [String], required: false},
     lat: {type: Number, required: true},
     lon: {type: Number, required: true},
     platform_number: {type: Number, required: true, max: 100},

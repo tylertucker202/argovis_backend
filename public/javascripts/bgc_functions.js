@@ -144,11 +144,9 @@ function findKeys(measurements) {
     let pkeys = [];
     for (let idx=0; idx<measurements.length; idx++){
         const keys = Object.keys(measurements[idx])
-        const paramKeys = keys.filter(s=>!s.includes("_qc"));
-        pkeys = pkeys.concat(paramKeys)
+        pkeys = pkeys.concat(keys)
     }
     let unique_keys = [...new Set(pkeys)]
-    console.log(unique_keys)
     return unique_keys
 }
 
@@ -165,7 +163,6 @@ function collateMeasurements(measurements) {
             map[keys[idx]].push(measurements[i][keys[idx]])
         }
     }
-    console.log('collateMeasurements', map)
     return map;
 }
 

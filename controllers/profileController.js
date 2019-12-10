@@ -60,6 +60,13 @@ exports.profile_detail = function (req, res, next) {
         if (req.params.format==='map') {
             query.select(HELPER_CONST.MAP_PARAMS)
         }
+        if (req.params.format==='page') {
+            query.select('-bgcMeas') //bgcMeas can be large
+        }
+        if (req.params.format==='bgcPage') {
+            query.select('-measurements') //remove unneeded measurements can be large
+        }
+        
         let promise = query.exec()
 
         promise
@@ -73,17 +80,16 @@ exports.profile_detail = function (req, res, next) {
                                                        profileDate: profileDate})
                 }
             }
+
             else if (req.params.format==='bgcPage'){
                 if (profile === null) { res.send('profile not found') }
                 if (profile.bgcMeas === null) { res.send('profile does not have bgc') }
                 else {
-                    keys = Object.keys(profile.bgcMeas[0].toObject())
-                    paramKeys = keys.filter(s=>!s.includes('_qc'))
-                    paramKeys = paramKeys.map( s => s.replace(' ',''))
+
                     profileDate = moment.utc(profile.date).format('YYYY-MM-DD HH:mm')
                     res.render('bgc_profile_page', {title: req.params._id, profile: profile,
                                                     platform_number: profile.platform_number,
-                                                    paramKeys: paramKeys, profileDate: profileDate})
+                                                    paramKeys: profile.bgcMeasKeys, profileDate: profileDate})
                 }
             }
             else {
