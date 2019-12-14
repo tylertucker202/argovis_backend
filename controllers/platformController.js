@@ -51,16 +51,14 @@ exports.platform_detail = function (req, res, next) {
 
     const platform_number = JSON.parse(req.params.platform_number)
 
-    let query = Profile.find({platform_number: platform_number});
-
-    if (req.param.format==='page' || req.param.format==='page2'){
-        query.select('-bgcMeas') // BGC is usually too much data
-    }
-    
+    let query = Profile.find({platform_number: platform_number});    
 
     //query.sort({date: -1}); //TODO: check why sorting by date slows down query
     if (req.params.format==='map') {
         query.select(HELPER_CONST.MAP_PARAMS);
+    }
+    else {
+        query.select('-bgcMeas') // BGC is usually too much data
     }
     
     query.exec(function (err, profiles) {
