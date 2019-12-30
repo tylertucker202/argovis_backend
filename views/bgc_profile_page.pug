@@ -83,14 +83,14 @@ html(lang='en')
         paramKeys = paramKeys.split(',')
         paramKeys = paramKeys.filter(s => s)
         delete paramKeys['pres'];
-        const qcKeys = paramKeys.map(x => x + '_qc');\
+        const qcKeys = paramKeys.map(x => x + '_qc');
         var plotAxes = {}
 
         for (let idx=0; idx<paramKeys.length; idx++) {
             const key = paramKeys[idx].toLowerCase()
             if (key ==='pres') { continue }
             const paramMeas = meas[key]
-            const paramQC = meas[key + '_qc']\
+            const paramQC = meas[key + '_qc']
             if (!qcKeys.includes(key+'_qc') ) { continue } //include param if param_qc exists
             presVsParamMask = getMaskForPair(paramMeas, pres)
             presForParam = pres.filter((item, i) => presVsParamMask[i]);
