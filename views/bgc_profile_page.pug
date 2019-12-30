@@ -71,7 +71,9 @@ html(lang='en')
         }
 
     script(type='text/javascript').
+
         var meas = [!{profile.bgcMeas}];
+        
         meas = collateMeasurements(meas);
         pres = meas['pres']
         presQc = meas['pres_qc']
