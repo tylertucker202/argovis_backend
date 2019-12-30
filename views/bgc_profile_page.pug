@@ -83,19 +83,15 @@ html(lang='en')
         paramKeys = paramKeys.split(',')
         paramKeys = paramKeys.filter(s => s)
         delete paramKeys['pres'];
-        const qcKeys = paramKeys.map(x => x + '_qc');
-        console.log(paramKeys, qcKeys)
-        console.log(meas)
+        const qcKeys = paramKeys.map(x => x + '_qc');\
         var plotAxes = {}
 
         for (let idx=0; idx<paramKeys.length; idx++) {
             const key = paramKeys[idx].toLowerCase()
             if (key ==='pres') { continue }
             const paramMeas = meas[key]
-            const paramQC = meas[key + '_qc']
-            console.log('idx', idx, 'param', key, 'qc', paramQC)
+            const paramQC = meas[key + '_qc']\
             if (!qcKeys.includes(key+'_qc') ) { continue } //include param if param_qc exists
-            console.log(paramMeas)
             presVsParamMask = getMaskForPair(paramMeas, pres)
             presForParam = pres.filter((item, i) => presVsParamMask[i]);
             presQcForParam = presQc.filter((item, i) => presVsParamMask[i]);
@@ -119,9 +115,7 @@ html(lang='en')
         for (let idx=0; idx<paramKeys.length; idx++) {
             const key = paramKeys[idx].toLowerCase()
             if (key ==='pres') { continue }
-            console.log(key, idx)
             let traceParam = getTraceParams(key, idx)
-            console.log(plotAxes)
             traceParam['xvalues'] = plotAxes[key].param
             traceParam['xqc'] = plotAxes[key].qc
             traceParam['yvalues'] = plotAxes[key].pres
