@@ -1,5 +1,5 @@
 const Grid = require('../models/grid');
-const GridParameter = Grid.ksParams;
+const GridParameter = Grid.ksTempParams;
 const moment = require('moment');
 
 const helper = require('../public/javascripts/controllers/griddedHelperFunctions')
@@ -107,7 +107,9 @@ exports.get_param_window = function(req, res , next) {
 
     let agg = []
     agg.push({$match: {pres: pres, gridName: gridName, param: param}})
-    agg = helper.add_param_proj(agg, latRange, lonRange)
+    console.log(agg)
+    agg = helper.add_param_projection(agg, latRange, lonRange)
+    console.log(agg)
 
     const query = GridParameter.aggregate(agg);
     
