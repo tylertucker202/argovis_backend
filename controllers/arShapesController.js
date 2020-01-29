@@ -16,8 +16,19 @@ exports.findByDate = function(req, res , next) {
     const date = req.query.date;
 
     const query = arShapes.find({date: date});
-    query.exec(function (err, arShape) {
-    if (err) return next(err);
-    res.json(arShape);
+    query.exec(function (err, arShapes) {
+        if (err) return next(err);
+        res.json(arShapes);
+    })
+}
+
+exports.findByID = function(req, res, next) {
+    req.checkQuery('_id', 'id should be specified.').notEmpty();
+    const shape_id = req.query._id
+    console.log("shape_id: ", shape_id)
+    const query = arShapes.find({_id: shape_id})
+    query.exec(function (err, arShapes) {
+        if (err) return next(err);
+        res.json(arShapes);
     })
 }

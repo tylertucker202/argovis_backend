@@ -10,4 +10,6 @@ router.get('/', ar_shapes_controller.findOne);
 /* GET an ar shape. */
 router.get('/findByDate', ar_shapes_controller.findByDate);
 
+router.get('/findByID', ar_shapes_controller.findByID)
+
 module.exports = router
