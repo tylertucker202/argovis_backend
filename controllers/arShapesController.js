@@ -12,9 +12,7 @@ exports.findOne = function(req, res , next) {
 exports.findByDate = function(req, res , next) {
     req.checkQuery('date', 'date should be specified.').notEmpty();
     req.sanitize('date').toDate();
-
     const date = req.query.date;
-
     const query = arShapes.find({date: date});
     query.exec(function (err, arShapes) {
         if (err) return next(err);
@@ -25,7 +23,6 @@ exports.findByDate = function(req, res , next) {
 exports.findByID = function(req, res, next) {
     req.checkQuery('_id', 'id should be specified.').notEmpty();
     const shape_id = req.query._id
-    console.log("shape_id: ", shape_id)
     const query = arShapes.find({_id: shape_id})
     query.exec(function (err, arShapes) {
         if (err) return next(err);
