@@ -27,6 +27,7 @@ var GridSchema = Schema(
 module.exports = {}
 module.exports.ksTempAnom = mongoose.model('ksTempAnom', GridSchema, 'ksTempAnom');
 module.exports.rgTempAnom = mongoose.model('rgTempAnom', GridSchema, 'rgTempAnom');
+module.exports.rgTempTotal = mongoose.model('rgTempTotal', GridSchema, 'rgTempTotal');
 module.exports.ksTempMean = mongoose.model('ksTempMean', GridSchema, 'ksTempMean')
 module.exports.ksTempTotal = mongoose.model('ksTempTotal', GridSchema, 'ksTempTotal');
 module.exports.ksTempParams = mongoose.model('ksTempParams', GridSchema, 'ksTempParams');

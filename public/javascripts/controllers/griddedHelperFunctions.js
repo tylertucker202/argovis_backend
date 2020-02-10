@@ -1,19 +1,18 @@
 const get_grid_model = function(Grid, gridName) {
     let GridModel
     if (!gridName.includes('Total') && !gridName.includes('Space') && gridName.includes('ks')) {
-        console.log('ksTempMean collection selected')
         GridModel = Grid.ksTempMean
     }
     else if  (!gridName.includes('Total') && gridName.includes('Space') && gridName.includes('ks')) {
-        console.log('ksTempAnom collection selected')
         GridModel = Grid.ksTempAnom
     }
     else if  (gridName.includes('Anom') && gridName.includes('rg')) {
-        console.log('rgTempAnom collection selected')
         GridModel = Grid.rgTempAnom
     }
+    else if  (gridName.includes('Total') && gridName.includes('rg')) {
+        GridModel = Grid.rgTempTotal
+    }
     else if (gridName.includes('Total') && gridName.includes('ks')) {
-        console.log('ksTempTotal collection selected')
         GridModel = Grid.ksTempTotal
     }
     else {
