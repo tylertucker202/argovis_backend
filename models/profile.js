@@ -57,12 +57,9 @@ var ProfileSchema = Schema(
     WMO_INST_TYPE: {type: String, required: false, max: 100},
     POSITIONING_SYSTEM: {type: String, required: false, max: 100},
     DATA_MODE: {type: String, required: false, max: 100},
-<<<<<<< HEAD
     PARAMETER_DATA_MODE: { type: [String], required: false},
     DATA_CENTRE: {type: String, required: false, max: 100},
     DIRECTION: {type: String, required: false, max: 100},
-=======
->>>>>>> 2e2c33800c8bb896fc1378632764f41bd548f047
     PLATFORM_TYPE: {type: String, required: false, max: 100},
     pres_max_for_TEMP: {type: Number, required: false},
     pres_max_for_PSAL: {type: Number, required: false},
