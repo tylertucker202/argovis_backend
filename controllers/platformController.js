@@ -1,9 +1,9 @@
-var Profile = require('../models/profile');
-var async = require('async');
-var moment = require('moment');
+const Profile = require('../models/profile');
+const async = require('async');
+const moment = require('moment');
+const helper = require('../public/javascripts/controllers/profileHelperFunctions')
+const HELPER_CONST = require('../public/javascripts/controllers/profileHelperConstants')
 
-//station_parameters, lat, lon are needed for virtural fields
-const mapParams = 'platform_number date geoLocation cycle_number station_parameters lat lon DATA_MODE containsBGC isDeep DIRECTION';
 
 const platformAggregate = {_id: '$platform_number',
                         'platform_number': {$first: '$platform_number'},
@@ -31,7 +31,7 @@ exports.db_list = function(req, res) {
 
 // Display list of all platforms
 exports.platform_list = function(req, res, next) {
-    var query = Profile.aggregate([
+    const query = Profile.aggregate([
                        {$sort: { 'date':-1}},
                        {$group: platformAggregate}
     ]);
@@ -51,15 +51,14 @@ exports.platform_detail = function (req, res, next) {
 
     const platform_number = JSON.parse(req.params.platform_number)
 
-    const query = Profile.find({platform_number: platform_number});
+    let query = Profile.find({platform_number: platform_number});    
 
-    if (req.params.format==='page'){ // bgc not needed for page view
-        query.select('-bgcMeas')
-    }
-
-    query.sort({date: -1});
+    //query.sort({date: -1}); //TODO: check why sorting by date slows down query
     if (req.params.format==='map') {
-        query.select(mapParams);
+        query.select(HELPER_CONST.MAP_PARAMS);
+    }
+    else {
+        query.select('-bgcMeas') // BGC is usually too much data
     }
     
     query.exec(function (err, profiles) {

@@ -140,17 +140,27 @@ const getTraceParams = function (paramKey, idx) {
     return traceParam
 }
 
-function collateMeasurements(list) {
-    var map = {};
-    var keys = Object.keys(list[0]);
+function findKeys(measurements) {
+    let pkeys = [];
+    for (let idx=0; idx<measurements.length; idx++){
+        const keys = Object.keys(measurements[idx])
+        pkeys = pkeys.concat(keys)
+    }
+    let unique_keys = [...new Set(pkeys)]
+    return unique_keys
+}
+
+function collateMeasurements(measurements) {
+    let map = {}
+    let keys = findKeys(measurements)
 
     for (idx in keys) {
         map[keys[idx]] = [];
     }
 
-    for (var i = 0; i < list.length; ++i) {
+    for (let i = 0; i < measurements.length; ++i) {
         for (idx in keys) {
-            map[keys[idx]].push(list[i][keys[idx]])
+            map[keys[idx]].push(measurements[i][keys[idx]])
         }
     }
     return map;

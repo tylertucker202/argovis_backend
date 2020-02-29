@@ -1,13 +1,12 @@
-var Profile = require('../models/profile');
-var moment = require('moment');
-var helpfun = require('./helperFunctions');
-
+const Profile = require('../models/profile');
+const moment = require('moment');
+const helper = require('../public/javascripts/controllers/profileHelperFunctions')
+const HELPER_CONST = require('../public/javascripts/controllers/profileHelperConstants')
 
 exports.meta_date_selection = function(req, res, next) {
 
     req.sanitize('startDate').toDate();
     req.sanitize('endDate').toDate();
-
 
     if (req.query.basin) {
         const basin = JSON.parse(req.query.basin)
@@ -24,7 +23,6 @@ exports.meta_date_selection = function(req, res, next) {
 
     req.getValidationResult().then(function (result) {
         if (!result.isEmpty()) {
-            console.log('an error!')
             var errors = result.array().map(function (elem) {
                 return elem.msg;
             });
@@ -32,7 +30,7 @@ exports.meta_date_selection = function(req, res, next) {
             res.render('error', { errors: errors });
         }
         else {
-            var query = Profile.aggregate([ match, {$project: metaDateSliceParams} ]);
+            var query = Profile.aggregate([ match, {$project: HELPER_CONST.META_DATE_SLICE_PARAMS} ]);
         }
         let promise = query.exec();
         promise
@@ -61,16 +59,12 @@ exports.pres_layer_selection = function(req, res , next) {
     const startDate = moment.utc(req.query.startDate);
     const endDate = moment.utc(req.query.endDate);
 
-    console.log(startDate, endDate)
-
     let basin = null
     if (req.query.basin) {
         basin = JSON.parse(req.query.basin)
     }
 
-    const match = helpfun.makeMatch(startDate, endDate, basin);
-
-
+    const match = helper.make_match(startDate, endDate, basin);
     req.getValidationResult().then(function (result) {
         if (!result.isEmpty()) {
             var errors = result.array().map(function (elem) {
@@ -81,9 +75,9 @@ exports.pres_layer_selection = function(req, res , next) {
         else {
             var query = Profile.aggregate([
                 match,
-                helpfun.presSliceProject(minPres, maxPres),
-                helpfun.countProject,
-                helpfun.countMatch
+                helper.presSliceProject(minPres, maxPres),
+                HELPER_CONST.COUNT_PROJECT,
+                HELPER_CONST.COUNT_MATCH
                 ]);
         }
 
@@ -114,7 +108,6 @@ exports.layer_for_interpolation = function(req, res , next) {
     let reduceMeas = null
     if (req.query.reduceMeas) {   
         reduceMeas = JSON.parse(req.query.reduceMeas)
-        console.log(reduceMeas)
     }
 
     const presRange = JSON.parse(req.query.presRange)
@@ -129,33 +122,28 @@ exports.layer_for_interpolation = function(req, res , next) {
         basin = JSON.parse(req.query.basin)
     }
 
-    const match = helpfun.makeMatch(startDate, endDate, basin);
-
-    console.log(intPres, maxPres, minPres, startDate, endDate, basin, reduceMeas)
-
-
+    const match = helper.make_match(startDate, endDate, basin);
 
     req.getValidationResult().then(function (result) {
         if (!result.isEmpty()) {
-            var errors = result.array().map(function (elem) {
+            const errors = result.array().map(function (elem) {
                 return elem.msg;
             });
             res.render('error', { errors: errors });
         }
         else {
             let agg = [match,
-                        helpfun.presSliceProject(minPres, maxPres),
-                        helpfun.countProject,
-                        helpfun.countMatch]
+                        helper.presSliceProject(minPres, maxPres),
+                        HELPER_CONST.COUNT_PROJECT,
+                        HELPER_CONST.COUNT_MATCH]
 
             if (reduceMeas) {
-                console.log('reduce exists as', reduceMeas)
-                agg.concat(helpfun.reduceIntpMeas(intPres));
+                agg.concat(helper.reduceIntpMeas(intPres));
             }
             
             var query = Profile.aggregate(agg);
         }
-        var promise = query.exec();
+        const promise = query.exec();
         promise
         .then(function (profiles) {
                 res.json(profiles);

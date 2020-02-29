@@ -55,6 +55,8 @@ describe('/GET a platform', function() {
         //test overall response
         res.should.have.status(200);
 
+
+
         let profiles = res.body.splice(0);
         let psal = [];
         let pres = [];
@@ -212,4 +214,25 @@ describe('/GET profile render', function() {
   });
 });
 
+
+describe('/GET profile render with nan in psal', function() {
+  this.timeout(500);
+  it('it should GET the profile with nan in psal.', (done) => {
+    const urlQuery = '/catalog/profiles/4900421_16'
+    chai.request(app)
+    .get(urlQuery)
+    .end((err, res) => {
+        //test overall response
+        res.should.have.status(200);
+        a_profile = res.body;
+        const meas = a_profile.measurements
+
+        const last_psal = meas[meas.length-1].psal
+        //last_psal.should.not.exist()
+        should.equal(last_psal, null)
+
+        done();
+    });
+  });
+});
 

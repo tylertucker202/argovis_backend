@@ -1,5 +1,5 @@
-var Profile = require('../models/profile');
-var async = require('async');
+const Profile = require('../models/profile');
+const async = require('async');
 
 
 // Display float detail form on GET
@@ -9,7 +9,7 @@ exports.dac_detail = function(req, res, next) {
 
 // Display list of all dacs
 exports.dac_list = function(req, res, next) {
-    var query = Profile.aggregate([
+    const query = Profile.aggregate([
                         {$sort: { 'date':-1}},
                         {$group: {_id: '$dac',
                                  'number_of_profiles': {$sum:1},

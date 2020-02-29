@@ -8,7 +8,7 @@ let should = chai.should();
 chai.use(chaiHttp);
 
 /* Test covar */
-describe('/GET get an interpolatoin object', function() {
+describe('/GET get an interpolation object', function() {
     this.timeout(2000);
     const startDate = 'startDate=2004-12-01'
     const endDate = 'endDate=2004-12-31'
@@ -44,7 +44,7 @@ describe('/GET get an interpolatoin object', function() {
               const measurements = prof.measurements
 
               measurements.length.should.be.gt(2)
-              measurements.length.should.be.lte(4)
+              measurements.length.should.be.lte(7)
               let prevMeas = {pres:-200}
               for (let jdx=0; jdx < measurements.length; jdx++){
                   const meas = measurements[jdx]

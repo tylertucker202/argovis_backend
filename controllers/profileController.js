@@ -1,188 +1,56 @@
-var Profile = require('../models/profile');
-var moment = require('moment');
-var GJV = require('geojson-validation');
-
-//station_parameters, lat, lon are needed for virtural fields
-const mapParams = 'platform_number date geoLocation cycle_number station_parameters lat lon DATA_MODE containsBGC isDeep DIRECTION';
-
-const mapProj = {platform_number: -1,
-    date: -1,
-    geoLocation: 1,
-    cycle_number: -1,
-    DATA_MODE: -1,
-    containsBGC: 1,
-    isDeep: 1,
-    DIRECTION: 1,
-    }
-
-const mapProjWithCount = {platform_number: -1,
-                date: -1,
-                geoLocation: 1,
-                cycle_number: -1,
-                DATA_MODE: -1,
-                containsBGC: 1,
-                isDeep: 1,
-                count: { $size:'$measurements' },
-                DIRECTION: 1,
-                }
-
-const profProjectWithPresRange =  { // return profiles with measurements
-    platform_number: 1,
-    date:  1,
-    date_qc: 1,
-    geo2DLocation: 1,
-    PI_NAME: 1,
-    cycle_number: 1,
-    lat: 1,
-    lon: 1,
-    position_qc: 1,
-    PLATFORM_TYPE: 1,
-    POSITIONING_SYSTEM: 1,
-    DATA_MODE: 1,
-    station_parameters: 1,
-    VERTICAL_SAMPLING_SCHEME: 1,
-    STATION_PARAMETERS_inMongoDB: 1,
-    WMO_INST_TYPE: 1,
-    cycle_number: 1,
-    dac: 1,
-    basin: 1,
-    nc_url: 1,
-    geoLocation: 1,
-    station_parameters: 1,
-    maximum_pressure: 1,
-    POSITIONING_SYSTEM: 1,
-    DATA_MODE: 1,
-    measurements: 1,
-    count: { $size:'$measurements' },
-    }
-
+const Profile = require('../models/profile')
+const moment = require('moment')
+const GJV = require('geojson-validation')
+const helper = require('../public/javascripts/controllers/profileHelperFunctions')
+const HELPER_CONST = require('../public/javascripts/controllers/profileHelperConstants')
 
 // Display list of Profiles in a list of _ids
 exports.profile_list = function(req, res, next) {
-    req.checkQuery('ids', 'ids should be specified.').notEmpty();
-    //req.sanitize('ids').escape();
-    req.sanitize('ids').trim();
-    req.sanitize('presRange').escape();
-    req.sanitize('presRange').trim();
+    req.checkQuery('ids', 'ids should be specified.').notEmpty()
+    //req.sanitize('ids').escape()
+    req.sanitize('ids').trim()
+    req.sanitize('presRange').escape()
+    req.sanitize('presRange').trim()
 
-    const errors = req.validationErrors();
+    const errors = req.validationErrors()
 
-<<<<<<< HEAD
     if (errors) {
         res.send(errors)
     }
 
-    console.log(req.query.ids)
     const _ids = JSON.parse(req.query.ids.replace(/'/g, '"'))
 
-    let presRange = null;
-    let maxPres = null;
-    let minPres = null;
+    let presRange = null
+    let maxPres = null
+    let minPres = null
     if (req.query.presRange) {
-        presRange = JSON.parse(req.query.presRange);
-        maxPres = Number(presRange[1]);
-        minPres = Number(presRange[0]);
+        presRange = JSON.parse(req.query.presRange)
+        maxPres = Number(presRange[1])
+        minPres = Number(presRange[0])
     }
-
 
     idMatch = {$match: {_id: { $in: _ids}}}
     let idAgg = []
     idAgg.push(idMatch)
     if (presRange){
-        idProject = { $project: { //need to include all fields that you wish to keep.
-            platform_number: 1,
-            date:  1,
-            date_qc: 1,
-            geo2DLocation: 1,
-            PI_NAME: 1,
-            cycle_number: 1,
-            lat: 1,
-            lon: 1,
-            position_qc: 1,
-            PLATFORM_TYPE: 1,
-            POSITIONING_SYSTEM: 1,
-            DATA_MODE: 1,
-            station_parameters: 1,
-            VERTICAL_SAMPLING_SCHEME: 1,
-            STATION_PARAMETERS_inMongoDB: 1,
-            WMO_INST_TYPE: 1,
-            cycle_number: 1,
-            dac: 1,
-            basin: 1,
-            nc_url: 1,
-            geoLocation: 1,
-            station_parameters: 1,
-            maximum_pressure: 1,
-            POSITIONING_SYSTEM: 1,
-            DATA_MODE: 1,
-            PLATFORM_TYPE: 1,
-            measurements: {
-                $filter: {
-                    input: '$measurements',
-                    as: 'item',
-                    cond: { 
-                        $and: [
-                            {$gt: ['$$item.pres', minPres]},
-                            {$lt: ['$$item.pres', maxPres]}
-                        ]},
-                },
-            },
-        }},
-        idAgg.push(idProject)
+        idAgg.push(helper.make_pres_project(minPres, maxPres))
     }
-    idAgg.push({$project: profProjectWithPresRange})
+    idAgg.push({$project: HELPER_CONST.PROF_PROJECT_WITH_PRES_RANGE_COUNT})
     idAgg.push({$match: {count: {$gt: 0}}})
     idAgg.push({$sort: { date: -1}})
 
-    let query = Profile.aggregate(idAgg);
+    const query = Profile.aggregate(idAgg)
 
     query.exec( function (err, profiles) {
-        if (err) { return next(err); }
-=======
-    const year = JSON.parse(req.params.year);
-    const month = JSON.parse(req.params.month);
-    const startDate = moment.utc(year + '-' + month + '-' + 01,'YYYY-MM-DD');
-    const endDate = startDate.clone().endOf('month');
-    const query = Profile.aggregate([
-        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-        {$unwind: "$measurements"},
-        {$group: {   _id: "$_id",
-                     platform_number: { "$first": "$platform_number"},
-                     date:  { "$first": "$date"},
-                     date_qc: { "$first": "$date_qc"},
-                     geo2DLocation: { "$first": "$geo2DLocation"},
-                     PI_NAME: {"$first": "$PI_NAME"},
-                     cycle_number:  { "$first": "$cycle_number"},
-                     lat:  { "$first": "$lat"},
-                     lon:  { "$first": "$lon"},
-                     position_qc: {"$first": "$position_qc"},
-                     PLATFORM_TYPE:  { "$first": "$PLATFORM_TYPE"},
-                     POSITIONING_SYSTEM:  { "$first": "$POSITIONING_SYSTEM"},
-                     DATA_MODE:  { "$first": "$DATA_MODE"},
-                     station_parameters: { "$first": "$station_parameters"},
-                     VERTICAL_SAMPLING_SCHEME: { "$first": "$VERTICAL_SAMPLING_SCHEME"},
-                     STATION_PARAMETERS_inMongoDB: { "$first": "$station_parameters"},
-                     cycle_number:  { "$first": "$cycle_number"},
-                     dac:  { "$first": "$dac"},
-                     pres_max_for_TEMP: { "$first": "$pres_max_for_TEMP"},
-                     pres_min_for_TEMP: { "$first": "$PRES_min_for_TEMP"},
-                     pres_max_for_PSAL: { "$first": "$pres_max_for_PSAL"},
-                     pres_min_for_PSAL: { "$first": "$pres_min_for_PSAL"},
-                     BASIN: { "$first": "$BASIN"}
-                    },
-        },   
-    ]);
-    const promise = query.exec();
-    promise.then(function (profiles) {
->>>>>>> 2e2c33800c8bb896fc1378632764f41bd548f047
-        res.json(profiles);
-    });
-};
+        if (err) { return next(err) }
+        res.json(profiles)
+    })
+}
 
 exports.profile_detail = function (req, res, next) {
-    req.checkParams('_id', 'Profile id should be specified.').notEmpty();
-    const errors = req.validationErrors();
-    req.sanitize('_id').escape();
+    req.checkParams('_id', 'Profile id should be specified.').notEmpty()
+    const errors = req.validationErrors()
+    req.sanitize('_id').escape()
 
     if (errors) {
         res.send(errors)
@@ -190,263 +58,123 @@ exports.profile_detail = function (req, res, next) {
     else {
         let query = Profile.findOne({ _id: req.params._id })
         if (req.params.format==='map') {
-            query.select(mapParams);
+            query.select(HELPER_CONST.MAP_PARAMS)
         }
-        let promise = query.exec();
+        if (req.params.format==='page') {
+            query.select('-bgcMeas') //bgcMeas can be large
+        }
+        if (req.params.format==='bgcPage') {
+            query.select('-measurements') //remove unneeded measurements can be large
+        }
+        
+        let promise = query.exec()
 
         promise
         .then(function (profile) {
             if (req.params.format==='page'){
-                if (profile === null) { res.send('profile not found'); }
+                if (profile === null) { res.send('profile not found') }
                 else {
                     profileDate = moment.utc(profile.date).format('YYYY-MM-DD HH:mm')
                     res.render('profile_page', {title: req.params._id, profile: profile,
                                                        platform_number: profile.platform_number,
-                                                       profileDate: profileDate});
+                                                       profileDate: profileDate})
                 }
             }
+
             else if (req.params.format==='bgcPage'){
-                if (profile === null) { res.send('profile not found'); }
-                if (profile.bgcMeas === null) { res.send('profile does not have bgc'); }
+                if (profile === null) { res.send('profile not found') }
+                if (profile.bgcMeas === null) { res.send('profile does not have bgc') }
                 else {
-                    keys = Object.keys(profile.bgcMeas[0].toObject());
-                    paramKeys = keys.filter(s=>!s.includes('_qc'))
-                    paramKeys = paramKeys.map( s => s.replace(' ',''))
+
                     profileDate = moment.utc(profile.date).format('YYYY-MM-DD HH:mm')
                     res.render('bgc_profile_page', {title: req.params._id, profile: profile,
                                                     platform_number: profile.platform_number,
-                                                    paramKeys: paramKeys, profileDate: profileDate});
+                                                    paramKeys: profile.bgcMeasKeys, profileDate: profileDate})
                 }
             }
             else {
-                res.json(profile);
+                res.json(profile)
             }
         })
         .catch(function(err) { return next(err)})
     }
-};
+}
 
 exports.selected_profile_list = function(req, res , next) {
-    req.checkQuery('startDate', 'startDate should be specified.').notEmpty();
-    req.checkQuery('endDate', 'endDate should be specified.').notEmpty();
-    req.checkQuery('shape', 'shape should be specified.').notEmpty();
-    req.sanitize('presRange').escape();
-    req.sanitize('presRange').trim();
-    req.sanitize('_id').escape();
-    req.sanitize('startDate').toDate();
-    req.sanitize('endDate').toDate();
+    req.checkQuery('startDate', 'startDate should be specified.').notEmpty()
+    req.checkQuery('endDate', 'endDate should be specified.').notEmpty()
+    req.checkQuery('shape', 'shape should be specified.').notEmpty()
+    req.sanitize('presRange').escape()
+    req.sanitize('presRange').trim()
+    req.sanitize('_id').escape()
+    req.sanitize('startDate').toDate()
+    req.sanitize('endDate').toDate()
 
-    const shape = JSON.parse(req.query.shape);
+    const shape = JSON.parse(req.query.shape)
     const shapeJson = {'type': 'Polygon', 'coordinates': shape}
 
-    let presRange = null;
-    let maxPres = null;
-    let minPres = null;
+    let presRange = null
+    let maxPres = null
+    let minPres = null
 
     if (req.query.presRange) {
-        presRange = JSON.parse(req.query.presRange);
-        maxPres = Number(presRange[1]);
-        minPres = Number(presRange[0]);
+        presRange = JSON.parse(req.query.presRange)
+        maxPres = Number(presRange[1])
+        minPres = Number(presRange[0])
     }
 
-    const startDate = moment.utc(req.query.startDate, 'YYYY-MM-DD');
-    const endDate = moment.utc(req.query.endDate, 'YYYY-MM-DD');
-    GJV.valid(shapeJson);
-    GJV.isPolygon(shapeJson);
+    const startDate = moment.utc(req.query.startDate, 'YYYY-MM-DD')
+    const endDate = moment.utc(req.query.endDate, 'YYYY-MM-DD')
+    GJV.valid(shapeJson)
+    GJV.isPolygon(shapeJson)
 
     req.getValidationResult().then(function (result) {
     if (!result.isEmpty()) {
         const errors = result.array().map(function (elem) {
-            return elem.msg;
-        });
-        res.render('error', { errors: errors });
+            return elem.msg
+        })
+        res.render('error', { errors: errors })
     }
     else {
-        let query = null
+        let agg = []
         if (req.params.format === 'map' && presRange) {
-            query = Profile.aggregate([
-                {$project: { // this projection has to be defined here
-                    platform_number: -1,
-                    date: -1,
-                    geoLocation: 1,
-                    cycle_number: -1,
-                    containsBGC: 1,
-                    isDeep: 1,
-                    DIRECTION: 1,
-                    measurements: {
-                        $filter: {
-                            input: '$measurements',
-                            as: 'item',
-                            cond: {
-                                $and: [
-                                    {$gt: ['$$item.pres', minPres]},
-                                    {$lt: ['$$item.pres', maxPres]}
-                                ]},
-                        },
-                    },
-                    DATA_MODE: -1,
-                    core_data_mode: 1,
-                }},
-                { $match: { $and: [ {geoLocation: {$geoWithin: {$geometry: shapeJson}}},
-                                    {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} ] } },
-                {$project: mapProjWithCount},
-                {$match: {count: {$gt: 0}}},
-                {$project: mapProj},
-                {$limit: 1001},
-                ]);
+            
+            agg = helper.make_map_pres_agg(minPres, maxPres, shapeJson, startDate, endDate)
         }
         else if (req.params.format === 'map' && !presRange) {
-            query = Profile.aggregate([
-                {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
-                {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-                {$project: mapProj},
-                {$limit: 1001},
-            ]);
+            agg = [ {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
+                    {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+                    {$project: HELPER_CONST.MAP_PROJ},
+                    {$limit: 1001}
+            ]
         }
         else if (req.params.format !== 'map' && presRange) {
-            query = Profile.aggregate([
-                {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
-                {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-                {$project: { //need to include all fields that you wish to keep.
-                    platform_number: 1,
-                    date:  1,
-                    date_qc: 1,
-                    geo2DLocation: 1,
-                    PI_NAME: 1,
-                    cycle_number: 1,
-                    lat: 1,
-                    lon: 1,
-                    position_qc: 1,
-                    station_parameters: 1,
-                    VERTICAL_SAMPLING_SCHEME: 1,
-                    STATION_PARAMETERS_inMongoDB: 1,
-                    WMO_INST_TYPE: 1,
-                    cycle_number: 1,
-                    dac: 1,
-                    basin: 1,
-                    nc_url: 1,
-                    geoLocation: 1,
-                    maximum_pressure: 1,
-                    POSITIONING_SYSTEM: 1,
-                    DATA_MODE: 1,
-                    core_data_mode: 1,
-                    PLATFORM_TYPE: 1,
-                    measurements: {
-                        $filter: {
-                            input: '$measurements',
-                            as: 'item',
-                            cond: { 
-                                $and: [
-                                    {$gt: ['$$item.pres', minPres]},
-                                    {$lt: ['$$item.pres', maxPres]}
-                                ]},
-                        },
-                    },
-                }},
-                {$project: profProjectWithPresRange},
-                {$match: {count: {$gt: 0}}},
-                {$sort: { date: -1}},
-                ]);
+            agg = helper.make_pres_agg(minPres, maxPres, shapeJson, startDate, endDate)
         }
         else {
-            query = Profile.aggregate([
-                {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
-                {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}]);
+            agg = [ {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
+                    {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}
+            ]
         }
-        let promise = query.exec();
+         
+        const query = Profile.aggregate(agg)
+        const promise = query.exec()
         promise
         .then(function (profiles) {
             //create virtural fields.
-
-
-            for(let idx=0; idx < profiles.length; idx++){
-                let core_data_mode
-                if (profiles[idx].DATA_MODE) {
-                  core_data_mode = profiles[idx].DATA_MODE
-                }
-                else if (profiles[idx].PARAMETER_DATA_MODE) {
-                  core_data_mode = profiles[idx].PARAMETER_DATA_MODE[0]
-                }
-                else {
-                  core_data_mode = 'Unknown'
-                }
-                profiles[idx].core_data_mode =  core_data_mode
-
-                let lat = profiles[idx].lat;
-                let lon = profiles[idx].lon;
-                profiles[idx].roundLat = Number(lat).toFixed(3);
-                profiles[idx].roundLon = Number(lon).toFixed(3);
-
-                if (lat > 0) {
-                    profiles[idx].strLat = Math.abs(lat).toFixed(3).toString() + ' N';
-                }
-                else {
-                    profiles[idx].strLat = Math.abs(lat).toFixed(3).toString() + ' S';
-                }
-                if (lon > 0) {
-                    profiles[idx].strLon = Math.abs(lon).toFixed(3).toString() + ' E';
-                }
-                else {
-                    profiles[idx].strLon = Math.abs(lon).toFixed(3).toString() + ' W';
-                }
-                if (profiles[idx].station_parameters) {
-                    let station_parameters = profiles[idx].station_parameters
-                    profiles[idx].formatted_station_parameters = station_parameters.map(param => ' '+param)
-                }
-                }
+            profiles = helper.make_virtural_fields(profiles)
 
             //render page
             if (req.params.format==='page'){
-                if (profiles === null) { res.send('profile not found'); }
+                if (profiles === null) { res.send('profile not found') }
                 else {
                     res.render('selected_profile_page', {title:'Custom selection', profiles: JSON.stringify(profiles), moment: moment, url: req.originalUrl })
                 }
             }
             else {
-                res.json(profiles);
+                res.json(profiles)
             }
         })
         .catch(function(err) { return next(err)})
     }})
-};
-<<<<<<< HEAD
-=======
-
-exports.last_profile_list = function(req, res, next) {
-    startDate = moment.utc().subtract(30, 'days'); //speeds up search by choosing the 30 days
-    endDate = moment.utc();
-    var query = Profile.aggregate([
-                       {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-                       {$group: {_id: '$platform_number',
-                                 'platform_number': {$first: '$platform_number'},
-                                 'date': {$first: '$date'},
-                                 'cycle_number': {$first: '$cycle_number'},
-                                 'geoLocation': {$first: '$geoLocation'}}},
-                                 {$limit : 1000 },
-                                 {$sort: { 'date': -1}}]);
-    query.exec( function (err, profiles) {
-        if (err) { return next(err); }
-        res.json(profiles)
-        });
-};
-
-exports.latest_profile_list = function(req,res, next) {
-    //get startDate, endDate
-    startDate = moment.utc().subtract(7, 'days');
-    endDate = moment.utc();
-    var query = Profile.aggregate([ {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-                                    {$sort: {'platform_number': -1, 'date': -1}},
-                                    {$group: {_id: '$platform_number',
-                                            'platform_number': {$first: '$platform_number'},
-                                            'date': {$first: '$date'},
-                                            'cycle_number': {$first: '$cycle_number'},
-                                            'geoLocation': {$first: '$geoLocation'}}},
-                                    {$limit : 1000 }
-                                    ]);
-    query.exec( function (err, profiles) {
-        if (err) { return next(err); }
-        res.json(profiles);
-    });        
-
-};
->>>>>>> 2e2c33800c8bb896fc1378632764f41bd548f047
+}

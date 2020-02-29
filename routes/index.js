@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 var express = require('express');
 var router = express.Router();
 <<<<<<< HEAD
 var path = require('path');
+=======
+const express = require('express');
+let router = express.Router();
+const path = require('path');
+>>>>>>> dev
 
 /* GET ng home page. */
 router.get('/', function(req, res, next) {

@@ -15,6 +15,7 @@ var selection = require('./routes/selection');  //Import routes for "selection" 
 var gridding = require('./routes/gridding');  //Import routes for "selection" area of site
 var griddedProducts = require('./routes/griddedProducts');  //Import routes for "griddedProduct" area of site
 var covarGrid = require('./routes/covarGrid'); //Import used for gridding
+var arShapes = require('./routes/arShapes');
 
 
 
@@ -37,6 +38,7 @@ debug('mongodb: ' + mongoDB);
 mongoose.Promise = global.Promise;
 var mongooseOptions = {
   useNewUrlParser: true,
+  useUnifiedTopology: true,
   keepAlive: 1,
   connectTimeoutMS: 30000
 };
@@ -93,6 +95,7 @@ app.use('/selection', selection);
 app.use('/gridding', gridding);
 app.use('/covarGrid', covarGrid);
 app.use('/griddedProducts', griddedProducts);
+app.use('/arShapes', arShapes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

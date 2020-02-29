@@ -1,8 +1,8 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+let router = express.Router();
 
 // Require controller modules
-var covar_controller = require('../controllers/covarController')
+const covar_controller = require('../controllers/covarController')
 
 router.get('/:lat/:lon/:forcastDays', covar_controller.radius_selection);
 
