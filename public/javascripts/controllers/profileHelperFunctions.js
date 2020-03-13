@@ -34,7 +34,6 @@ const presSliceProject = function(minPres, maxPres) {
     return(psp)
 }
 
-
 const reduceIntpMeas = function(intPres) {
     console.log('inside reduceIntpMeas')
     const rim = [{$project: { // create lower and upper measurements
@@ -175,6 +174,60 @@ const make_pres_project = function(minPres, maxPres) {
     return presProj
 }
 
+const drop_missing_bgc_keys = function(keys) {
+    //filters out measurement keys that all exist in array of bgc objects
+    let conds = []
+    for (idx=0; idx<keys.length; idx++) {
+        const key = keys[idx]
+        const item = '$$item.'.concat(key)
+        const gteExp = {$gte: [item, -999]}  //works as long as items are never negative
+        conds.push(gteExp)
+    }
+    let presProjectItems = {} //rename this to somthing more usefull
+    delete presProjectItems.measurements
+    presProjectItems.bgcMeas = {
+            $filter: {
+                input: '$bgcMeas',
+                as: 'item',
+                cond: { 
+                    // $and: [
+                    //     {$ne: [item1, null]},
+                    //     {$ne: [item2, null]}
+                    // ]},
+                    //$ifNull: ["$$item.doxy", false] //not working
+                    //$ne: ["$$item.doxy", null] //not working
+                    //$gte: ["$$item.doxy", -1] //works as long as items are never negative
+                    $and: conds,
+                    },
+            },
+        }
+    return {$project: presProjectItems}
+}
+
+const reduce_bgc_meas = function(keys) {
+    //reduces bgcMeas to input keys
+    let newObj = {}
+    for (idx=0; idx<keys.length; idx++) {
+        const key = keys[idx]
+        const item = '$$item.'.concat(key)
+        const item_qc = item.concat('_qc')
+        newObj[key] = item
+        newObj[key+'_qc'] = item_qc
+    }
+    const reduceArray = {
+                        $addFields: {
+                            bgcMeas: {
+                                $map: {
+                                    input: "$bgcMeas",
+                                    as: "item",
+                                    in: newObj
+                                }
+                            }
+                        }
+                    }
+    return reduceArray
+}
+
 const make_virtural_fields = function(profiles){
     for(let idx=0; idx < profiles.length; idx++){
         let core_data_mode
@@ -246,3 +299,5 @@ module.exports.make_map_pres_agg = make_map_pres_agg
 module.exports.make_pres_agg = make_pres_agg
 module.exports.make_virtural_fields = make_virtural_fields
 module.exports.reduce_gps_measurements = reduce_gps_measurements
+module.exports.drop_missing_bgc_keys = drop_missing_bgc_keys
+module.exports.reduce_bgc_meas = reduce_bgc_meas

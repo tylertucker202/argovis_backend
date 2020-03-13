@@ -2,9 +2,10 @@ var express = require('express');
 var router = express.Router();
 
 // Require controller modules
-var platform_controller = require('../controllers/platformController')
-var profile_controller = require('../controllers/profileController');
-var dac_controller = require('../controllers/dacController');
+const platform_controller = require('../controllers/platformController')
+const profile_controller = require('../controllers/profileController');
+const dac_controller = require('../controllers/dacController');
+const bgc_profile_controller = require('../controllers/bgcProfileController')
 
 
 /* GET catalog home page. */
@@ -13,6 +14,8 @@ router.get('/', platform_controller.index);
 /// platform ROUTES ///
 /* GET individual platform (floats) data. */
 router.get('/platforms/:platform_number/:format?', platform_controller.platform_detail);
+
+router.get('/bgc_platforms/:platform_number/:format?', bgc_profile_controller.bgc_platform_detail)
 
 /* GET request for list of all platform. */
 router.get('/platforms', platform_controller.platform_list);

@@ -64,7 +64,7 @@ exports.profile_detail = function (req, res, next) {
             query.select('-bgcMeas') //bgcMeas can be large
         }
         if (req.params.format==='bgcPage') {
-            query.select('-measurements') //remove unneeded measurements can be large
+            query.select('-measurements') //remove unneeded measurements. can be large
         }
         
         let promise = query.exec()
