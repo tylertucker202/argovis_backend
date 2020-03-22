@@ -117,7 +117,6 @@ prof_proj_with_pres_range_count.measurements = 1
 prof_proj_with_pres_range_count.count = { $size:'$measurements' }
 const PROF_PROJECT_WITH_PRES_RANGE_COUNT = prof_proj_with_pres_range_count
 
-
 module.exports.MAP_META_AGGREGATE = MAP_META_AGGREGATE
 module.exports.MONTH_YEAR_AGGREGATE = MONTH_YEAR_AGGREGATE
 module.exports.COUNT_MATCH = COUNT_MATCH

@@ -12,26 +12,44 @@ exports.bgc_profile_detail = function(req, res, next) {
     //find profile and filter out two measurements for plotting
 }
 
-// Display platform detail form on GET
-exports.bgc_platform_detail = function (req, res, next) {
+// Display bgc platform data from 2 parameters on GET
+exports.bgc_platform_data = function (req, res, next) {
     req.sanitize('platform_number').escape()
     req.sanitize('platform_number').trim()
     req.checkQuery('platform_number', 'platform_number should be numeric.').isNumeric()
 
     const platform_number = JSON.parse(req.params.platform_number)
-    let key1 = null
-    let key2 = null
-    if (req.query.key1) { key1=req.query.key1 }
-    if (req.query.key2) { key2=req.query.key2 }
-    console.log(platform_number, key1, key2)
+    let xaxis = null
+    let yaxis = null
+    if (req.query.xaxis) { xaxis=req.query.xaxis }
+    if (req.query.yaxis) { yaxis=req.query.yaxis }
     let agg = [ {$match: {platform_number: platform_number}} ]
 
-    if (key1 && key2) {
-        console.log('filtering step')
-        agg.push(helper.drop_missing_bgc_keys([key1, key2]))
-        agg.push(helper.reduce_bgc_meas([key1, key2]))
+    if (xaxis && yaxis) {
+        agg.push(helper.drop_missing_bgc_keys([xaxis, yaxis]))
+        agg.push(helper.reduce_bgc_meas([xaxis, yaxis]))
     }
-    //agg.push( {$limit: 5})
+    const query = Profile.aggregate(agg)
+
+    query.exec(function (err, profiles) {
+        if (err) return next(err)
+        if (profiles.length === 0) { res.send('platform not found') }
+        else {
+            res.json(profiles)
+        }
+    })
+}
+
+// Display bgc platform metadata
+exports.platform_metadata = function (req, res, next) {
+    req.sanitize('platform_number').escape()
+    req.sanitize('platform_number').trim()
+    req.checkQuery('platform_number', 'platform_number should be numeric.').isNumeric()
+
+    const platform_number = JSON.parse(req.params.platform_number)
+    let agg = [ {$match: {platform_number: platform_number}} ]
+
+    agg.push( helper.meta_data_proj() )
     const query = Profile.aggregate(agg)
 
     query.exec(function (err, profiles) {

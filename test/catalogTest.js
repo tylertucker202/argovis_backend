@@ -214,7 +214,6 @@ describe('/GET profile render', function() {
   });
 });
 
-
 describe('/GET profile render with nan in psal', function() {
   this.timeout(500);
   it('it should GET the profile with nan in psal.', (done) => {

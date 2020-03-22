@@ -62,11 +62,9 @@ describe('/GET bgc profile render', function() {
       });
     });
   });
-  
-  
 
 describe('/GET a bgc platform', function() {
-  this.timeout(9000);
+  this.timeout(2000);
   it('it should GET one bgc platform', (done) => {
     chai.request(app)
     .get('/catalog/platforms/5903260')
@@ -74,9 +72,86 @@ describe('/GET a bgc platform', function() {
         //test overall response
         res.should.have.status(200);
         let profiles = res.body;
-        const profile = profiles[1]
-        should.not.exist(profile.bgcMeas) //bgc not allowed in platforms
+        const a_profile = profiles[1]
+        should.not.exist(a_profile.bgcMeas) //bgc not allowed in platforms
+        done();
+    })
+  })
+
+  it('it should GET one bgc platform data', (done) => {
+    chai.request(app)
+    .get('/catalog/bgc_platform_data/5903260/?xaxis=pres&yaxis=temp')
+    .end((err, res) => {
+        //test overall response
+        res.should.have.status(200);
+        let profiles = res.body;
+        const a_profile = profiles[1]
+        should.exist(a_profile) //bgc not allowed in platforms
+        a_profile.should.include.keys('bgcMeas', '_id');
+        const a_meas = a_profile['bgcMeas'][0]
+        should.exist(a_meas)
+        a_meas.should.include.keys('pres', 'pres_qc', 'temp', 'temp_qc')
+
         done();
     })
   })
 })
+
+describe('/GET platform metadata', function() {
+  this.timeout(500);
+  it('it should GET the selected platform metadata.', (done) => {
+    const urlQuery = '/catalog/platform_metadata/5903260'
+    chai.request(app)
+    .get(urlQuery)
+    .end((err, res) => {
+        //test overall response
+        res.should.have.status(200);
+        a_profile = res.body[0];
+        a_profile.should.include.keys('_id',
+                                      'platform_number',
+                                      'dac',
+                                      'nc_url',
+                                      'date',
+                                      'date_qc',
+                                      'date_added',
+                                      'max_pres',
+                                      'containsBGC',
+                                      'bgcMeasKeys',
+                                      'PARAMETER_DATA_MODE',
+                                      'position_qc',
+                                      'lat',
+                                      'lon',
+                                      'cycle_number',
+                                      'geoLocation', 
+                                      'station_parameters',
+                                      'station_parameters_in_nc',
+                                      'VERTICAL_SAMPLING_SCHEME',
+                                      'WMO_INST_TYPE',
+                                      'DATA_MODE',
+                                      'DATA_CENTRE',
+                                      'DIRECTION',
+                                      'PI_NAME',
+                                      'POSITIONING_SYSTEM',
+                                      'PLATFORM_TYPE',
+                                      'BASIN',
+                                      'pres_max_for_TEMP',
+                                      'pres_min_for_TEMP',
+                                      'pres_max_for_PSAL',
+                                      'pres_min_for_PSAL');
+        a_profile._id.should.be.a('string');
+        a_profile.platform_number.should.be.a('number');
+        a_profile.dac.should.be.a('string');
+        a_profile.nc_url.should.be.a('string');
+        moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
+        a_profile.position_qc.should.be.a('number');
+        a_profile.lat.should.be.a('number');
+        a_profile.lon.should.be.a('number');
+        a_profile.cycle_number.should.be.a('number');
+        a_profile.geoLocation.type.should.eql('Point');
+        a_profile.PI_NAME.should.be.a('string');
+        a_profile.POSITIONING_SYSTEM.should.be.a('string');
+        a_profile.PLATFORM_TYPE.should.be.a('string');
+        done();
+    });
+  });
+});

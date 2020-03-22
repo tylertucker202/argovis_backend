@@ -1,7 +1,7 @@
 const HELPER_CONST = require('./profileHelperConstants')
 
-
-const presSliceProject = function(minPres, maxPres) {
+module.exports = {}
+module.exports.presSliceProject = function(minPres, maxPres) {
     const psp = {$project: { //need to include all fields that you wish to keep.
         nc_url: 1,
         position_qc: 1,
@@ -34,8 +34,7 @@ const presSliceProject = function(minPres, maxPres) {
     return(psp)
 }
 
-const reduceIntpMeas = function(intPres) {
-    console.log('inside reduceIntpMeas')
+module.exports.reduceIntpMeas = function(intPres) {
     const rim = [{$project: { // create lower and upper measurements
         position_qc: 1,
         date_qc: 1,
@@ -95,7 +94,7 @@ const reduceIntpMeas = function(intPres) {
     return rim
 }
 
-const make_match = function(startDate, endDate, basin) {
+module.exports.make_match = function(startDate, endDate, basin) {
     let match
     if (basin) {
         match = {$match:  {$and: [ {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}},
@@ -109,7 +108,7 @@ const make_match = function(startDate, endDate, basin) {
 
 }
 
-const make_map_pres_agg = function(minPres, maxPres, shapeJson, startDate, endDate) {
+module.exports.make_map_pres_agg = function(minPres, maxPres, shapeJson, startDate, endDate) {
     let agg = [{$project: { // this projection has to be defined here
             platform_number: -1,
             date: -1,
@@ -141,23 +140,8 @@ const make_map_pres_agg = function(minPres, maxPres, shapeJson, startDate, endDa
         ]
     return agg
 }
-    
-const make_pres_agg = function(minPres, maxPres, shapeJson, startDate, endDate) {
 
-    let presProj = make_pres_project(minPres, maxPres)
-    console.log(presProj)
-    const pres_agg = [
-        {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
-        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-        presProj,
-        {$project: HELPER_CONST.PROF_PROJECT_WITH_PRES_RANGE_COUNT},
-        {$match: {count: {$gt: 0}}},
-        {$sort: { date: -1}},
-    ]
-    return pres_agg
-}
-
-const make_pres_project = function(minPres, maxPres) {
+module.exports.make_pres_project = function(minPres, maxPres) {
     let presProjectItems = HELPER_CONST.PROF_PROJ_PARAMS_BASE
     presProjectItems.measurements = {
         $filter: {
@@ -174,7 +158,27 @@ const make_pres_project = function(minPres, maxPres) {
     return presProj
 }
 
-const drop_missing_bgc_keys = function(keys) {
+module.exports.make_pres_agg = function(minPres, maxPres, shapeJson, startDate, endDate) {
+
+    let presProj = this.make_pres_project(minPres, maxPres)
+    console.log(presProj)
+    const pres_agg = [
+        {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
+        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+        presProj,
+        {$project: HELPER_CONST.PROF_PROJECT_WITH_PRES_RANGE_COUNT},
+        {$match: {count: {$gt: 0}}},
+        {$sort: { date: -1}},
+    ]
+    return pres_agg
+}
+
+module.exports.meta_data_proj = function() {
+    const proj = {$project: {measurements: 0, bgcMeas: 0}}
+    return proj
+}
+
+module.exports.drop_missing_bgc_keys = function(keys) {
     //filters out measurement keys that all exist in array of bgc objects
     let conds = []
     for (idx=0; idx<keys.length; idx++) {
@@ -184,19 +188,16 @@ const drop_missing_bgc_keys = function(keys) {
         conds.push(gteExp)
     }
     let presProjectItems = {} //rename this to somthing more usefull
-    delete presProjectItems.measurements
+    presProjectItems.cycle_number = 1
+    presProjectItems.date = 1
+    presProjectItems.core_data_mode = 1
+    presProjectItems.POSITIONING_SYSTEM = 1
+    presProjectItems.bgcMeasKeys = 1
     presProjectItems.bgcMeas = {
             $filter: {
                 input: '$bgcMeas',
                 as: 'item',
-                cond: { 
-                    // $and: [
-                    //     {$ne: [item1, null]},
-                    //     {$ne: [item2, null]}
-                    // ]},
-                    //$ifNull: ["$$item.doxy", false] //not working
-                    //$ne: ["$$item.doxy", null] //not working
-                    //$gte: ["$$item.doxy", -1] //works as long as items are never negative
+                cond: {
                     $and: conds,
                     },
             },
@@ -204,7 +205,7 @@ const drop_missing_bgc_keys = function(keys) {
     return {$project: presProjectItems}
 }
 
-const reduce_bgc_meas = function(keys) {
+module.exports.reduce_bgc_meas = function(keys) {
     //reduces bgcMeas to input keys
     let newObj = {}
     for (idx=0; idx<keys.length; idx++) {
@@ -228,7 +229,24 @@ const reduce_bgc_meas = function(keys) {
     return reduceArray
 }
 
-const make_virtural_fields = function(profiles){
+module.exports.make_pres_project = function(minPres, maxPres) {
+    let presProjectItems = HELPER_CONST.PROF_PROJ_PARAMS_BASE
+    presProjectItems.measurements = {
+        $filter: {
+            input: '$measurements',
+            as: 'item',
+            cond: { 
+                $and: [
+                    {$gt: ['$$item.pres', minPres]},
+                    {$lt: ['$$item.pres', maxPres]}
+                ]},
+        },
+    }
+    const presProj = {$project: presProjectItems}
+    return presProj
+}
+
+module.exports.make_virtural_fields = function(profiles){
     for(let idx=0; idx < profiles.length; idx++){
         let core_data_mode
         if (profiles[idx].DATA_MODE) {
@@ -267,7 +285,7 @@ const make_virtural_fields = function(profiles){
     return profiles
 }
 
-const reduce_gps_measurements = function(profiles, maxLength) {
+module.exports.reduce_gps_measurements = function(profiles, maxLength) {
 
     pos_sys = profiles[0].POSITIONING_SYSTEM;
     if (pos_sys === 'GPS'){
@@ -290,14 +308,14 @@ const reduce_gps_measurements = function(profiles, maxLength) {
 }
 
 
-module.exports = {}
-module.exports.reduceIntpMeas = reduceIntpMeas
-module.exports.presSliceProject = presSliceProject
-module.exports.make_match = make_match
-module.exports.make_pres_project = make_pres_project
-module.exports.make_map_pres_agg = make_map_pres_agg
-module.exports.make_pres_agg = make_pres_agg
-module.exports.make_virtural_fields = make_virtural_fields
-module.exports.reduce_gps_measurements = reduce_gps_measurements
-module.exports.drop_missing_bgc_keys = drop_missing_bgc_keys
-module.exports.reduce_bgc_meas = reduce_bgc_meas
+// module.exports = {}
+// module.exports.reduceIntpMeas = reduceIntpMeas
+// module.exports.presSliceProject = presSliceProject
+// module.exports.make_match = make_match
+// module.exports.make_pres_project = make_pres_project
+// module.exports.make_map_pres_agg = make_map_pres_agg
+// module.exports.make_pres_agg = make_pres_agg
+// module.exports.make_virtural_fields = make_virtural_fields
+// module.exports.reduce_gps_measurements = reduce_gps_measurements
+// module.exports.drop_missing_bgc_keys = drop_missing_bgc_keys
+// module.exports.reduce_bgc_meas = reduce_bgc_meas
