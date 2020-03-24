@@ -39,24 +39,3 @@ exports.bgc_platform_data = function (req, res, next) {
         }
     })
 }
-
-// Display bgc platform metadata
-exports.platform_metadata = function (req, res, next) {
-    req.sanitize('platform_number').escape()
-    req.sanitize('platform_number').trim()
-    req.checkQuery('platform_number', 'platform_number should be numeric.').isNumeric()
-
-    const platform_number = JSON.parse(req.params.platform_number)
-    let agg = [ {$match: {platform_number: platform_number}} ]
-
-    agg.push( helper.meta_data_proj() )
-    const query = Profile.aggregate(agg)
-
-    query.exec(function (err, profiles) {
-        if (err) return next(err)
-        if (profiles.length === 0) { res.send('platform not found') }
-        else {
-            res.json(profiles)
-        }
-    })
-}

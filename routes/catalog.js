@@ -15,9 +15,11 @@ router.get('/', platform_controller.index);
 /* GET individual platform (floats) data. */
 router.get('/platforms/:platform_number/:format?', platform_controller.platform_detail);
 
+router.get('/platform_metadata/:platform_number/:format?', platform_controller.platform_metadata);
+
 router.get('/bgc_platform_data/:platform_number/:format?', bgc_profile_controller.bgc_platform_data)
 
-router.get('/platform_metadata/:platform_number/:format?', bgc_profile_controller.platform_metadata)
+router.get('/platform_profile_metadata/:platform_number/:format?', platform_controller.platform_profile_metadata)
 
 /* GET request for list of all platform. */
 router.get('/platforms', platform_controller.platform_list);
@@ -28,7 +30,6 @@ router.get('/profiles/:_id/:format?', profile_controller.profile_detail);
 
 /* GET request for list of profile items in a list. */
 router.get('/mprofiles/:format?', profile_controller.profile_list);
-
 
 /// DAC ROUTES ///
 /* GET request for one dac. */
