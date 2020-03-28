@@ -65,8 +65,6 @@ html(lang='en')
             if (paramKey==='pres') {continue}
             plotDivs[paramKey] = document.createElement('div');
             plotDivs[paramKey].setAttribute("id", paramKey+'_chart');
-            console.log(paramKey+'_chart')
-            
             parent.append(plotDivs[paramKey]);
         }
 
@@ -95,10 +93,8 @@ html(lang='en')
             presVsParamMask = getMaskForPair(paramMeas, pres)
             presForParam = pres.filter((item, i) => presVsParamMask[i]);
             presQcForParam = presQc.filter((item, i) => presVsParamMask[i]);
-
             paramForPres = paramMeas.filter((item, i) => presVsParamMask[i]);
             paramQcForPres = paramQC.filter((item, i) => presVsParamMask[i]);
-            //console.log(key)
             plotAxes[key] = { 'pres': presForParam.map(roundArray), 'pres_qc': presQcForParam, 'param': paramForPres.map(roundArray), 'qc': paramQcForPres}
         }
 

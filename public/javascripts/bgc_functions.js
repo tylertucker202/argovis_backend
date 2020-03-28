@@ -244,9 +244,9 @@ const makeTrace = function(tp, key) {
 
 const getMaskForPair = function(arrayOne, arrayTwo) {
     let mask = [];
-    const element = -999; // -999 is the actual nan value. -900 just in case of decimal
+    const element = null; // fill value
     for(let idx=0; idx < arrayOne.length; idx++){
-        if (arrayOne[idx] === element || arrayTwo[idx] === element){
+        if (arrayOne[idx] === element || arrayTwo[idx] === element || isNaN(arrayOne[idx]) || isNaN(arrayTwo[idx])){
             mask.push(false);
         }
         else {
