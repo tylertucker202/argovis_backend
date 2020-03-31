@@ -1,23 +1,23 @@
 const Grid = require('../models/grid');
 const GridParameter = Grid.ksTempParams;
 const moment = require('moment');
-
 const helper = require('../public/javascripts/controllers/griddedHelperFunctions')
 
-exports.find_grid = function(req, res , next) {
+const presLayersGrouping = {   _id: '$gridName', presLevels: {$push: '$pres'}}
+
+exports.get_pressure_layers = function(req, res, next) {
     req.sanitize('gridName').escape();
     req.sanitize('gridName').trim();
-    req.sanitize('trend').escape();
-    req.sanitize('trend').trim();
     const gridName = req.query.gridName
     const GridModel = helper.get_grid_model(Grid, gridName)
-
-    const monthYear = moment.utc('01-2007', 'MM-YYYY').startOf('D')
-    const pres = 10
-    const query = GridModel.aggregate([
-        {$match: {pres: pres, date: monthYear.toDate(), gridName: gridName}},
-        {$limit: 1}
+    console.log(gridName, GridModel)
+    let query = GridModel.aggregate( [
+        {$match: {gridName: gridName}},
+        {$group: presLayersGrouping},
+        {$unwind: "$presLevels" } ,
+        {$group: { _id: gridName, presLevels: {"$addToSet": "$presLevels" }}},
     ])
+
     query.exec( function (err, grid) {
         if (err) { return next(err); }
         res.json(grid);
@@ -47,6 +47,22 @@ exports.find_grid_param = function(req, res , next) {
     });
 }
 
+exports.find_grid = function(req, res , next) {
+    req.sanitize('gridName').escape();
+    req.sanitize('gridName').trim();
+    req.sanitize('trend').escape();
+    req.sanitize('trend').trim();
+    const gridName = req.query.gridName
+    const GridModel = helper.get_grid_model(Grid, gridName)
+    const query = GridModel.aggregate([
+        {$match: {gridName: gridName}},
+        {$limit: 1}
+    ])
+    query.exec( function (err, grid) {
+        if (err) { return next(err); }
+        res.json(grid);
+    });
+}
 
 exports.get_grid_window = function(req, res , next) {
     req.sanitize('gridName').escape();
@@ -76,6 +92,7 @@ exports.get_grid_window = function(req, res , next) {
     let agg = []
     agg.push({$match: {pres: pres, date: monthYear.toDate(), gridName: gridName }})
     agg = helper.add_grid_projection(agg, latRange, lonRange)
+    console.log(agg, agg[1]['$project'].data['$filter']['cond']['$and'])
     const query = GridModel.aggregate(agg)
     query.exec( function (err, grid) {
         if (err) { return next(err); }

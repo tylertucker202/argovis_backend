@@ -31,3 +31,5 @@ module.exports.rgTempTotal = mongoose.model('rgTempTotal', GridSchema, 'rgTempTo
 module.exports.ksTempMean = mongoose.model('ksTempMean', GridSchema, 'ksTempMean')
 module.exports.ksTempTotal = mongoose.model('ksTempTotal', GridSchema, 'ksTempTotal');
 module.exports.ksTempParams = mongoose.model('ksTempParams', GridSchema, 'ksTempParams');
+module.exports.soseDoxy = mongoose.model('soseDoxy', GridSchema, 'soseDoxy');
+module.exports.soseSIarea = mongoose.model('soseSIarea', GridSchema, 'soseSIarea');

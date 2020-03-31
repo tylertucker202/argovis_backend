@@ -15,6 +15,12 @@ const get_grid_model = function(Grid, gridName) {
     else if (gridName.includes('Total') && gridName.includes('ks')) {
         GridModel = Grid.ksTempTotal
     }
+    else if (gridName.includes('soseSIarea')) {
+        GridModel = Grid.soseSIarea
+    }
+    else if (gridName.includes('soseDoxy')) {
+        GridModel = Grid.soseDoxy
+    }
     else {
         console.log('grid collection not selected ', grid)
     }
