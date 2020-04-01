@@ -59,7 +59,7 @@ exports.platform_metadata = function(req, res, next) {
     const platform_number = JSON.parse(req.params.platform_number)
     const query = Profile.aggregate([
                        {$match: {platform_number: platform_number}},
-                       //{$sort: { 'date':-1}},
+                       {$sort: { 'date':-1}},
                        {$group: platformMetaGroup}
     ])
     query.exec( function (err, profile) {
@@ -118,7 +118,9 @@ exports.platform_profile_metadata = function (req, res, next) {
     req.checkQuery('platform_number', 'platform_number should be numeric.').isNumeric()
 
     const platform_number = JSON.parse(req.params.platform_number)
-    let agg = [ {$match: {platform_number: platform_number}} ]
+    let agg = [ {$match: {platform_number: platform_number}},
+                {$sort:  {cycle_number: -1}},
+            ]
 
     agg.push( helper.meta_data_proj() )
     const query = Profile.aggregate(agg)
