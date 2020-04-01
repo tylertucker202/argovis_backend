@@ -193,6 +193,8 @@ module.exports.drop_missing_bgc_keys = function(keys) {
     presProjectItems.core_data_mode = 1
     presProjectItems.POSITIONING_SYSTEM = 1
     presProjectItems.bgcMeasKeys = 1
+    presProjectItems.lat = 1
+    presProjectItems.lon = 1
     presProjectItems.bgcMeas = {
             $filter: {
                 input: '$bgcMeas',

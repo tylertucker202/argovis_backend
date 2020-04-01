@@ -12,6 +12,21 @@ exports.bgc_profile_detail = function(req, res, next) {
     //find profile and filter out two measurements for plotting
 }
 
+exports.bgc_platform_list = function(req, res, next) {
+    //retrieve list of platforms that have a field containsBGC = true
+    const query = Profile.aggregate([
+        {$match: {containsBGC: true}}, 
+        {$group: { _id: '$platform_number', platform_number: {$first: '$platform_number'}}}
+    ])
+    query.exec(function (err, profiles) {
+        if (err) return next(err)
+        if (profiles.length === 0) { res.send('platform not found') }
+        else {
+            res.json(profiles)
+        }
+    })
+}
+
 // Display bgc platform data from 2 parameters on GET
 exports.bgc_platform_data = function (req, res, next) {
     req.sanitize('platform_number').escape()

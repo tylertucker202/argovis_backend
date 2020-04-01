@@ -17,6 +17,8 @@ router.get('/platforms/:platform_number/:format?', platform_controller.platform_
 
 router.get('/platform_metadata/:platform_number/:format?', platform_controller.platform_metadata);
 
+router.get('/bgc_platform_list/', bgc_profile_controller.bgc_platform_list)
+
 router.get('/bgc_platform_data/:platform_number/:format?', bgc_profile_controller.bgc_platform_data)
 
 router.get('/platform_profile_metadata/:platform_number/:format?', platform_controller.platform_profile_metadata)
