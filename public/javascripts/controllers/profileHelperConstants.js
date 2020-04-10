@@ -110,6 +110,8 @@ const PROF_PROJ_PARAMS_BASE =
     DATA_MODE: 1,
     core_data_mode: 1,
     PLATFORM_TYPE: 1,
+    isDeep: 1,
+    containsBGC: 1
 }
 
 let prof_proj_with_pres_range_count = PROF_PROJ_PARAMS_BASE

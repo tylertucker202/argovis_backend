@@ -116,11 +116,21 @@ exports.selected_profile_list = function(req, res , next) {
     let presRange = null
     let maxPres = null
     let minPres = null
+    let deepOnly = null
+    let bgcOnly = null
 
     if (req.query.presRange) {
         presRange = JSON.parse(req.query.presRange)
         maxPres = Number(presRange[1])
         minPres = Number(presRange[0])
+    }
+
+    if (req.query.bgcOnly) {
+        bgcOnly = true
+    }
+
+    if (req.query.deepOnly) {
+        deepOnly = true
     }
 
     const startDate = moment.utc(req.query.startDate, 'YYYY-MM-DD')
@@ -138,7 +148,6 @@ exports.selected_profile_list = function(req, res , next) {
     else {
         let agg = []
         if (req.params.format === 'map' && presRange) {
-            
             agg = helper.make_map_pres_agg(minPres, maxPres, shapeJson, startDate, endDate)
         }
         else if (req.params.format === 'map' && !presRange) {
@@ -156,7 +165,12 @@ exports.selected_profile_list = function(req, res , next) {
                     {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}
             ]
         }
-         
+        if (deepOnly) {
+            agg.push({$match: {isDeep: true}})
+        }
+        if (bgcOnly) {
+            agg.push({$match: {containsBGC: true}})
+        }
         const query = Profile.aggregate(agg)
         const promise = query.exec()
         promise
