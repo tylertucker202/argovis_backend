@@ -35,7 +35,7 @@ describe('/GET a small bgc profile render', function() {
 });
 
 describe('/GET bgc profile render', function() {
-    this.timeout(1500);
+    this.timeout(3500);
     it('it should GET the selected bgc profile.', (done) => {
       const urlQuery = '/catalog/profiles/2902755_199'
       chai.request(app)
@@ -107,38 +107,7 @@ describe('/GET platform metadata', function() {
         //test overall response
         res.should.have.status(200);
         a_profile = res.body[0];
-        a_profile.should.include.keys('_id',
-                                      'platform_number',
-                                      'dac',
-                                      'nc_url',
-                                      'date',
-                                      'date_qc',
-                                      'date_added',
-                                      'max_pres',
-                                      'containsBGC',
-                                      'bgcMeasKeys',
-                                      'PARAMETER_DATA_MODE',
-                                      'position_qc',
-                                      'lat',
-                                      'lon',
-                                      'cycle_number',
-                                      'geoLocation', 
-                                      'station_parameters',
-                                      'station_parameters_in_nc',
-                                      'VERTICAL_SAMPLING_SCHEME',
-                                      'WMO_INST_TYPE',
-                                      'DATA_MODE',
-                                      'DATA_CENTRE',
-                                      'DIRECTION',
-                                      'PI_NAME',
-                                      'POSITIONING_SYSTEM',
-                                      'PLATFORM_TYPE',
-                                      'BASIN',
-                                      'pres_max_for_TEMP',
-                                      'pres_min_for_TEMP',
-                                      'pres_max_for_PSAL',
-                                      'pres_min_for_PSAL');
-        a_profile._id.should.be.a('string');
+        a_profile._id.should.be.a('number');
         a_profile.platform_number.should.be.a('number');
         a_profile.dac.should.be.a('string');
         a_profile.nc_url.should.be.a('string');
