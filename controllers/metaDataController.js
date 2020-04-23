@@ -30,54 +30,26 @@ exports.month_year_profile_list = function(req, res, next) {
     .catch(function(err) { return next(err)});
 }
 
-exports.last_profile_list = function(req, res, next) {
-    //get startDate, endDate
-    const ENV = config.util.getEnv('NODE_ENV');
-    const appStartDate = config.startDate[ENV];
-    if (appStartDate === 'today'){
-        startDate = moment.utc().subtract(31, 'days');
-        endDate = moment.utc().subtract(1, 'days');      
-    }
-    else {
-        startDate = moment.utc(appStartDate).subtract(30, 'days');
-        endDate = moment.utc(appStartDate);
-    }
-    const query = Profile.aggregate([
-        {$project: HELPER_CONST.MAP_META_AGGREGATE},
-        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-        {$sort: { 'date': -1}},
-        {$limit : 500 }
-    ]);
-    query.exec( function (err, profiles) {
-        if (err) { return next(err); }
-        res.json(profiles)
-        });
-};
+exports.global_map_profiles = function(req,res, next) {
+    const startDate = moment.utc(req.params.startDate)
+    const endDate= moment.utc(req.params.endDate)
 
-exports.latest_profile_list = function(req,res, next) {
-    //get startDate, endDate
-    const ENV = config.util.getEnv('NODE_ENV');
-    const appStartDate = config.startDate[ENV];
-    if (appStartDate === 'today'){
-        startDate = moment.utc().subtract(7, 'days');
-        endDate = moment.utc();      
+    const dateDiff = endDate.diff(startDate)
+    const hourDiff = Math.floor(moment.duration(dateDiff).asHours())
+    if (hourDiff > 72) {
+        throw new Error('time range exceeds 72 hours')
     }
-    else if (appStartDate === 'yesterday') {
-        startDate = moment.utc().subtract(8, 'days');
-        endDate = moment.utc().subtract(1, 'days'); 
-    }
-    const query = Profile.aggregate([ 
+
+    const query = Profile.aggregate([
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
         {$sort: {'platform_number': -1, 'date': -1}},
         {$project: HELPER_CONST.MAP_META_AGGREGATE},
-        {$limit : 500 }
     ]);
     query.exec( function (err, profiles) {
         if (err) { return next(err); }
         res.json(profiles);
     });
 };
-
 exports.last_three_days = function(req,res, next) {
 
     if(req.params.startDate) {

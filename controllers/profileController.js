@@ -125,6 +125,7 @@ exports.selected_profile_list = function(req, res , next) {
         minPres = Number(presRange[0])
     }
 
+
     if (req.query.bgcOnly) {
         bgcOnly = true
     }
@@ -135,6 +136,11 @@ exports.selected_profile_list = function(req, res , next) {
 
     const startDate = moment.utc(req.query.startDate, 'YYYY-MM-DD')
     const endDate = moment.utc(req.query.endDate, 'YYYY-MM-DD')
+    const dateDiff = endDate.diff(startDate)
+    const monthDiff = Math.floor(moment.duration(dateDiff).asMonths())
+    if (monthDiff > 3) {
+        throw new Error('time range exceeds 3 months. consider making query smaller')
+    }
     GJV.valid(shapeJson)
     GJV.isPolygon(shapeJson)
 

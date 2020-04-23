@@ -8,11 +8,7 @@ var meta_controller = require('../controllers/metaDataController');
 /* GET selection home page. */
 router.get('/', profile_controller.profile_list);
 
-/* Get request for list of last profiles. */
-router.get('/lastProfiles/:format?', meta_controller.last_profile_list);
-
-/* Get request for list of latest profiles. */
-router.get('/latestProfiles/:format?', meta_controller.latest_profile_list);
+router.get('/globalMapProfiles/:startDate/:endDate', meta_controller.global_map_profiles);
 
 /* Get request for list of latest profiles. */
 router.get('/lastThreeDays/:startDate?', meta_controller.last_three_days);
