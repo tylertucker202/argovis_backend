@@ -15,7 +15,7 @@ install:
   - npm install
 
 script:
-  - npm run travis_test
+  - npm run travis_test -- --watch=false --no-progress
 
 notifications:
   slack:
