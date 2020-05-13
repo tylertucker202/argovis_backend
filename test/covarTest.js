@@ -15,7 +15,6 @@ describe('/GET get a covar object', function() {
     const forcastDays = '140'
     let url = '/covarGrid/'
     url += long + '/' + lat + '/' + forcastDays
-    console.log('A covar query is: ' + url);
     it('it should a get a covar object', (done) => {
       chai.request(app)
       .get(url)

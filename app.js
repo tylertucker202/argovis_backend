@@ -17,8 +17,6 @@ var griddedProducts = require('./routes/griddedProducts');  //Import routes for 
 var covarGrid = require('./routes/covarGrid'); //Import used for gridding
 var arShapes = require('./routes/arShapes');
 
-
-
 var compression = require('compression'); //All routs are compressed
 var helmet = require('helmet'); //sets appropriate HTTP headers
 
@@ -27,13 +25,16 @@ app.use(compression()); //Compress all routes
 app.use(helmet());
 
 const ENV = config.util.getEnv('NODE_ENV');
+console.log('env: ', ENV)
 //don't show the log when it is test
 if(ENV !== 'test') {
   //use morgan to log at command line
   app.use(logger('dev'));
 }
-
-const mongoDB = config.db[ENV];
+const REMOTE_DB = config.util.getEnv('REMOTE_DB')
+console.log('remote db bool:', REMOTE_DB)
+let mongoDB = config.db[ENV];
+if (REMOTE_DB) { mongoDB = config.db['REMOTE_DB']}
 debug('mongodb: ' + mongoDB);
 mongoose.Promise = global.Promise;
 var mongooseOptions = {
