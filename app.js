@@ -31,7 +31,7 @@ if(ENV !== 'test') {
   //use morgan to log at command line
   app.use(logger('dev'));
 }
-const REMOTE_DB = config.util.getEnv('REMOTE_DB')
+const REMOTE_DB = process.env.REMOTE_DB
 console.log('remote db bool:', REMOTE_DB)
 let mongoDB = config.db[ENV];
 if (REMOTE_DB) { mongoDB = config.db['REMOTE_DB']}

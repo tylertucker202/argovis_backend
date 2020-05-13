@@ -15,7 +15,7 @@ let generate = require('./../public/javascripts/generate_arrays_for_plotting.js'
 chai.use(chaiHttp);
 
 describe('/GET a small bgc profile render', function() {
-  this.timeout(500);
+  this.timeout(2500);
   it('it should GET the selected bgc profile.', (done) => {
     const urlQuery = '/catalog/profiles/5903260_237'
     chai.request(app)
