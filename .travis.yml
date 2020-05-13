@@ -1,0 +1,25 @@
+os: linux
+
+language: node_js
+
+node_js:
+  - 12.0
+
+dist: trusty
+
+cache:
+  directories:
+    - ./node_modules
+
+install:
+  - npm install
+
+script:
+  - npm run travis_test
+
+notifications:
+  slack:
+    rooms:
+      secure: k4++GPJnPalzKw9ScEg3EoyP7aqr6dsONmNEu5vI798YYpVANG0tzze3kXRgUG8hstsKFKSpUgh3q1nQmB99L1QPuu1AGWMwRjuQVEK2ujBqNgQGOfD3E3svh1NxhCtaYJLrOF7CY04wo91MM08gP/Aw2LeFIhUvx246h40rz6X1hBxCvgyvK4uLmsqBOHc12Ce7rsluByZo/cJ302F6zgJlXvgUMcFrNWFWuhNC9t6J7Uk3xESqCMpkyqFc86yqJ5wDsXvSNUe/GV4EjszF/+Z3JrDloKsa6RGICbi7GExEtlxVDRb7MCNFwjyHBekmN3O/7K0UUutrXAdkI+/iGDVDhQ3QAnYR7XgMuNFlBPD5MpH0B5R3hG/rqtp/qQPIEKAXwUHhBDYz/MXAYrei6LPwXOZpV5zij5nLS4ue+xm2GYrd2YN9KnZ5QQumqaJURedGwInL/qqnMUEEvUwA/2IYlu5YP4z6Nyiv+8IkBE9m8Ax0Jr1TzAFor5iNeRYUycXsufcs8AaANftNcFjH0fYMp5tKGLvR+80X8E7aOtUyUd//CyS98AyGMexP5bGSx48JsZQcTpoPif+JHtCO/aWMQFe8gzht2Tdo9S+Al/5ckjk7GYNc2fw1OBAi+XMHCImWhJXhHHpy0U0+VsS/VM+kmw+tJ2nyfgyhqE3HPFs=
+  on_success: always # default: change
+  on_failure: always # default: always

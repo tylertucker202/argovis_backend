@@ -4,7 +4,7 @@ module.exports = {
     development: 'mongodb://127.0.0.1:27017/argo',
     docker: 'mongodb://database/argo',
     test: 'mongodb://127.0.0.1:27017/argo-express-test',
-    travis_test: 'mongodb://testUser:testUser@ds161483.mlab.com:61483/argo_test',
+    travis_test: 'mongodb://testUser:testUser1@ds141786.mlab.com:41786/argo-express-test',
     jg: 'mongodb://127.0.0.1:27017/JG'
   },
 
