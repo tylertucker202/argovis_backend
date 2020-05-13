@@ -15,7 +15,7 @@ chai.use(chaiHttp);
 describe('/GET AR Shapes on a certain date', function() {
   this.timeout(500);
   it('it should GET the ArShapes.', (done) => {
-    const date = "2010-01-01T00:00:000Z"
+    const date = "2004-01-01T00:00:000Z"
     let urlQuery = '/arShapes/findByDate?date=' + date
     chai.request(app)
     .get(urlQuery)
@@ -36,7 +36,7 @@ describe('/GET AR Shapes on a certain date', function() {
 describe('/GET an AR shape by ID', function() {
     this.timeout(500);
     it('it should GET the ArShapes by ID.', (done) => {
-      const shape_id = "1_262992"
+      const shape_id = "1_210384.0"
       let urlQuery = '/arShapes/findByID?_id=' + shape_id
       chai.request(app)
       .get(urlQuery)

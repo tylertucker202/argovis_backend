@@ -110,16 +110,10 @@ describe('/GET platform metadata', function() {
         a_profile._id.should.be.a('number');
         a_profile.platform_number.should.be.a('number');
         a_profile.dac.should.be.a('string');
-        a_profile.nc_url.should.be.a('string');
-        moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
-        a_profile.position_qc.should.be.a('number');
-        a_profile.lat.should.be.a('number');
-        a_profile.lon.should.be.a('number');
-        a_profile.cycle_number.should.be.a('number');
-        a_profile.geoLocation.type.should.eql('Point');
+        a_profile.most_recent_date.should.be.a('string')
+        a_profile.most_recent_date_added.should.be.a('string')
         a_profile.PI_NAME.should.be.a('string');
         a_profile.POSITIONING_SYSTEM.should.be.a('string');
-        a_profile.PLATFORM_TYPE.should.be.a('string');
         done();
     });
   });

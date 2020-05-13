@@ -52,7 +52,6 @@ exports.platform_list = function(req, res, next) {
 
 // Display list of platform metadata
 exports.platform_metadata = function(req, res, next) {
-    console.log('insite platform metadata')
     req.sanitize('platform_number').escape()
     req.sanitize('platform_number').trim()
     req.checkQuery('platform_number', 'platform_number should be numeric.').isNumeric()
