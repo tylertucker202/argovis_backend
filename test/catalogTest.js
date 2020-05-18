@@ -117,10 +117,11 @@ describe('/GET catalog dacs', function() {
 
 describe('/GET a list of profiles from a list', function() {
   this.timeout(5000);
-  const list = "ids=['4902323_45D','3900740_34']"
+  const list = "ids=['1900722_1','1900722_2']"
   const presRange = "&presRange=[0,20]"
   it('it should GET a list of profiles', (done) => {
     const urlQuery = '/catalog/mprofiles/?' + list
+    console.log(urlQuery)
     chai.request(app)
     .get(urlQuery)
     .end((err, res) => {

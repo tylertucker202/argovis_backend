@@ -86,7 +86,7 @@ const MAP_PROJ_WITH_COUNT = { platform_number: -1,
     DIRECTION: 1,
 }
 
-const PROF_PROJ_PARAMS_BASE = 
+const PROF_META_PARAMS = 
 {   platform_number: 1,
     date:  1,
     date_qc: 1,
@@ -114,10 +114,13 @@ const PROF_PROJ_PARAMS_BASE =
     containsBGC: 1
 }
 
-let prof_proj_with_pres_range_count = PROF_PROJ_PARAMS_BASE
-prof_proj_with_pres_range_count.measurements = 1
-prof_proj_with_pres_range_count.count = { $size:'$measurements' }
-const PROF_PROJECT_WITH_PRES_RANGE_COUNT = prof_proj_with_pres_range_count
+let PROF_PROJECT_WITH_PRES_RANGE_COUNT = PROF_META_PARAMS
+PROF_PROJECT_WITH_PRES_RANGE_COUNT.measurements = 1
+PROF_PROJECT_WITH_PRES_RANGE_COUNT.count = { $size: '$measurements' }
+
+let PROF_BGC_PROJECT_WITH_PRES_RANGE_COUNT = PROF_META_PARAMS
+PROF_BGC_PROJECT_WITH_PRES_RANGE_COUNT.bgcMeas = 1
+PROF_BGC_PROJECT_WITH_PRES_RANGE_COUNT.count = { $size: '$bgcMeas'}
 
 module.exports.MAP_META_AGGREGATE = MAP_META_AGGREGATE
 module.exports.MONTH_YEAR_AGGREGATE = MONTH_YEAR_AGGREGATE
@@ -127,5 +130,6 @@ module.exports.META_DATE_SLICE_PARAMS = META_DATE_SLICE_PARAMS
 module.exports.MAP_PARAMS = MAP_PARAMS
 module.exports.MAP_PROJ = MAP_PROJ
 module.exports.MAP_PROJ_WITH_COUNT = MAP_PROJ_WITH_COUNT
-module.exports.PROF_PROJ_PARAMS_BASE = PROF_PROJ_PARAMS_BASE
+module.exports.PROF_META_PARAMS = PROF_META_PARAMS
 module.exports.PROF_PROJECT_WITH_PRES_RANGE_COUNT = PROF_PROJECT_WITH_PRES_RANGE_COUNT
+module.exports.PROF_BGC_PROJECT_WITH_PRES_RANGE_COUNT = PROF_BGC_PROJECT_WITH_PRES_RANGE_COUNT

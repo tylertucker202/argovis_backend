@@ -142,7 +142,7 @@ module.exports.make_map_pres_agg = function(minPres, maxPres, shapeJson, startDa
 }
 
 module.exports.make_pres_project = function(minPres, maxPres) {
-    let presProjectItems = HELPER_CONST.PROF_PROJ_PARAMS_BASE
+    let presProjectItems = HELPER_CONST.PROF_META_PARAMS
     presProjectItems.measurements = {
         $filter: {
             input: '$measurements',
@@ -158,11 +158,40 @@ module.exports.make_pres_project = function(minPres, maxPres) {
     return presProj
 }
 
+module.exports.make_bgc_pres_project = function(minPres, maxPres) {
+    let presProjectItems = HELPER_CONST.PROF_META_PARAMS
+    presProjectItems['bgcMeas'] = {
+        $filter: {
+            input: '$bgcMeas',
+            as: 'item',
+            cond: { 
+                $and: [
+                    {$gt: ['$$item.pres', minPres]},
+                    {$lt: ['$$item.pres', maxPres]}
+                ]},
+        },
+    }
+    const presProj = {$project: presProjectItems}
+    return presProj
+}
+
+module.exports.make_bgc_pres_agg = function(minPres, maxPres, shapeJson, startDate, endDate) {
+    let bgcPresProj = this.make_bgc_pres_project(minPres, maxPres)
+
+    const bgcPresAgg = [
+        {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
+        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+        bgcPresProj,
+        {$project: HELPER_CONST.PROF_BGC_PROJECT_WITH_PRES_RANGE_COUNT},
+        {$match: {count: {$gt: 0}}},
+        {$sort: { date: -1}},
+    ]
+    return bgcPresAgg
+}
 module.exports.make_pres_agg = function(minPres, maxPres, shapeJson, startDate, endDate) {
 
     let presProj = this.make_pres_project(minPres, maxPres)
-    console.log(presProj)
-    const pres_agg = [
+    const presAgg = [
         {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
         presProj,
@@ -170,7 +199,7 @@ module.exports.make_pres_agg = function(minPres, maxPres, shapeJson, startDate, 
         {$match: {count: {$gt: 0}}},
         {$sort: { date: -1}},
     ]
-    return pres_agg
+    return presAgg
 }
 
 module.exports.meta_data_proj = function() {
@@ -232,7 +261,7 @@ module.exports.reduce_bgc_meas = function(keys) {
 }
 
 module.exports.make_pres_project = function(minPres, maxPres) {
-    let presProjectItems = HELPER_CONST.PROF_PROJ_PARAMS_BASE
+    let presProjectItems = HELPER_CONST.PROF_PROJ_META_PARAMS
     presProjectItems.measurements = {
         $filter: {
             input: '$measurements',
@@ -308,16 +337,3 @@ module.exports.reduce_gps_measurements = function(profiles, maxLength) {
         
     return profiles
 }
-
-
-// module.exports = {}
-// module.exports.reduceIntpMeas = reduceIntpMeas
-// module.exports.presSliceProject = presSliceProject
-// module.exports.make_match = make_match
-// module.exports.make_pres_project = make_pres_project
-// module.exports.make_map_pres_agg = make_map_pres_agg
-// module.exports.make_pres_agg = make_pres_agg
-// module.exports.make_virtural_fields = make_virtural_fields
-// module.exports.reduce_gps_measurements = reduce_gps_measurements
-// module.exports.drop_missing_bgc_keys = drop_missing_bgc_keys
-// module.exports.reduce_bgc_meas = reduce_bgc_meas

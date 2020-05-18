@@ -13,9 +13,9 @@ exports.profile_list = function(req, res, next) {
     req.sanitize('presRange').trim()
 
     const errors = req.validationErrors()
-
     if (errors) {
-        res.send(errors)
+      res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      return;
     }
 
     const _ids = JSON.parse(req.query.ids.replace(/'/g, '"'))
@@ -36,24 +36,28 @@ exports.profile_list = function(req, res, next) {
         idAgg.push(helper.make_pres_project(minPres, maxPres))
     }
     idAgg.push({$project: HELPER_CONST.PROF_PROJECT_WITH_PRES_RANGE_COUNT})
-    idAgg.push({$match: {count: {$gt: 0}}})
+    idAgg.push({$match: { count: {$gt: 0}}})
     idAgg.push({$sort: { date: -1}})
-
+    // console.log(idAgg)
     const query = Profile.aggregate(idAgg)
 
     query.exec( function (err, profiles) {
-        if (err) { return next(err) }
+        if (err) { 
+            // console.log('an error:', err)
+            return next(err)
+        }
+        console.log('len prof: ', profiles.length)
         res.json(profiles)
     })
 }
 
 exports.profile_detail = function (req, res, next) {
     req.checkParams('_id', 'Profile id should be specified.').notEmpty()
-    const errors = req.validationErrors()
     req.sanitize('_id').escape()
-
+    const errors = req.validationErrors();
     if (errors) {
-        res.send(errors)
+      res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      return;
     }
     else {
         let query = Profile.findOne({ _id: req.params._id })
@@ -109,6 +113,12 @@ exports.selected_profile_list = function(req, res , next) {
     req.sanitize('_id').escape()
     req.sanitize('startDate').toDate()
     req.sanitize('endDate').toDate()
+
+    const errors = req.validationErrors();
+    if (errors) {
+      res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      return;
+    }
 
     const shape = JSON.parse(req.query.shape)
     const shapeJson = {'type': 'Polygon', 'coordinates': shape}

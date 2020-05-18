@@ -17,6 +17,7 @@ chai.use(chaiHttp);
           .end((err, res) => {
               res.should.have.status(200);
               res.body.should.be.a('array');
+              res.body.length.should.be.above(0)
               a_profile = res.body[0];
               a_profile.should.include.keys('_id', 'date', 'platform_number', 'cycle_number', 'geoLocation');
               a_profile._id.should.be.a('number');
