@@ -54,9 +54,6 @@ describe('/GET a platform', function() {
     .end((err, res) => {
         //test overall response
         res.should.have.status(200);
-
-
-
         let profiles = res.body.splice(0);
         let psal = [];
         let pres = [];
@@ -82,12 +79,6 @@ describe('/GET a platform', function() {
         out.tempForPres.length.should.be.equal(presVsTempLength);
         out.presForTemp.length.should.be.equal(presVsTempLength);
         out.cycleForTemp.length.should.be.equal(presVsTempLength);
-
-        // presVsPsal array lengths should be equal
-        presVsPsalLength = out.psalForPres.length;
-        out.presForPsal.length.should.be.equal(presVsPsalLength);
-        out.psalForPres.length.should.be.equal(presVsPsalLength);
-        out.cycleForTemp.length.should.be.equal(presVsPsalLength);
         done();
     });
   });
@@ -127,21 +118,23 @@ describe('/GET a list of profiles from a list', function() {
     .end((err, res) => {
       res.should.have.status(200);
       a_profile = res.body[0];
-      assert(a_profile._id === "1900722_1", 'wrong profile returned');
-      assert(a_profile.count === 70, 'check the length of measurements');
+      console.log(a_profile._id)
+      assert(a_profile._id === "1900722_2", 'wrong profile returned');
+      assert(a_profile.count === 71, 'check the length of measurements');
       done()
     })
   })
   it('it should GET a list of selected profiles within a pressure range', (done) => {
     const urlQuery = '/catalog/mprofiles/?' + list + presRange
+    console.log(urlQuery)
     chai.request(app)
     .get(urlQuery)
     .end((err, res) => {
       res.should.have.status(200);
       a_profile = res.body[0];
       a_measurement = a_profile.measurements
-      assert(a_profile._id === "1900722_1", 'wrong profile returned');
-      assert(a_profile.count === 3, 'there should be fewer measurements');
+      assert(a_profile._id === "1900722_2", 'wrong profile returned');
+      assert(a_measurement.length === 2, 'there should be two measurements');
       done();
     })
   })

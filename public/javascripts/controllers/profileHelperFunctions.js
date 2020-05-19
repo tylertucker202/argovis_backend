@@ -261,7 +261,7 @@ module.exports.reduce_bgc_meas = function(keys) {
 }
 
 module.exports.make_pres_project = function(minPres, maxPres) {
-    let presProjectItems = HELPER_CONST.PROF_PROJ_META_PARAMS
+    let presProjectItems = HELPER_CONST.PROF_META_PARAMS
     presProjectItems.measurements = {
         $filter: {
             input: '$measurements',

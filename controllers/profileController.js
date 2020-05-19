@@ -38,7 +38,7 @@ exports.profile_list = function(req, res, next) {
     idAgg.push({$project: HELPER_CONST.PROF_PROJECT_WITH_PRES_RANGE_COUNT})
     idAgg.push({$match: { count: {$gt: 0}}})
     idAgg.push({$sort: { date: -1}})
-    // console.log(idAgg)
+    // console.log('idAgg: ', idAgg)
     const query = Profile.aggregate(idAgg)
 
     query.exec( function (err, profiles) {
@@ -46,7 +46,7 @@ exports.profile_list = function(req, res, next) {
             // console.log('an error:', err)
             return next(err)
         }
-        console.log('len prof: ', profiles.length)
+        // console.log('len prof: ', profiles.length)
         res.json(profiles)
     })
 }
