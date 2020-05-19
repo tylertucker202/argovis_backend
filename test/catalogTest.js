@@ -127,8 +127,8 @@ describe('/GET a list of profiles from a list', function() {
     .end((err, res) => {
       res.should.have.status(200);
       a_profile = res.body[0];
-      assert(a_profile._id === "4902323_45D", 'wrong profile returned');
-      assert(a_profile.count === 564, 'check the length of measurements');
+      assert(a_profile._id === "1900722_1", 'wrong profile returned');
+      assert(a_profile.count === 70, 'check the length of measurements');
       done()
     })
   })
@@ -140,8 +140,8 @@ describe('/GET a list of profiles from a list', function() {
       res.should.have.status(200);
       a_profile = res.body[0];
       a_measurement = a_profile.measurements
-      assert(a_profile._id === "4902323_45D", 'wrong profile returned');
-      assert(a_profile.count === 15, 'there should be fewer measurements');
+      assert(a_profile._id === "1900722_1", 'wrong profile returned');
+      assert(a_profile.count === 3, 'there should be fewer measurements');
       done();
     })
   })
@@ -151,7 +151,7 @@ describe('/GET a list of profiles from a list', function() {
 describe('/GET profile render', function() {
   this.timeout(500);
   it('it should GET the selected profile.', (done) => {
-    const urlQuery = '/catalog/profiles/2902972_69'
+    const urlQuery = '/catalog/profiles/2902972_1'
     chai.request(app)
     .get(urlQuery)
     .end((err, res) => {

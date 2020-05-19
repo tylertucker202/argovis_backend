@@ -114,13 +114,14 @@ const PROF_META_PARAMS =
     containsBGC: 1
 }
 
-let PROF_PROJECT_WITH_PRES_RANGE_COUNT = PROF_META_PARAMS
-PROF_PROJECT_WITH_PRES_RANGE_COUNT.measurements = 1
-PROF_PROJECT_WITH_PRES_RANGE_COUNT.count = { $size: '$measurements' }
-
-let PROF_BGC_PROJECT_WITH_PRES_RANGE_COUNT = PROF_META_PARAMS
-PROF_BGC_PROJECT_WITH_PRES_RANGE_COUNT.bgcMeas = 1
-PROF_BGC_PROJECT_WITH_PRES_RANGE_COUNT.count = { $size: '$bgcMeas'}
+let prof_proj = PROF_META_PARAMS
+prof_proj['measurements'] = 1
+prof_proj['count'] = { $size: '$measurements' }
+const PROF_PROJECT_WITH_PRES_RANGE_COUNT = prof_proj // need to set as const to export
+let bgc_prof_proj = PROF_META_PARAMS
+bgc_prof_proj['bgcMeas'] = 1
+bgc_prof_proj['count'] = { $size: '$bgcMeas'}
+const PROF_BGC_PROJECT_WITH_PRES_RANGE_COUNT = bgc_prof_proj // need to set as const to export
 
 module.exports.MAP_META_AGGREGATE = MAP_META_AGGREGATE
 module.exports.MONTH_YEAR_AGGREGATE = MONTH_YEAR_AGGREGATE

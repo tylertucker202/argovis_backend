@@ -1,0 +1,24 @@
+var mlist = ['1900722_1','1900722_2','2900784_74','2900784_75', '2900784_78',
+ '4900902_139', '3900740_30', '2900784_141', '4900902_138', '3900740_29',
+  '2900784_140', '4900902_137', '3900740_28',
+   '5905988_13', '5905988_12', '5905988_11','5903260_237', '2902755_199',
+   '5903260_1','5903260_2','5903260_3','5903260_4','5903260_5',
+    '2902972_1', '2902972_2', '2902972_3', '2902972_4', '2902972_5','4900421_16',
+    '4902323_22D', '6901165_119', '6901623_104', '4902911_16', '6901165_120', '6901623_105']
+var profs = db.profiles.find({"_id": {"$in": mlist}}, {_id: 1}).toArray()
+profs = profs.map(function(x) { return x._id})
+profs.sort()
+mlist.sort()
+
+//lengths should equal one another
+profs.length
+mlist.length
+
+//backup local db
+var cursor = db.profiles.find() 
+while (cursor.hasNext()) {
+    db.profilesBak.insertOne(cursor.next());
+}
+
+//remove profiles not found in mlist
+db.profiles.remove( {_id: {$nin: mlist}})

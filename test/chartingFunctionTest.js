@@ -13,7 +13,7 @@ let generate = require('./../public/javascripts/generate_arrays_for_plotting.js'
 
 describe('/GET handles profiles containing nan for plotting', function() {
     this.timeout(5000)
-    const psalList = "ids=['1900722_1','2900784_74','2900784_75','2900784_78','2900784_1900722_2']"
+    const psalList = "ids=['1900722_1','2900784_74','2900784_75','2900784_78','1900722_2']"
     const tempList = "ids=['1900722_1','1900722_2']"
 
     it('it should GET a list of profiles with nan in psal', (done) => {

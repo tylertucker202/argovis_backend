@@ -1,7 +1,8 @@
 module.exports = {
   db: {
     production:  process.env.MONGODB_URI || 'mongodb://localhost/argo',
-    development: 'mongodb://127.0.0.1:27017/argo',
+    // development: 'mongodb://127.0.0.1:27017/argo',
+    development: 'mongodb://127.0.0.1:27017/argo-express-test',
     docker: 'mongodb://database/argo',
     test: 'mongodb://127.0.0.1:27017/argo-express-test',
     // test: 'mongodb://127.0.0.1:27017/argo',
