@@ -4,14 +4,6 @@ const GJV = require('geojson-validation')
 const helper = require('../public/javascripts/controllers/profileHelperFunctions')
 const HELPER_CONST = require('../public/javascripts/controllers/profileHelperConstants')
 
-exports.bgc_selection_detail = function(req, res, next) {
-    //geospatial and date range query for BGC measurements
-}
-
-exports.bgc_profile_detail = function(req, res, next) {
-    //find profile and filter out two measurements for plotting
-}
-
 exports.bgc_platform_list = function(req, res, next) {
     //retrieve list of platforms that have a field containsBGC = true
     const query = Profile.aggregate([
@@ -55,6 +47,7 @@ exports.bgc_platform_data = function (req, res, next) {
     })
 }
 
+//find profiles geospatially and filter out two measurements for plotting
 exports.bgc_data_selection = function(req, res , next) {
     //check input
     req.checkQuery('startDate', 'startDate should be specified.').notEmpty()

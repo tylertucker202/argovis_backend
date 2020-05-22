@@ -219,6 +219,7 @@ module.exports.drop_missing_bgc_keys = function(keys) {
     let presProjectItems = {} //rename this to somthing more usefull
     presProjectItems.cycle_number = 1
     presProjectItems.date = 1
+    presProjectItems.DATA_MODE = 1
     presProjectItems.core_data_mode = 1
     presProjectItems.POSITIONING_SYSTEM = 1
     presProjectItems.bgcMeasKeys = 1
