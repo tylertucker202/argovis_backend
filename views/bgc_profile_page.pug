@@ -22,7 +22,7 @@ html(lang='en')
                 tr
                     td Cycle number: #{profile.cycle_number}
                     td 
-                        a(href='/catalog/platforms/'+ platform_number + '/page' target='_blank') Link to platform #{profile.platform_number} page                                          
+                        a(href='/ng/profview?platform_number=' + platform_number) Link to BGC platform #{profile.platform_number} page
                 tr
                     td Latitude: #{profile.strLat}
                     td 
