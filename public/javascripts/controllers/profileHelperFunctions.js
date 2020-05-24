@@ -143,7 +143,7 @@ module.exports.make_map_pres_agg = function(minPres, maxPres, shapeJson, startDa
 
 module.exports.make_pres_project = function(minPres, maxPres) {
     let presProjectItems = HELPER_CONST.PROF_META_PARAMS
-    presProjectItems.measurements = {
+    presProjectItems['measurements'] = {
         $filter: {
             input: '$measurements',
             as: 'item',

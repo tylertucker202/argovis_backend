@@ -116,12 +116,21 @@ const PROF_META_PARAMS =
 
 let prof_proj = PROF_META_PARAMS
 prof_proj['measurements'] = 1
-prof_proj['count'] = { $size: '$measurements' }
+prof_proj['count'] = { $size: { "$ifNull": [ "$measurements", [1] ] }} //TODO: find out why meas sometimes return null
 const PROF_PROJECT_WITH_PRES_RANGE_COUNT = prof_proj // need to set as const to export
 let bgc_prof_proj = PROF_META_PARAMS
 bgc_prof_proj['bgcMeas'] = 1
-bgc_prof_proj['count'] = { $size: '$bgcMeas'}
+bgc_prof_proj['count'] = { "$ifNull": [ "$bgcMeas", [1] ]} //TODO: find out why meas sometimes return null
 const PROF_BGC_PROJECT_WITH_PRES_RANGE_COUNT = bgc_prof_proj // need to set as const to export
+
+// let prof_proj = PROF_META_PARAMS
+// prof_proj['measurements'] = 1
+// prof_proj['count'] = { $size: '$measurements' }
+// const PROF_PROJECT_WITH_PRES_RANGE_COUNT = prof_proj // need to set as const to export
+// let bgc_prof_proj = PROF_META_PARAMS
+// bgc_prof_proj['bgcMeas'] = 1
+// bgc_prof_proj['count'] = { $size: '$bgcMeas'}
+// const PROF_BGC_PROJECT_WITH_PRES_RANGE_COUNT = bgc_prof_proj // need to set as const to export
 
 module.exports.MAP_META_AGGREGATE = MAP_META_AGGREGATE
 module.exports.MONTH_YEAR_AGGREGATE = MONTH_YEAR_AGGREGATE
