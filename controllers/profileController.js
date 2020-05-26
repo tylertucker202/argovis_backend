@@ -38,7 +38,6 @@ exports.profile_list = function(req, res, next) {
     idAgg.push({$project: HELPER_CONST.PROF_PROJECT_WITH_PRES_RANGE_COUNT})
     idAgg.push({$match: { count: {$gt: 0}}})
     idAgg.push({$sort: { date: -1}})
-    // console.log('idAgg: ', idAgg)
     const query = Profile.aggregate(idAgg)
 
     query.exec( function (err, profiles) {
@@ -114,10 +113,10 @@ exports.selected_profile_list = function(req, res , next) {
     req.sanitize('startDate').toDate()
     req.sanitize('endDate').toDate()
 
-    const errors = req.validationErrors();
+    const errors = req.validationErrors()
     if (errors) {
-      res.send('There have been validation errors: ' + util.inspect(errors), 400);
-      return;
+      res.send('There have been validation errors: ' + util.inspect(errors), 400)
+      return
     }
 
     const shape = JSON.parse(req.query.shape)
@@ -175,7 +174,7 @@ exports.selected_profile_list = function(req, res , next) {
         }
         else if (req.params.format !== 'map' && presRange) {
             agg = helper.make_pres_agg(minPres, maxPres, shapeJson, startDate, endDate)
-            console.log(agg)
+            // console.log(agg)
         }
         else {
             agg = [ {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},

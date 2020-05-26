@@ -13,7 +13,7 @@ let should = chai.should();
 chai.use(chaiHttp);
 
 describe('/GET AR Shapes on a certain date', function() {
-  this.timeout(1500);
+  this.timeout(5000);
   it('it should GET the ArShapes.', (done) => {
     const date = "2004-01-01T00:00:000Z"
     let urlQuery = '/arShapes/findByDate?date=' + date

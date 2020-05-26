@@ -85,7 +85,7 @@ describe('/GET a platform', function() {
 });
 
 describe('/GET catalog dacs', function() {
-  this.timeout(200);
+  this.timeout(2000);
   it('it should GET the dac summary', (done) => {
     chai.request(app)
     .get('/catalog/dacs')
@@ -112,13 +112,13 @@ describe('/GET a list of profiles from a list', function() {
   const presRange = "&presRange=[0,20]"
   it('it should GET a list of profiles', (done) => {
     const urlQuery = '/catalog/mprofiles/?' + list
-    console.log(urlQuery)
+    // console.log(urlQuery)
     chai.request(app)
     .get(urlQuery)
     .end((err, res) => {
       res.should.have.status(200);
       a_profile = res.body[0];
-      console.log(a_profile._id)
+      // console.log(a_profile._id)
       assert(a_profile._id === "1900722_2", 'wrong profile returned');
       assert(a_profile.count === 71, 'check the length of measurements');
       done()
@@ -126,7 +126,7 @@ describe('/GET a list of profiles from a list', function() {
   })
   it('it should GET a list of selected profiles within a pressure range', (done) => {
     const urlQuery = '/catalog/mprofiles/?' + list + presRange
-    console.log(urlQuery)
+    // console.log(urlQuery)
     chai.request(app)
     .get(urlQuery)
     .end((err, res) => {
