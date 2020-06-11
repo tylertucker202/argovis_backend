@@ -216,7 +216,7 @@ module.exports.drop_missing_bgc_keys = function(keys) {
         const gteExp = {$gte: [item, -999]}  //works as long as items are never negative
         conds.push(gteExp)
     }
-    let presProjectItems = {} //rename this to somthing more usefull
+    let presProjectItems = {} //rename this to somthing more usefull. todo: add pos and date qc
     presProjectItems.cycle_number = 1
     presProjectItems.date = 1
     presProjectItems.DATA_MODE = 1

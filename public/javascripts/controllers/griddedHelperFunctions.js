@@ -116,7 +116,7 @@ const add_grid_projection = function(agg, latRange, lonRange) {
             },
         }},
         { $unwind : '$data' }, //allows sorting
-        {$sort:  {'data.lat': -1, 'data.lon': 1}},
+        {$sort:  {'data.lat': -1, 'data.lon': 1}}, //TODO check indexes. it may already be sorted....
         {$group: {_id: '$_id', //collection for nrows and ncolumns
                         'pres': {$first: '$pres'},
                         'date': {$first: '$date'},

@@ -81,6 +81,9 @@ var corsOptions = {
   credentials:true
 }
 
+// Set the MIME type explicitly
+express.static.mime.define({'application/wasm': ['wasm']});
+
 //here is the magic
 app.use(cors(corsOptions));
 
