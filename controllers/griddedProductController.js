@@ -96,11 +96,39 @@ exports.get_grid_window = function(req, res , next) {
 
     let agg = []
     agg.push({$match: {pres: pres, date: monthYear.toDate(), gridName: gridName }})
-    agg = helper.add_grid_projection(agg, latRange, lonRange)
-    if (gridProj) { 
-        agg = agg.slice(0, -4) // for non uniform grid
+    if (gridProj) {
+        console.log('proj grid')
+        agg = helper.add_grid_projection(agg, latRange, lonRange)
     }
-    console.log(agg)
+    else {
+        console.log('normal grid', latRange, lonRange)
+        const proj =  {$project: { // query for lat lng ranges
+                pres: -1,
+                date: -1,
+                gridName: -1,
+                measurement: -1,
+                units: -1,
+                param: -1,
+                variable: -1,
+                cellsize: -1,
+                NODATA_value: -1,
+                data: {
+                    $filter: {
+                        input: '$data',
+                        as: 'item',
+                        cond: {
+                            $and: [
+                                {$gt: ['$$item.lat', latRange[0]]},
+                                {$lt: ['$$item.lat', latRange[1]]},
+                                {$gt: ['$$item.lon', lonRange[0]]},
+                                {$lt: ['$$item.lon', lonRange[1]]}
+                            ]},
+                    },
+                },
+            }}
+        agg.push(proj)
+    }
+    console.log(gridProj, agg)
     const query = GridModel.aggregate(agg)
     query.exec( function (err, grid) {
         if (err) { return next(err); }
