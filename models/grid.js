@@ -18,7 +18,7 @@ var GridSchema = Schema(
     model: {type: String, required: false},
     trend: {type: String, required: false},
     param: {type: String, required: true},
-
+    chunk: {type: Number, required: false},
     cellSize: {type: Number, required: true},
     NODATA_value: {type: Number, required: true},
   },
@@ -32,4 +32,5 @@ module.exports.ksTempMean = mongoose.model('ksTempMean', GridSchema, 'ksTempMean
 module.exports.ksTempTotal = mongoose.model('ksTempTotal', GridSchema, 'ksTempTotal');
 module.exports.ksTempParams = mongoose.model('ksTempParams', GridSchema, 'ksTempParams');
 module.exports.soseDoxy = mongoose.model('soseDoxy', GridSchema, 'soseDoxy');
-module.exports.soseSIarea = mongoose.model('soseSIarea', GridSchema, 'soseSIarea');
+module.exports.sose_si_area_monthly = mongoose.model('sose_si_area_monthly', GridSchema, 'sose_si_area_monthly');
+module.exports.sose_si_area_3_day = mongoose.model('sose_si_area_3_day', GridSchema, 'sose_si_area_3_day')

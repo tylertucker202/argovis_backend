@@ -15,10 +15,13 @@ const get_grid_model = function(Grid, gridName) {
     else if (gridName.includes('Total') && gridName.includes('ks')) {
         GridModel = Grid.ksTempTotal
     }
-    else if (gridName.includes('soseSIarea')) {
-        GridModel = Grid.soseSIarea
+    else if (gridName === 'sosi_si_area_monthly') {
+        GridModel = Grid.sosi_si_area_monthly
     }
-    else if (gridName.includes('soseDoxy')) {
+    else if (gridName === 'sose_si_area_3_day') {
+        GridModel = Grid.sose_si_area_3_day
+    }
+    else if (gridName === 'soseDoxy') {
         GridModel = Grid.soseDoxy
     }
     else {
@@ -101,6 +104,7 @@ const add_grid_projection = function(agg, latRange, lonRange) {
             variable: -1,
             cellsize: -1,
             NODATA_value: -1,
+            chunk: -1,
             data: {
                 $filter: {
                     input: '$data',
