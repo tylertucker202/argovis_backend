@@ -123,6 +123,7 @@ module.exports.PROF_PROJECT_WITH_PRES_RANGE_COUNT = {
     cycle_number: 1,
     lat: 1,
     lon: 1,
+    DIRECTION: 1,
     position_qc: 1,
     station_parameters: 1,
     VERTICAL_SAMPLING_SCHEME: 1,
