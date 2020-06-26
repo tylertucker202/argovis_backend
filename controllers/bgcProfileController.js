@@ -31,7 +31,7 @@ exports.bgc_platform_data = function (req, res, next) {
     if (req.query.xaxis) { xaxis=req.query.xaxis }
     if (req.query.yaxis) { yaxis=req.query.yaxis }
     let agg = [ {$match: {platform_number: platform_number}} ]
-
+    agg.push({$sort:  {cycle_number: -1}})
     if (xaxis && yaxis) {
         agg.push(helper.drop_missing_bgc_keys([xaxis, yaxis]))
         agg.push(helper.reduce_bgc_meas([xaxis, yaxis]))
