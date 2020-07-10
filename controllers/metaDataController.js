@@ -74,7 +74,7 @@ exports.last_three_days = function(req,res, next) {
     }
     const query = Profile.aggregate([
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-        {$sort: {'platform_number': -1, 'date': -1}},
+        {$sort: {'date': -1}},
         {$project: HELPER_CONST.MAP_META_AGGREGATE},
     ]);
     query.exec( function (err, profiles) {

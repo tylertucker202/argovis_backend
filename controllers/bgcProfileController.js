@@ -31,12 +31,12 @@ exports.bgc_platform_data = function (req, res, next) {
     if (req.query.xaxis) { xaxis=req.query.xaxis }
     if (req.query.yaxis) { yaxis=req.query.yaxis }
     let agg = [ {$match: {platform_number: platform_number}} ]
-
+    agg.push({$sort:  {date: -1}}) //sorting by date takes a long time
     if (xaxis && yaxis) {
         agg.push(helper.drop_missing_bgc_keys([xaxis, yaxis]))
         agg.push(helper.reduce_bgc_meas([xaxis, yaxis]))
     }
-    const query = Profile.aggregate(agg)
+    const query = Profile.aggregate(agg) //sorting profiles may require disk use to get past the 100MB RAM limit.
 
     query.exec(function (err, profiles) {
         if (err) return next(err)
