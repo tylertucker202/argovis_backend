@@ -3,19 +3,23 @@ const GridParameter = Grid.ksTempParams;
 const moment = require('moment');
 const helper = require('../public/javascripts/controllers/griddedHelperFunctions')
 
-const presLayersGrouping = {   _id: '$gridName', presLevels: {$push: '$pres'}}
+const datePresGrouping = {_id: '$gridName', presLevels: {$addToSet: '$pres'}, dates: {$addToSet: '$date'}}
 
 exports.get_pressure_layers = function(req, res, next) {
     req.sanitize('gridName').escape();
     req.sanitize('gridName').trim();
     const gridName = req.query.gridName
     const GridModel = helper.get_grid_model(Grid, gridName)
-    console.log(gridName, GridModel)
+    // console.log(gridName, GridModel)
     let query = GridModel.aggregate( [
         {$match: {gridName: gridName}},
-        {$group: presLayersGrouping},
-        {$unwind: "$presLevels" } ,
-        {$group: { _id: gridName, presLevels: {"$addToSet": "$presLevels" }}},
+        {$group: datePresGrouping},
+        {$unwind: "$presLevels"},
+        {$sort: {presLevels: 1}},
+        {$group: {_id: null, "presLevels": {$push: "$presLevels"}, dates: {$first: '$dates'}}},
+        {$unwind: "$dates"},
+        {$sort: {dates: 1}},
+        {$group: {_id: null, "dates": {$push: "$dates"}, presLevels: {$first: '$presLevels'}}},
     ])
 
     query.exec( function (err, grid) {
