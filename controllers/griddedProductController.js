@@ -5,7 +5,7 @@ const helper = require('../public/javascripts/controllers/griddedHelperFunctions
 
 const datePresGrouping = {_id: '$gridName', presLevels: {$addToSet: '$pres'}, dates: {$addToSet: '$date'}}
 
-exports.get_pressure_layers = function(req, res, next) {
+exports.get_grid_metadata = function(req, res, next) {
     req.sanitize('gridName').escape();
     req.sanitize('gridName').trim();
     const gridName = req.query.gridName
