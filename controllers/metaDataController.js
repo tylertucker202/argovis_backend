@@ -20,7 +20,6 @@ exports.month_year_profile_list = function(req, res, next) {
     const endDate = startDate.clone().endOf('month');
     const query = Profile.aggregate([
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-        {$sort: { date: -1}},
         {$project: HELPER_CONST.MONTH_YEAR_AGGREGATE},
     ]);
     const promise = query.exec();
@@ -42,7 +41,6 @@ exports.global_map_profiles = function(req,res, next) {
 
     const query = Profile.aggregate([
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-        {$sort: {'platform_number': -1, 'date': -1}},
         {$project: HELPER_CONST.MAP_META_AGGREGATE},
     ]);
     query.exec( function (err, profiles) {
@@ -74,7 +72,6 @@ exports.last_three_days = function(req,res, next) {
     }
     const query = Profile.aggregate([
         {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-        {$sort: {'date': -1}},
         {$project: HELPER_CONST.MAP_META_AGGREGATE},
     ]);
     query.exec( function (err, profiles) {

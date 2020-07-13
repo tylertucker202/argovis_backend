@@ -3,19 +3,23 @@ const GridParameter = Grid.ksTempParams;
 const moment = require('moment');
 const helper = require('../public/javascripts/controllers/griddedHelperFunctions')
 
-const presLayersGrouping = {   _id: '$gridName', presLevels: {$push: '$pres'}}
+const datePresGrouping = {_id: '$gridName', presLevels: {$addToSet: '$pres'}, dates: {$addToSet: '$date'}}
 
-exports.get_pressure_layers = function(req, res, next) {
+exports.get_grid_metadata = function(req, res, next) {
     req.sanitize('gridName').escape();
     req.sanitize('gridName').trim();
     const gridName = req.query.gridName
     const GridModel = helper.get_grid_model(Grid, gridName)
-    console.log(gridName, GridModel)
+    // console.log(gridName, GridModel)
     let query = GridModel.aggregate( [
         {$match: {gridName: gridName}},
-        {$group: presLayersGrouping},
-        {$unwind: "$presLevels" } ,
-        {$group: { _id: gridName, presLevels: {"$addToSet": "$presLevels" }}},
+        {$group: datePresGrouping},
+        {$unwind: "$presLevels"},
+        {$sort: {presLevels: 1}},
+        {$group: {_id: null, "presLevels": {$push: "$presLevels"}, dates: {$first: '$dates'}}},
+        {$unwind: "$dates"},
+        {$sort: {dates: 1}},
+        {$group: {_id: null, "dates": {$push: "$dates"}, presLevels: {$first: '$presLevels'}}},
     ])
 
     query.exec( function (err, grid) {
@@ -81,11 +85,6 @@ exports.get_grid_window = function(req, res , next) {
     req.checkParams('presLevel', 'presLevel should be numeric.').isNumeric();
     req.checkParams('param', 'param should be string.').isAlpha();
     req.checkParams('grid', 'grid should be string.').isAlphanumeric();
-
-    let gridProj = true
-    if (req.query.gridProj) {
-        gridProj = JSON.parse(req.query.gridProj)
-    }
     const pres = JSON.parse(req.query.presLevel)
     const gridName = req.query.gridName
     const latRange = JSON.parse(req.query.latRange)
@@ -96,39 +95,7 @@ exports.get_grid_window = function(req, res , next) {
 
     let agg = []
     agg.push({$match: {pres: pres, date: monthYear.toDate(), gridName: gridName }})
-    if (gridProj) {
-        console.log('proj grid')
-        agg = helper.add_grid_projection(agg, latRange, lonRange)
-    }
-    else {
-        console.log('normal grid', latRange, lonRange)
-        const proj =  {$project: { // query for lat lng ranges
-                pres: -1,
-                date: -1,
-                gridName: -1,
-                measurement: -1,
-                units: -1,
-                param: -1,
-                variable: -1,
-                cellsize: -1,
-                NODATA_value: -1,
-                data: {
-                    $filter: {
-                        input: '$data',
-                        as: 'item',
-                        cond: {
-                            $and: [
-                                {$gt: ['$$item.lat', latRange[0]]},
-                                {$lt: ['$$item.lat', latRange[1]]},
-                                {$gt: ['$$item.lon', lonRange[0]]},
-                                {$lt: ['$$item.lon', lonRange[1]]}
-                            ]},
-                    },
-                },
-            }}
-        agg.push(proj)
-    }
-    console.log(gridProj, agg)
+    agg = helper.add_grid_projection(agg, latRange, lonRange)
     const query = GridModel.aggregate(agg)
     query.exec( function (err, grid) {
         if (err) { return next(err); }
@@ -136,7 +103,7 @@ exports.get_grid_window = function(req, res , next) {
     });
 }
 
-exports.get_sose_grid_window = function(req, res , next) {
+exports.get_non_uniform_grid_window = function(req, res , next) {
     req.sanitize('gridName').escape();
     req.sanitize('gridName').trim();
     req.sanitize('presLevel').escape();
