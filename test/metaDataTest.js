@@ -8,6 +8,25 @@ let app = require('../app');
 
 chai.use(chaiHttp);
 
+
+  describe('/GET global map profiles', function() {
+    this.timeout(2000);
+    const startDate = '2018-08-29T06:00:00Z'
+    const endDate = '2018-08-30T18:00:00Z'
+    const url = '/selection/globalMapProfiles/' + startDate + '/' + endDate
+    it('it should GET the profiles failling within the datetimes', (done) => {
+      chai.request(app)
+      .get(url)
+      .end( (err, res) => {
+        res.should.have.status(200)
+        console.log(res.body)
+        const profile = res.body[0]
+        profile.should.include.keys('DATA_MODE', 'date', 'geoLocation', 'cycle_number', 'platform_number', 'DIRECTION', '_id')
+        done()
+      })
+    })
+  })
+
   describe('/GET last 3 days profiles', function() {
     this.timeout(2000);
     var myDate = '2018-08-30'
