@@ -19,7 +19,7 @@ exports.get_grid_metadata = function(req, res, next) {
         {$group: {_id: null, "presLevels": {$push: "$presLevels"}, dates: {$first: '$dates'}}},
         {$unwind: "$dates"},
         {$sort: {dates: 1}},
-        {$group: {_id: null, "dates": {$push: "$dates"}, presLevels: {$first: '$presLevels'}}},
+        {$group: {_id: null, "dates": {$push: "$dates"}, minDate: {$min: '$dates'}, maxDate: {$max: '$dates'}, presLevels: {$first: '$presLevels'}}},
     ])
 
     query.exec( function (err, grid) {
