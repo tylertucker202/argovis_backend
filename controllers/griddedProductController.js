@@ -79,8 +79,8 @@ exports.get_grid_window = function(req, res , next) {
     req.sanitize('lonRange').trim();
     req.sanitize('param').escape();
     req.sanitize('param').trim();
-    req.sanitize('monthYear').escape();
-    req.sanitize('monthYear').trim();
+    req.sanitize('date').escape();
+    req.sanitize('date').trim();
 
     req.checkParams('presLevel', 'presLevel should be numeric.').isNumeric();
     req.checkParams('param', 'param should be string.').isAlpha();
@@ -89,12 +89,12 @@ exports.get_grid_window = function(req, res , next) {
     const gridName = req.query.gridName
     const latRange = JSON.parse(req.query.latRange)
     const lonRange = JSON.parse(req.query.lonRange)
-    const monthYear = moment.utc(req.query.monthYear, 'MM-YYYY').startOf('D')
+    const date = moment.utc(req.query.date, 'DD-MM-YYYY')
 
     const GridModel = helper.get_grid_model(Grid, gridName)
 
     let agg = []
-    agg.push({$match: {pres: pres, date: monthYear.toDate(), gridName: gridName }})
+    agg.push({$match: {pres: pres, date: date.toDate(), gridName: gridName }})
     agg = helper.add_grid_projection(agg, latRange, lonRange)
     const query = GridModel.aggregate(agg)
     query.exec( function (err, grid) {
@@ -124,7 +124,7 @@ exports.get_non_uniform_grid_window = function(req, res , next) {
     const gridName = req.query.gridName
     const latRange = JSON.parse(req.query.latRange)
     const lonRange = JSON.parse(req.query.lonRange)
-    const date = moment.utc(req.query.date, 'YYYY-MM-DD')
+    const date = moment.utc(req.query.date, 'DD-MM-YYYY')
 
     const GridModel = helper.get_grid_model(Grid, gridName)
     let agg = []
