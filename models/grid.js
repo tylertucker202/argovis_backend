@@ -34,3 +34,4 @@ module.exports.ksTempParams = mongoose.model('ksTempParams', GridSchema, 'ksTemp
 module.exports.soseDoxy = mongoose.model('soseDoxy', GridSchema, 'soseDoxy');
 module.exports.sose_si_area_monthly = mongoose.model('sose_si_area_monthly', GridSchema, 'sose_si_area_monthly');
 module.exports.sose_si_area_3_day = mongoose.model('sose_si_area_3_day', GridSchema, 'sose_si_area_3_day')
+module.exports.sose_si_area_1_day = mongoose.model('sose_si_area_1_day', GridSchema, 'sose_si_area_1_day')
