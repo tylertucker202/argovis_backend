@@ -19,7 +19,6 @@ chai.use(chaiHttp);
       .get(url)
       .end( (err, res) => {
         res.should.have.status(200)
-        console.log(res.body)
         const profile = res.body[0]
         profile.should.include.keys('DATA_MODE', 'date', 'geoLocation', 'cycle_number', 'platform_number', 'DIRECTION', '_id')
         done()

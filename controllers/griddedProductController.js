@@ -223,7 +223,41 @@ exports.get_non_uniform_grid_window = function(req, res , next) {
     });
 }
 
+exports.get_grid_coord = function(req, res, next) {
+    //http://localhost:3000/griddedProducts/gridCoords?latRange=[-75,-73]&lonRange=[-5,5]&gridName=sose_si_area_1_day_sparse
+    req.sanitize('gridName').escape();
+    req.sanitize('gridName').trim();
+    req.sanitize('latRange').escape();
+    req.sanitize('latRange').trim();
+    req.sanitize('lonRange').escape();
+    req.sanitize('lonRange').trim();
+
+    const gridName = req.query.gridName
+    const latRange = JSON.parse(req.query.latRange)
+    const lonRange = JSON.parse(req.query.lonRange)
+    // console.log(`latRange ${latRange} lonRange ${lonRange}, gridName, ${gridName}`)
+
+
+    let agg = [
+        {$match: {gridName: gridName}},
+        {$unwind: "$lats"},
+        {$match: {lats: { $gte: latRange[0], $lte: latRange[1] }}},
+        {$group: {_id: null, gridName: {$first: "$gridName"}, lons: {$first: "$lons"}, lats: {$push: "$lats" }}},
+        {$unwind: "$lons"},
+        {$match: {lons: { $gte: lonRange[0], $lte: lonRange[1] }}},
+        {$group: {_id: null, gridName: {$first: "$gridName"}, lons: {$push: "$lons"}, lats: {$first: "$lats" }}},
+    ]
+
+    const query = Grid.grid_coords.aggregate(agg)
+    query.exec( function (err, grid) {
+        if (err) { return next(err); }
+        res.json(grid);
+    });
+
+}
+
 exports.get_param_window = function(req, res , next) {
+    //ex http://localhost:3000/griddedProducts/gridCoords?latRange=[-75,-73]&lonRange=[-5,5]&gridName=sose_si_area_1_day_sparse
     req.sanitize('gridName').escape();
     req.sanitize('gridName').trim();
     req.sanitize('presLevel').escape();

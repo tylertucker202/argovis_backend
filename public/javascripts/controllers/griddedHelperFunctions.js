@@ -21,14 +21,14 @@ const get_grid_model = function(Grid, gridName) {
     else if (gridName === 'sose_si_area_3_day') {
         GridModel = Grid.sose_si_area_3_day
     }
-    else if (gridName === 'sose_si_area_3_day') {
-        GridModel = Grid.sose_si_area_3_day
+    else if (gridName === 'sose_si_area_1_day') {
+        GridModel = Grid.sose_si_area_1_day
     }
     else if (gridName === 'soseDoxy') {
         GridModel = Grid.soseDoxy
     }
     else {
-        console.log('grid collection not selected ', grid)
+        console.log('grid collection not selected ', gridName)
     }
     return GridModel
 }

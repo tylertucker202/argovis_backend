@@ -24,6 +24,13 @@ var GridSchema = Schema(
   },
 );
 
+var GridCoordSchema = Schema( {
+  _id: { type: String, required: true },
+  gridName: { type: String, required: true },
+  lats: { type: [Number], required: true },
+  lons: { type: [Number], required: true }
+})
+
 module.exports = {}
 module.exports.ksTempAnom = mongoose.model('ksTempAnom', GridSchema, 'ksTempAnom');
 module.exports.rgTempAnom = mongoose.model('rgTempAnom', GridSchema, 'rgTempAnom');
@@ -35,3 +42,6 @@ module.exports.soseDoxy = mongoose.model('soseDoxy', GridSchema, 'soseDoxy');
 module.exports.sose_si_area_monthly = mongoose.model('sose_si_area_monthly', GridSchema, 'sose_si_area_monthly');
 module.exports.sose_si_area_3_day = mongoose.model('sose_si_area_3_day', GridSchema, 'sose_si_area_3_day')
 module.exports.sose_si_area_1_day = mongoose.model('sose_si_area_1_day', GridSchema, 'sose_si_area_1_day')
+
+module.exports.grid_coords = mongoose.model('grid_coords', GridCoordSchema, 'grid_coords')
+module.exports.sose_si_area_1_day_sparse = mongoose.model('sose_si_area_1_day_sparse', GridSchema, 'sose_si_area_1_day_sparse')
