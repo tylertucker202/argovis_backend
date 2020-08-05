@@ -24,6 +24,9 @@ const get_grid_model = function(Grid, gridName) {
     else if (gridName === 'sose_si_area_1_day') {
         GridModel = Grid.sose_si_area_1_day
     }
+    else if (gridName === 'sose_si_area_1_day_sparse') {
+        GridModel = Grid.sose_si_area_1_day_sparse
+    }
     else if (gridName === 'soseDoxy') {
         GridModel = Grid.soseDoxy
     }

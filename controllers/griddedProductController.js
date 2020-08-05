@@ -127,6 +127,7 @@ exports.get_non_uniform_grid_window = function(req, res , next) {
     const date = moment.utc(req.query.date, 'DD-MM-YYYY')
 
     const GridModel = helper.get_grid_model(Grid, gridName)
+    // console.log(`GridModel: ${GridModel}`)
     let agg = []
     agg.push({$match: {pres: pres, date: date.format('YYYY-MM-DD'), gridName: gridName }})
 
