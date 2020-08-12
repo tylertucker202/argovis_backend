@@ -21,14 +21,93 @@ tags:
     description: 'geospatial selection of argo floats'
   - name: 'metadata'
     description: 'databse queries that leave out the data'
+  - name: 'bgc'
+    description: 'biogeochemical specific queries'
   - name: 'catalog'
-    description: 'profile or platform data'
+    description: 'profile or platform core data (temperature pressure salinity)'
   - name: 'ar'
     description: 'atmospheric river shapes'
-  - name: 'profileGridding'
-    description: 'Argo float aggregation into gridded cells'
 components:
   schemas:
+    GridMeta:
+      type: object
+      required:
+        - presLevels
+        - dates
+        - minDate
+        - maxDate
+      properties:
+        _id:
+          type: string
+        presLevels:
+          type: array
+          items:
+            type: number
+        dates:
+          type: array
+          items:
+            type: string
+            format: date-time
+        minDate:
+          type: string
+          format: date-time
+        maxDate:
+          type: string
+          format: date-time
+
+    RasterGrid:
+      type: object
+      required:
+        - _id
+        - pres
+        - cellXSize
+        - cellYSize
+        - noDataValue
+        - zs
+        - nRows
+        - nCols
+        - xllCorner
+        - yllCorner
+        - time
+      properties:
+        _id:
+          type: string
+        pres:
+          type: number
+        cellXSize:
+          type: number
+          nullable: true
+        cellYSize:
+          type: number
+          nullable: true
+        noDataValue:
+          type: number
+          nullable: true
+        zs: 
+          type: array
+          items:
+            type: number
+        nRows:
+          type: integer
+        nCols:
+          type: integer
+        xllCorner:
+          type: number
+        yllCorner:
+          type: number
+        gridName:
+          type: string
+        units:
+          type: string
+        measurement:
+          type: string
+        param:
+          type: string
+        time: 
+          type: number
+        date:
+          type: string
+          format: date-time
     ProfileSchema:
       type: object
       required:
@@ -367,6 +446,174 @@ components:
           type: string
           format: date
 paths: 
+  /griddedProducts/gridMetadata:
+    get:
+      tags: ['grid', 'metadata']
+      summary: metadata from grid unique dates, pres levels
+      parameters:
+        - in: query
+          name: gridName
+          example: rgTempAnom
+          required: true
+          schema: 
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GridMeta'
+  /griddedProducts/grid/window:
+    get:
+      tags: ['grid']
+      summary: uniformly spaced rectangular gridded product selector
+      parameters:
+        - in: query
+          name: gridName
+          required: true
+          example: rgTempAnom
+          schema: 
+            type: string
+        - in: query
+          name: presLevel
+          required: true
+          example: 10
+          schema:
+            type: number
+        - in: query
+          name: latRange
+          required: true
+          example: "[-3,3]"
+          schema:
+            type: array
+            items:
+              type: number
+              minItems: 2
+              maxItems: 2
+              minimum: -90
+              maximum: 90
+        - in: query
+          name: lonRange
+          required: true
+          example: "[-3,3.5]"
+          schema:
+            type: array
+            items:
+              type: number
+              minItems: 2
+              maxItems: 2
+              minimum: -180
+              maximum: 180              
+        - in: query
+          name: date
+          required: true
+          example: '2012-01-01'
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RasterGrid'
+  /griddedProducts/nonUniformGrid/window:
+    get:
+      tags: ['grid']
+      summary: non uniformly spaced rectangular gridded product
+      parameters:
+        - in: query
+          name: gridName
+          required: true
+          example: sose_si_area_1_day_sparse
+          schema: 
+            type: string
+        - in: query
+          name: presLevel
+          required: true
+          example: "0"
+          schema:
+            type: number
+        - in: query
+          name: latRange
+          required: true
+          example: "[-75,-70]"
+          schema:
+            type: array
+            items:
+              type: number
+              minItems: 2
+              maxItems: 2
+              minimum: -90
+              maximum: 90
+        - in: query
+          name: lonRange
+          required: true
+          example: "[0,5]"
+          schema:
+            type: array
+            items:
+              type: number
+              minItems: 2
+              maxItems: 2
+              minimum: -180
+              maximum: 180
+        - in: query
+          name: date
+          required: true
+          example: '2013-01-04'
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GridSchema'
+  /griddedProducts/gridCoords:
+    get:
+      tags: ['grid', 'metadata']
+      summary: coordinates for gridded product
+      parameters:
+        - in: query
+          name: gridName
+          required: true
+          example: sose_si_area_1_day_sparse
+          schema: 
+            type: string
+        - in: query
+          name: latRange
+          required: true
+          example: "[-75,-73]"
+          schema:
+            type: array
+            items:
+              type: number
+              minItems: 2
+              maxItems: 2
+        - in: query
+          name: lonRange
+          required: true
+          example: "[0,5]"
+          schema:
+            type: array
+            example: [-5,5]
+            items:
+              type: number
+              minItems: 2
+              maxItems: 2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GridCoordSchema'
+          
   /covarGrid/{lat}/{lon}/{forcastDays}:
     get:
       tags: ['covar']

@@ -10,7 +10,6 @@ exports.get_grid_metadata = function(req, res, next) {
     req.sanitize('gridName').trim();
     const gridName = req.query.gridName
     const GridModel = helper.get_grid_model(Grid, gridName)
-    // console.log(gridName, GridModel)
     let query = GridModel.aggregate( [
         {$match: {gridName: gridName}},
         {$group: datePresGrouping},
@@ -89,7 +88,7 @@ exports.get_grid_window = function(req, res , next) {
     const gridName = req.query.gridName
     const latRange = JSON.parse(req.query.latRange)
     const lonRange = JSON.parse(req.query.lonRange)
-    const date = moment.utc(req.query.date, 'DD-MM-YYYY')
+    const date = moment.utc(req.query.date, 'YYYY-MM-DD')
 
     const GridModel = helper.get_grid_model(Grid, gridName)
 
@@ -124,10 +123,9 @@ exports.get_non_uniform_grid_window = function(req, res , next) {
     const gridName = req.query.gridName
     const latRange = JSON.parse(req.query.latRange)
     const lonRange = JSON.parse(req.query.lonRange)
-    const date = moment.utc(req.query.date, 'DD-MM-YYYY')
+    const date = moment.utc(req.query.date, 'YYYY-MM-DD')
 
     const GridModel = helper.get_grid_model(Grid, gridName)
-    // console.log(`GridModel: ${GridModel}`)
     let agg = []
     agg.push({$match: {pres: pres, date: date.format('YYYY-MM-DD'), gridName: gridName }})
 
@@ -213,10 +211,6 @@ exports.get_non_uniform_grid_window = function(req, res , next) {
     }
     agg.push(reduce_proj)
 
-    // agg.push({ $unwind : '$data' }) //allows sorting for small areas, but expensive. mongod 4.4 and higher use function
-    // agg.push({$sort:  {'data.lat': -1, 'data.lon': 1}} )
-    // agg.push(group)
-
     const query = GridModel.aggregate(agg)
     query.exec( function (err, grid) {
         if (err) { return next(err); }
@@ -225,7 +219,6 @@ exports.get_non_uniform_grid_window = function(req, res , next) {
 }
 
 exports.get_grid_coord = function(req, res, next) {
-    //http://localhost:3000/griddedProducts/gridCoords?latRange=[-75,-73]&lonRange=[-5,5]&gridName=sose_si_area_1_day_sparse
     req.sanitize('gridName').escape();
     req.sanitize('gridName').trim();
     req.sanitize('latRange').escape();
@@ -236,8 +229,6 @@ exports.get_grid_coord = function(req, res, next) {
     const gridName = req.query.gridName
     const latRange = JSON.parse(req.query.latRange)
     const lonRange = JSON.parse(req.query.lonRange)
-    // console.log(`latRange ${latRange} lonRange ${lonRange}, gridName, ${gridName}`)
-
 
     let agg = [
         {$match: {gridName: gridName}},
@@ -258,7 +249,6 @@ exports.get_grid_coord = function(req, res, next) {
 }
 
 exports.get_param_window = function(req, res , next) {
-    //ex http://localhost:3000/griddedProducts/gridCoords?latRange=[-75,-73]&lonRange=[-5,5]&gridName=sose_si_area_1_day_sparse
     req.sanitize('gridName').escape();
     req.sanitize('gridName').trim();
     req.sanitize('presLevel').escape();
