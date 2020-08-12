@@ -12,13 +12,21 @@ info:
   license:
     name: MIT
     url: https://choosealicense.com/licenses/mit/
-servers:
-- url: https:/localhost:3000/api-docs
-  description: development server
-- url: www.argovis.com/api-docs
-  description: Domain name rerouts to argovis.colorado.edu
-- url: https://argovis.coloraod.edu/api-docs
-  description: Production server hosted by Colorado university
+tags: 
+  - name: 'covar'
+    description: 'Argo float position forcast product'
+  - name: 'grid'
+    description: 'Gridded products derived from Argo floats, simulation, or satalite product'
+  - name: 'selection'
+    description: 'geospatial selection of argo floats'
+  - name: 'metadata'
+    description: 'databse queries that leave out the data'
+  - name: 'catalog'
+    description: 'profile or platform data'
+  - name: 'ar'
+    description: 'atmospheric river shapes'
+  - name: 'profileGridding'
+    description: 'Argo float aggregation into gridded cells'
 components:
   schemas:
     ProfileSchema:
@@ -359,9 +367,40 @@ components:
           type: string
           format: date
 paths: 
-  /covarGrid/:lat/:lon/:forcastDays/:
+  /covarGrid/{lat}/{lon}/{forcastDays}:
     get:
-      description: Future Argo float position probability distribution
+      tags: ['covar']
+      summary: Probability distribution field for a float at point lat-lon after forcastDays.
+      parameters:
+        - in: path
+          name: lat
+          schema: 
+            type: number
+            minimum: -90
+            maximum: 90
+            example: 5.25
+          required: true
+          description: latitude (degrees) of Argo float location
+        - in: path
+          name: lon
+          schema: 
+            type: number
+            minimum: -180
+            maximum: 180
+            example: -20.33
+          required: true
+          description: longitude (degrees) of Argo float location
+        - in: path
+          name: forcastDays
+          schema: 
+            type: number
+            minimum: 60
+            maximum: 1800
+            example: 60
+            enum: [60, 120, 140, 240, 360, 480, 720, 840, 960, 1080, 1200, 1320, 1440, 1560, 1680, 1800]
+          required: true
+          description: longitude (degrees) of Argo float location
+
       responses:
         '200':
           description: OK
