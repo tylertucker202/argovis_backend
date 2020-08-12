@@ -1,7 +1,7 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-var GridSchema = Schema(
+const GridSchema = Schema(
   {
     _id: {type: String, required: true},
     gridName: {type: String, required: false},
@@ -24,7 +24,7 @@ var GridSchema = Schema(
   },
 );
 
-var GridCoordSchema = Schema( {
+const GridCoordSchema = Schema( {
   _id: { type: String, required: true },
   gridName: { type: String, required: true },
   lats: { type: [Number], required: true },

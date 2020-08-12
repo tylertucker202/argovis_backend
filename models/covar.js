@@ -1,7 +1,7 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-var CovarSchema = Schema(
+const CovarSchema = Schema(
   {
     forcastDays: {type: Number, required: true },
     _id: {type: String, required: true, max: 100},

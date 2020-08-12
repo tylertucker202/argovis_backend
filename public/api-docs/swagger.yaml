@@ -1,0 +1,371 @@
+openapi: 3.0.2
+info:
+  title: Argovis APIs Document
+  version: '1.0'
+  description: Retrieve Argo profiles, platforms, selections, BGC data, gridded products,
+    etc outside of the browser.
+  termsOfService: ''
+  contact:
+    name: Tyler Tucker
+    email: tyler.tucker@colorado.edu
+    url: https://www.itsonlyamodel.us
+  license:
+    name: MIT
+    url: https://choosealicense.com/licenses/mit/
+servers:
+- url: https:/localhost:3000/api-docs
+  description: development server
+- url: www.argovis.com/api-docs
+  description: Domain name rerouts to argovis.colorado.edu
+- url: https://argovis.coloraod.edu/api-docs
+  description: Production server hosted by Colorado university
+components:
+  schemas:
+    ProfileSchema:
+      type: object
+      required:
+        - _id
+        - nc_url
+        - position_qc
+        - cycle_number
+        - dac
+        - date
+        - max_pres
+        - measurements
+        - lat
+        - lon
+        - platform_number
+        - geoLocation
+        - station_parameters
+      properties:
+        _id:
+          type: string
+        nc_url:
+          type: string
+        position_qc:
+          type: integer
+        cycle_number:
+          type: integer
+        dac:
+          type: string
+        date: 
+          type: string
+          format: date-time
+        date_added:
+          type: string
+          format: date-time
+        date_qc:
+          type: integer
+        max_pres:
+          type: number
+        measurements:
+          type: array
+          items:
+            type: object
+            properties:
+              pres:
+                type: number
+              temp:
+                type: number
+              psal: 
+                type: number
+        bgcMeas:
+          type: array
+          items:
+            type: object
+            properties:
+              pres:
+                type: number
+              pres_qc:
+                type: integer
+              temp: 
+                type: number  
+              temp_qc:
+                type: integer
+              psal:
+                type: number
+              psal_qc: 
+                type: integer  
+              cndx:
+                type: number
+              cndc_qc: 
+                type: integer  
+              doxy:
+                type: number
+              doxy_qc: 
+                type: integer
+              chla:
+                type: number
+              chla_qc: 
+                type: integer   
+              cdom:
+                type: number
+              cdom_qc: 
+                type: integer   
+              nitrate:
+                type: number
+              nitrate_qc: 
+                type: integer  
+              bbp700:
+                type: number
+              bbp700_qc: 
+                type: integer  
+              down_irradiance412:
+                type: number
+              down_irradiance412_qc: 
+                type: integer    
+              down_irradiance442:
+                type: number
+              down_irradiance442_qc: 
+                type: integer  
+              down_irradiance490:
+                type: number
+              down_irradiance490_qc: 
+                type: integer  
+              downwelling_par:
+                type: number
+              downwelling_par_qc:
+                type: string
+        bgcMeasKeys:
+          type: array
+          items:
+            type: string
+        lat:
+          type: number
+        lon: 
+          type: number
+        platform_number:
+          type: integer
+        geoLocation:
+          type: object
+          properties:
+            type: 
+              type: string
+            coordinates: 
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                  minItems: 2
+                  maxItems: 2
+        station_parameters:
+          type: array
+          items: 
+            type: string
+        station_parameters_in_nc:
+          type: array
+          items: 
+            type: string
+        VERTICAL_SAMPLING_SCHEME:
+          type: string
+        PI_NAME:
+          type: string
+        WMO_INST_TYPE:
+          type: string
+        POSITIONING_SYSTEM:
+          type: string
+        DATA_MODE: 
+          type: string
+        PARAMETER_DATA_MODE:
+          type: array
+          items: 
+            type: string
+        DATA_CENTRE:
+          type: string
+        DIRECTION:
+          type: string
+        PLATFORM_TYPE:
+          type: string
+        pres_max_for_TEMP:
+          type: number
+        pres_max_for_PSAL:
+          type: number
+        pres_min_for_TEMP:
+          type: number
+        pres_min_for_PSAL:
+          type: number
+        containsBGC:
+          type: boolean
+        isDeep:
+          type: boolean
+        BASIN:
+          type: number
+        url: 
+          type: string
+        core_data_mode:
+          type: string
+        jcommopsPlatform:
+          type: string
+        euroargoPlatform:
+          type: string
+        formatted_station_parameters:
+          type: array
+          items: 
+            type: string
+        roundLat:
+          type: string
+        roundLon:
+          type: string
+        strLat: 
+          type: string
+        strLon:
+          type: string
+        date_formatted:
+          type: string
+          format: date
+                                                                                                                                                                                                                                     
+    GridSchema:
+      type: object
+      required:
+        - _it
+        - measurement
+        - units
+        - pres
+        - param
+        - cellSize
+        - NODATA_value
+      properties:
+        _id:
+          type: string
+        gridName: 
+          type: string
+        measurement:
+          type: string
+        units:
+          type: string
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              lat:
+                type: number
+              lon:
+                type: number
+              value: 
+                type: number
+        variable:
+          type: string
+        date:
+          type: string
+          format: date-time
+        pres:
+          type: number
+        model:
+          type: string
+        trend:
+          type: string
+        param:
+          type: string
+        chunk: 
+          type: integer
+        cellSize: 
+          type: number
+        NODATA_value:
+          type: number
+    GridCoordSchema:
+      type: object
+      required:
+        - _id
+        - lats
+        - lons
+        - gridName
+      properties:
+        _id:
+          type: string
+        lats:
+          type: array
+          items:
+            type: number
+        lons: 
+          type: array
+          items:
+            type: number
+        gridName: 
+          type: string
+        
+    CovarSchema:
+      type: object
+      required:
+      - _id
+      - feature
+      - dLat
+      - forcastDays
+      - dLon
+      - geoLocation
+      properties:
+        features:
+          type: array
+          items:
+            type: object
+            properties:
+              geometry:
+                type: object
+                properties:
+                  type: 
+                    type: string
+                  coordinates: 
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: number
+                        minItems: 2
+                        maxItems: 2
+              type: 
+                type: string    
+        _id:
+          type: string
+        dLat:
+          type: number
+        dLon:
+          type: number
+        forcastDays:
+          type: integer
+        geoLocation:
+          $ref: '#/components/schemas/arShapeSchema/properties/geoLocation'
+    arShapeSchema:
+      type: object
+      required:
+      - _id
+      - date
+      - shapeID
+      - geoLocation
+      - date_formatted
+      properties:
+        _id:
+          type: string
+        date:
+          type: string
+          format: date-time
+        shapeId:
+          type: integer
+        geoLocation:
+          type: object
+          properties:
+            type:
+              type: string
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                  minItems: 2
+                  maxItems: 2
+                uniqueItems: true
+        date_formateed:
+          type: string
+          format: date
+paths: 
+  /covarGrid/:lat/:lon/:forcastDays/:
+    get:
+      description: Future Argo float position probability distribution
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovarSchema'
