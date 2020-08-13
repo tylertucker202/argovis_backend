@@ -185,7 +185,6 @@ components:
         fleetMonitoringLink:
           type: string
         
-
     bgcMeasurements:
       type: object
       properties:
@@ -640,6 +639,30 @@ components:
           format: date
 
   parameters:
+    meas_1:
+      name: meas_1
+      in: query
+      required: true
+      description: First of two measurements to create 2d chart 
+      schema:
+        type: string
+      example: pres
+    meas_2:
+      name: meas_2
+      in: query
+      required: true
+      description: Second of two measurements to create 2d chart 
+      schema:
+        type: string
+      example: temp
+    platform_number:
+      in: path
+      name: platform_number
+      required: true
+      description: WMO number for the argo float (aka platform)
+      schema:
+        type: integer
+      example: 4900093
     arDate:
       in: query
       name: date
@@ -709,7 +732,7 @@ components:
           maxItems: 2
           minimum: -180
           maximum: 180
-    qdescription: Longitude range (-180 to 180 degrees)
+      description: Longitude range (-180 to 180 degrees)
 
     dateUniform:
       in: query
@@ -783,6 +806,47 @@ components:
         enum: [60, 120, 140, 240, 360, 480, 720, 840, 960, 1080, 1200, 1320, 1440, 1560, 1680, 1800]
 
 paths: 
+  /catalog/platform_metadata/{platform_number}:
+    get:
+      tags: ['catalog', 'metadata']
+      summary: Metadata for a given platform number
+      parameters:
+        - $ref: '#/components/parameters/platform_number'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformMeta'
+  /catalog/bgc_platform_data/{platform_number}:
+    get:
+      tags: ['bgc', 'catalog']
+      summary: Returns data and qc of two measurements and limited metadata for a given platform number 
+      parameters:
+        - $ref: '#/components/parameters/platform_number'
+        - $ref: '#/components/parameters/meas_1'
+        - $ref: '#/components/parameters/meas_2'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BgcProfileData'
+  /catalog/platform_profile_metadata/{platform_number}:
+    get:
+      tags: ['catalog', 'metadata']
+      summary: Returns all profile metadata for a given platform number
+      parameters:
+        - $ref: '#/components/parameters/platform_number'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileMeta'
   /arShapes/findByDate:
     get:
       tags: ['ar']
