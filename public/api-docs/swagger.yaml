@@ -21,7 +21,7 @@ tags:
     description: 'geospatial selection of argo floats'
   - name: 'metadata'
     description: 'databse queries that leave out the data'
-  - name: 'bgc'
+  - name: 'biogeochemical'
     description: 'biogeochemical specific queries'
   - name: 'catalog'
     description: 'profile or platform core data (temperature pressure salinity)'
@@ -29,6 +29,96 @@ tags:
     description: 'atmospheric river shapes'
 components:
   schemas:
+    DatabaseOverview:
+      type: object
+      properties:
+        numberOfProfiles:
+          type: integer
+        dacs: 
+          type: array
+          items:
+            type: string
+        numberDeep:
+          type: integer
+        numberBgc:
+          type: integer
+        lastAdded:
+          type: string
+          format: date-time
+    ProfileMapMeta:
+      type: object
+      required:
+        - _id
+        - platform_number
+        - date
+        - geoLocation
+        - cycle_number
+        - station_parameters
+        - lat
+        - lon
+      properties:
+        _id:
+          type: string
+        cycle_number:
+          type: integer
+        date: 
+          type: string
+          format: date-time
+        geoLocation:
+          type: object
+          properties:
+            type: 
+              type: string
+            coordinates: 
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                  minItems: 2
+                  maxItems: 2
+        lat:
+          type: number
+        lon: 
+          type: number
+        platform_number:
+          type: integer
+        station_parameters:
+          type: array
+          items: 
+            type: string
+        DATA_MODE: 
+          type: string
+        containsBGC:
+          type: boolean
+        isDeep:
+          type: boolean
+        DIRECTION:
+          type: string
+        url: 
+          type: string
+        core_data_mode:
+          type: string
+        jcommopsPlatform:
+          type: string
+        euroargoPlatform:
+          type: string
+        formatted_station_parameters:
+          type: array
+          items: 
+            type: string
+        roundLat:
+          type: string
+        roundLon:
+          type: string
+        strLat: 
+          type: string
+        strLon:
+          type: string
+        date_formatted:
+          type: string
+          format: date
+  
     ProfileMeta:
       type: object
       required:
@@ -639,6 +729,79 @@ components:
           format: date
 
   parameters:
+    startDate:
+      name: startDate
+      in: query
+      required: true
+      description: start date of selection
+      schema:
+        type: string
+        format: date-time
+      example: "2019-10-01"
+    endDate:
+      name: endDate
+      in: query
+      required: true
+      description: end date of selection
+      schema:
+        type: string
+        format: date-time
+      example: "2019-10-04"
+    presRange:
+      name: presRange
+      in: query
+      required: false
+      description: pressure range of selection
+      schema:
+        type: array
+        items:
+          type: number
+          minItems: 2
+          maxItems: 2
+      example: "[618,635]"
+    shape:
+      name: shape
+      in: query
+      required: true
+      description: nested list of [lng, lat] arrays. First point should equal last.
+      schema:
+        type: array
+        items:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+              minItems: 2
+              maxItems: 2
+      example: "[[[127.12, 16], [150, 16.0], [144.45, 0], [130, 8], [127.12, 16]]]"
+
+    profile_number:
+      name: profile_number
+      in: path
+      required: true
+      description: actually a _string_ comprised of platform_number and cycle_number prefixed by a '_'
+      schema:
+        type: string
+      examples:
+        bgc:
+         value: "4900093_90"
+         summary: a profile with bgcMeas data
+        core:
+          value: "4902911_67"
+          summary: a core argo float
+        deep:
+          value: "2902738_2"
+          summary: an argo float that goes deeper than 2000 dbar
+    format:
+      name: format
+      in: path
+      required: true
+      description: 'flag that reduces data to a few metadata parameters for charting on a map'
+      schema:
+        type: string
+        enum: ['map']
+
     meas_1:
       name: meas_1
       in: query
@@ -805,7 +968,106 @@ components:
         example: 60
         enum: [60, 120, 140, 240, 360, 480, 720, 840, 960, 1080, 1200, 1320, 1440, 1560, 1680, 1800]
 
-paths: 
+paths:
+  /selection/profiles/{format}:
+    get:
+      tags: ['selection']
+      description: Charting data for space and time selection
+      parameters:
+        - $ref: '#/components/parameters/format'
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/presRange'
+        - $ref: '#/components/parameters/shape'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileMapMeta'
+  /selection/profiles:
+    get:
+      tags: ['selection']
+      description: space and time selection of core argo profiles (no biogeochemical measurements included)
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/presRange'
+        - $ref: '#/components/parameters/shape'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileSchema'
+  /selection/overview:
+    get:
+      tags: ['metadata']
+      description: database overview
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseOverview'
+  /catalog/profiles/{profile_number}:
+    get:
+      tags: ['catalog']
+      description: profile data and metadata of a given profile number
+      parameters:
+        - $ref: '#/components/parameters/profile_number'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileSchema'
+  /catalog/profiles/{profile_number}/{format}:
+    get:
+      tags: ['catalog']
+      description: Charting data for a given profile number
+      parameters:
+        - $ref: '#/components/parameters/profile_number'
+        - $ref: '#/components/parameters/format'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileMapMeta'
+  /catalog/platforms/{platform_number}:
+    get:
+      tags: ['catalog']
+      description: profile data and metadata excluding biogeochemical measurements of a given platform_number
+      parameters:
+        - $ref: '#/components/parameters/platform_number'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileSchema'
+  /catalog/platforms/{platform_number}/{format}:
+    get:
+      tags: ['catalog']
+      summary: Charting data for profiles of a given platform_number, excluding biogeochemical measurements
+      parameters:
+        - $ref: '#/components/parameters/platform_number'
+        - $ref: '#/components/parameters/format'
+      description: 
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileMapMeta'
   /catalog/platform_metadata/{platform_number}:
     get:
       tags: ['catalog', 'metadata']
@@ -821,7 +1083,7 @@ paths:
                 $ref: '#/components/schemas/PlatformMeta'
   /catalog/bgc_platform_data/{platform_number}:
     get:
-      tags: ['bgc', 'catalog']
+      tags: ['biogeochemical', 'catalog']
       summary: Returns data and qc of two measurements and limited metadata for a given platform number 
       parameters:
         - $ref: '#/components/parameters/platform_number'
