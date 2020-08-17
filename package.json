@@ -10,7 +10,8 @@
     "travis_test": "export NODE_ENV=test && export REMOTE_DB=true && mocha --exit",
     "start": "export NODE_ENV=production && node ./bin/www",
     "dockerstart": "export NODE_ENV=docker && node ./bin/www",
-    "devstart": "export NODE_ENV=development && nodemon ./bin/www --watch ./public/api-docs/swagger.yaml",
+    "devstart": "export NODE_ENV=development && nodemon ./bin/www",
+    "yamldevstart": "export NODE_ENV=development && nodemon ./bin/www --watch ./public/api-docs/swagger.yaml",
     "jgstart": "export NODE_ENV=jg && nodemon ./bin/www"
   },
   "dependencies": {

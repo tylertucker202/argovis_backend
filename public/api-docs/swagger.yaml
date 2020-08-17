@@ -27,6 +27,12 @@ tags:
     description: 'profile or platform core data (temperature pressure salinity)'
   - name: 'ar'
     description: 'atmospheric river shapes'
+
+servers:
+  - url: 'https://argovis.colorado.edu'
+    description: Server Hosted by University of Colorado, Boulder
+  - url: 'http://localhost:3000'
+    description: Local server for testing and development
 components:
   schemas:
     DatabaseOverview:
@@ -692,7 +698,19 @@ components:
         forcastDays:
           type: integer
         geoLocation:
-          $ref: '#/components/schemas/arShapeSchema/properties/geoLocation'
+          type: object
+          properties:
+            type:
+              type: string
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                  minItems: 2
+                  maxItems: 2
+                uniqueItems: true
 
     arShapeSchema:
       type: object
@@ -1204,3 +1222,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CovarSchema'
+security:
+  - name: []
+

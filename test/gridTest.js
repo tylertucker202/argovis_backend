@@ -41,8 +41,8 @@ describe('/GET get a RG temp anom object', function() {
   describe('/GET get a sose_si_area_3_day object', function() {
 
     this.timeout(5000);
-    const url = '/griddedProducts/nonUniformGrid/window?latRange=[-75,-73]&lonRange=[-5,0]&gridName=sose_si_area_3_day&date=04-01-2013&presLevel=0'
-    it('it should a get a sose_si_area_3_day object', (done) => {
+    const url = '/griddedProducts/nonUniformGrid/window?latRange=[-75,-70]&lonRange=[-5,0]&gridName=sose_si_area_1_day_sparse&date=2013-01-04&presLevel=0'
+    it('it should a get a sose_si_area_1_day_sparse object', (done) => {
       chai.request(app)
       .get(url)
       .end((err, res) => {

@@ -6,11 +6,17 @@ const get_grid_model = function(Grid, gridName) {
     else if  (!gridName.includes('Total') && gridName.includes('Space') && gridName.includes('ks')) {
         GridModel = Grid.ksTempAnom
     }
-    else if  (gridName.includes('Anom') && gridName.includes('rg')) {
+    else if  (gridName.includes('rgTempAnom')) {
         GridModel = Grid.rgTempAnom
     }
-    else if  (gridName.includes('Total') && gridName.includes('rg')) {
+    else if  (gridName.includes('rgTempTotal')) {
         GridModel = Grid.rgTempTotal
+    }
+    else if  (gridName.includes('rgPsalAnom')) {
+        GridModel = Grid.rgPsalAnom
+    }
+    else if  (gridName.includes('rgPsalTotal')) {
+        GridModel = Grid.rgPsalTotal
     }
     else if (gridName.includes('Total') && gridName.includes('ks')) {
         GridModel = Grid.ksTempTotal
