@@ -26,15 +26,15 @@ exports.bgc_platform_data = function (req, res, next) {
     req.checkQuery('platform_number', 'platform_number should be numeric.').isNumeric()
 
     const platform_number = JSON.parse(req.params.platform_number)
-    let xaxis = null
-    let yaxis = null
-    if (req.query.xaxis) { xaxis=req.query.xaxis }
-    if (req.query.yaxis) { yaxis=req.query.yaxis }
+    let meas_1 = null
+    let meas_2 = null
+    if (req.query.meas_1) { meas_1=req.query.meas_1 }
+    if (req.query.meas_2) { meas_2=req.query.meas_2 }
     let agg = [ {$match: {platform_number: platform_number}} ]
     agg.push({$sort:  {date: -1}}) //sorting by date takes a long time
-    if (xaxis && yaxis) {
-        agg.push(helper.drop_missing_bgc_keys([xaxis, yaxis]))
-        agg.push(helper.reduce_bgc_meas([xaxis, yaxis]))
+    if (meas_1 && meas_2) {
+        agg.push(helper.drop_missing_bgc_keys([meas_1, meas_2]))
+        agg.push(helper.reduce_bgc_meas([meas_1, meas_2]))
     }
     const query = Profile.aggregate(agg) //sorting profiles may require disk use to get past the 100MB RAM limit.
 
@@ -53,8 +53,8 @@ exports.bgc_data_selection = function(req, res , next) {
     req.checkQuery('startDate', 'startDate should be specified.').notEmpty()
     req.checkQuery('endDate', 'endDate should be specified.').notEmpty()
     req.checkQuery('shape', 'shape should be specified.').notEmpty()
-    req.checkQuery('xaxis', 'xaxis should be specified').notEmpty()
-    req.checkQuery('yaxis', 'yaxis should be specified').notEmpty()
+    req.checkQuery('meas_1', 'meas_1 should be specified').notEmpty()
+    req.checkQuery('meas_2', 'meas_2 should be specified').notEmpty()
     req.sanitize('presRange').escape()
     req.sanitize('presRange').trim()
     req.sanitize('_id').escape()
@@ -68,11 +68,11 @@ exports.bgc_data_selection = function(req, res , next) {
     let maxPres = null
     let minPres = null
     let deepOnly = null
-    let xaxis = null
-    let yaxis = null
+    let meas_1 = null
+    let meas_2 = null
 
-    if (req.query.xaxis) { xaxis=req.query.xaxis }
-    if (req.query.yaxis) { yaxis=req.query.yaxis }
+    if (req.query.meas_1) { meas_1=req.query.meas_1 }
+    if (req.query.meas_2) { meas_2=req.query.meas_2 }
     if (req.query.presRange) {
         presRange = JSON.parse(req.query.presRange)
         maxPres = Number(presRange[1])
@@ -113,8 +113,8 @@ exports.bgc_data_selection = function(req, res , next) {
             agg.push({$match: {isDeep: true}})
         }
         agg.push({$match: {containsBGC: true}})
-        agg.push(helper.drop_missing_bgc_keys([xaxis, yaxis]))
-        agg.push(helper.reduce_bgc_meas([xaxis, yaxis]))
+        agg.push(helper.drop_missing_bgc_keys([meas_1, meas_2]))
+        agg.push(helper.reduce_bgc_meas([meas_1, meas_2]))
         const query = Profile.aggregate(agg)
         //load page/json.
         const promise = query.exec()
