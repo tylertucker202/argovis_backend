@@ -16,6 +16,8 @@ router.get('/lastThreeDays/:startDate?', meta_controller.last_three_days);
 
 router.get('/profiles/:format?', profile_controller.selected_profile_list);
 
+router.get('/box/profiles/:format?', profile_controller.select_profile_2d);
+
 router.get('/bgc_data_selection/:format?', bgc_profile_controller.bgc_data_selection);
 
 /* Get request for month year query */

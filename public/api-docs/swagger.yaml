@@ -747,6 +747,30 @@ components:
           format: date
 
   parameters:
+    llCorner:
+      name: llCorner
+      in: query
+      required: true
+      description: lower left corner of box [longitude, latitude]
+      schema:
+        type: array
+        items:
+          type: number
+          minItems: 2
+          maxItems: 2
+      example: "[-160,20]"
+    urCorner:
+      name: urCorner
+      in: query
+      required: true
+      description: upper right corner of box [longitude, latitude]
+      schema:
+        type: array
+        items:
+          type: number
+          minItems: 2
+          maxItems: 2
+      example: "[-150,30]"
     startDate:
       name: startDate
       in: query
@@ -987,6 +1011,41 @@ components:
         enum: [60, 120, 140, 240, 360, 480, 720, 840, 960, 1080, 1200, 1320, 1440, 1560, 1680, 1800]
 
 paths:
+  /selection/box/profiles{format}:
+    get:
+      tags: ['selection']
+      description: Charting data for cartesian space and time along
+      parameters:
+        - $ref: '#/components/parameters/format'
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/presRange'
+        - $ref: '#/components/parameters/llCorner'
+        - $ref: '#/components/parameters/urCorner'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileMapMeta'
+  /selection/box/profiles:
+    get:
+      tags: ['selection']
+      description: Cartesian space and time selection of core argo profiles (no biogeochemical measurements included)
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/presRange'
+        - $ref: '#/components/parameters/llCorner'
+        - $ref: '#/components/parameters/urCorner'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileSchema'     
   /selection/profiles/{format}:
     get:
       tags: ['selection']
