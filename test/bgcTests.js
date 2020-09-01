@@ -80,7 +80,7 @@ describe('/GET a bgc platform', function() {
 
   it('it should GET one bgc platform data', (done) => {
     chai.request(app)
-    .get('/catalog/bgc_platform_data/5903260/?xaxis=pres&yaxis=temp')
+    .get('/catalog/bgc_platform_data/5903260/?meas_1=pres&meas_2=temp')
     .end((err, res) => {
         //test overall response
         res.should.have.status(200);

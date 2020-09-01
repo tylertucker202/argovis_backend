@@ -112,7 +112,7 @@ module.exports.make_pres_project = function(minPres, maxPres, meas) {
     let presProjectItems = HELPER_CONST.PROF_META_PARAMS
     presProjectItems[meas] = {
         $filter: {
-            input: '$'.concat(inputMeas),
+            input: '$'.concat(meas),
             as: 'item',
             cond: { 
                 $and: [
