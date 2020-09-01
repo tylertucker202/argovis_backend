@@ -13,7 +13,7 @@ const swaggerUI = require('swagger-ui-express')
 const fs = require('fs');
 const yaml = require('js-yaml');
 const swaggerDocs = yaml.load(fs.readFileSync('./public/api-docs/swagger.yaml', {encoding: 'utf-8'}));
-const mongoose = require('mongoose');
+let mongoose = require('mongoose');
 const debug = require('debug')('app');
 const index = require('./routes/index');
 const catalog = require('./routes/catalog');  //Import routes for "catalog" area of site
@@ -57,8 +57,7 @@ mongoose.connect(mongoDB, mongooseOptions,
         if (error) {
             console.log(error);
     }
-}).
-catch(error => { console.log('mongoose connect error: ', error.message); });
+}).catch(error => { console.log('mongoose connect error: ', error.message); });
 
 app.use(favicon(path.join(__dirname,'public','images','favicon.ico')));
 
