@@ -40,6 +40,8 @@ if(ENV !== 'test') {
 const REMOTE_DB = process.env.REMOTE_DB
 console.log('remote db bool:', REMOTE_DB)
 let mongoDB = config.db[ENV];
+
+console.log('mongoDB: ', mongoDB)
 if (REMOTE_DB) { 
   mongoDB = config.db['REMOTE_DB']
   debug('mongodb: ' + mongoDB);
@@ -54,12 +56,8 @@ const mongooseOptions = {
 };
 
 //connect mongoose to the mongo dbUrl
-mongoose.connect(mongoDB, mongooseOptions,
-    function (error) {
-        if (error) {
-            console.log(error);
-    }
-}).catch(error => { console.log('mongoose connect error: ', error.message); });
+mongoose.connect(mongoDB, mongooseOptions)
+.catch(error => { console.log('mongoose connect error: ', error.message); });
 
 app.use(favicon(path.join(__dirname,'public','images','favicon.ico')));
 
