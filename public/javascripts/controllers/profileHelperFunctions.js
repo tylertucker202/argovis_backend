@@ -142,18 +142,18 @@ module.exports.make_bgc_pres_agg = function(minPres, maxPres, shapeJson, startDa
 module.exports.make_spatial_match_agg = function(shape, shapeBool, startDate=false, endDate=false) {
     let match = {}
     if (shapeBool && startDate) { //uses polygon shape
-        match = { $match: { $and: [ {geoLocation: {$geoWithin: {$geometry: shapeJson}}},
+        match = { $match: { $and: [ {geoLocation: {$geoWithin: {$geometry: shape}}},
             {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} ] } }
     }
     else if (!shapeBool && startDate) { //uses 2d cartesian box
-        match = { $match: { $and: [ {geoLocation: {$geoWithin: {$box: shapeJson}}},
+        match = { $match: { $and: [ {geoLocation: {$geoWithin: {$box: shape}}},
             {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}} ] } }
     }
     else if (shapeBool && !startDate) { //uses polygon shape
-        match = {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}}
+        match = {$match: {geoLocation: {$geoWithin: {$geometry: shape}}}}
     }
     else { //uses 2d cartesian box
-        match = {$match: {geoLocation: {$geoWithin: {$box: shapeJson}}}}
+        match = {$match: {geoLocation: {$geoWithin: {$box: shape}}}}
     }
     return match
 }

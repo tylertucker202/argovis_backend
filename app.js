@@ -13,7 +13,7 @@ const swaggerUI = require('swagger-ui-express')
 const fs = require('fs');
 const yaml = require('js-yaml');
 const swaggerDocs = yaml.load(fs.readFileSync('./public/api-docs/swagger.yaml', {encoding: 'utf-8'}));
-let mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const debug = require('debug')('app');
 const index = require('./routes/index');
 const catalog = require('./routes/catalog');  //Import routes for "catalog" area of site
@@ -40,8 +40,11 @@ if(ENV !== 'test') {
 const REMOTE_DB = process.env.REMOTE_DB
 console.log('remote db bool:', REMOTE_DB)
 let mongoDB = config.db[ENV];
-if (REMOTE_DB) { mongoDB = config.db['REMOTE_DB']}
-debug('mongodb: ' + mongoDB);
+if (REMOTE_DB) { 
+  mongoDB = config.db['REMOTE_DB']
+  debug('mongodb: ' + mongoDB);
+  }
+
 mongoose.Promise = global.Promise;
 const mongooseOptions = {
   useNewUrlParser: true,
@@ -49,7 +52,6 @@ const mongooseOptions = {
   keepAlive: 1,
   connectTimeoutMS: 30000
 };
-
 
 //connect mongoose to the mongo dbUrl
 mongoose.connect(mongoDB, mongooseOptions,
