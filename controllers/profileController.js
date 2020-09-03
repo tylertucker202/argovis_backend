@@ -174,7 +174,6 @@ exports.selected_profile_list = function(req, res , next) {
         }
         else if (req.params.format !== 'map' && presRange) {
             agg = helper.make_pres_agg(minPres, maxPres, shapeJson, startDate, endDate)
-            // console.log(agg)
         }
         else {
             agg = [ {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},

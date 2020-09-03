@@ -191,7 +191,8 @@ module.exports.make_map_pres_agg = function(minPres, maxPres, shapeJson, startDa
     return agg
 }
 
-module.exports.make_pres_agg = function(minPres, maxPres, shapeJson, startDate, endDate, shapeBool) {
+module.exports.make_pres_agg = function(minPres, maxPres, shapeJson, startDate, endDate, shapeBool=true) {
+    console.log('shapeJson', shapeJson, 'shapeBool', shapeBool)
     let match = this.make_spatial_match_agg(shapeJson, shapeBool)
     let presProj = this.make_pres_project(minPres, maxPres, 'measurements')
     const presAgg = [
