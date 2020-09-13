@@ -79,6 +79,12 @@ describe('/GET a platform', function() {
         out.tempForPres.length.should.be.equal(presVsTempLength);
         out.presForTemp.length.should.be.equal(presVsTempLength);
         out.cycleForTemp.length.should.be.equal(presVsTempLength);
+
+        // date should be in order
+        const cnLatest = cycle[0]
+        cycle.forEach( function(cn) {
+          assert(cn <= cnLatest, 'check order')
+        })
         done();
     });
   });

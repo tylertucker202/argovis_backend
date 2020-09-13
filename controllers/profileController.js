@@ -177,7 +177,7 @@ exports.selected_profile_list = function(req, res , next) {
         }
         else {
             agg = [ {$match: {geoLocation: {$geoWithin: {$geometry: shapeJson}}}},
-                    {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}
+                    {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
             ]
         }
         if (deepOnly) {
@@ -186,6 +186,8 @@ exports.selected_profile_list = function(req, res , next) {
         if (bgcOnly) {
             agg.push({$match: {containsBGC: true}})
         }
+
+        agg.push({$sort: { date: -1}}) // TODO: test if this causes slowdown)
         const query = Profile.aggregate(agg)
         const promise = query.exec()
         promise
@@ -208,110 +210,110 @@ exports.selected_profile_list = function(req, res , next) {
     }})
 }
 
-    exports.select_profile_2d = function(req, res , next) {
-        req.checkQuery('startDate', 'startDate should be specified.').notEmpty()
-        req.checkQuery('endDate', 'endDate should be specified.').notEmpty()
-        req.checkQuery('llCorner', 'shape should be specified.').notEmpty()
-        req.checkQuery('urCorner', 'shape should be specified.').notEmpty()
-        req.sanitize('presRange').escape()
-        req.sanitize('presRange').trim()
-        req.sanitize('_id').escape()
-        req.sanitize('startDate').toDate()
-        req.sanitize('endDate').toDate()
-        console.log('inside 2d')
-    
-        const errors = req.validationErrors()
-        if (errors) {
-          res.send('There have been validation errors: ' + util.inspect(errors), 400)
-          return
+exports.select_profile_2d = function(req, res , next) {
+    req.checkQuery('startDate', 'startDate should be specified.').notEmpty()
+    req.checkQuery('endDate', 'endDate should be specified.').notEmpty()
+    req.checkQuery('llCorner', 'shape should be specified.').notEmpty()
+    req.checkQuery('urCorner', 'shape should be specified.').notEmpty()
+    req.sanitize('presRange').escape()
+    req.sanitize('presRange').trim()
+    req.sanitize('_id').escape()
+    req.sanitize('startDate').toDate()
+    req.sanitize('endDate').toDate()
+
+    const errors = req.validationErrors()
+    if (errors) {
+        res.send('There have been validation errors: ' + util.inspect(errors), 400)
+        return
+    }
+
+    const llCorner = JSON.parse(req.query.llCorner)
+    const urCorner = JSON.parse(req.query.urCorner)
+    const box = [llCorner, urCorner]
+    shapeBool = false
+
+    let presRange = null
+    let maxPres = null
+    let minPres = null
+    let deepOnly = null
+    let bgcOnly = null
+
+    if (req.query.presRange) {
+        presRange = JSON.parse(req.query.presRange)
+        maxPres = Number(presRange[1])
+        minPres = Number(presRange[0])
+    }
+
+
+    if (req.query.bgcOnly) {
+        bgcOnly = true
+    }
+
+    if (req.query.deepOnly) {
+        deepOnly = true
+    }
+
+    const startDate = moment.utc(req.query.startDate, 'YYYY-MM-DD')
+    const endDate = moment.utc(req.query.endDate, 'YYYY-MM-DD')
+    const dateDiff = endDate.diff(startDate)
+    const monthDiff = Math.floor(moment.duration(dateDiff).asMonths())
+    if (monthDiff > 3) {
+        throw new Error('time range exceeds 3 months. consider making query smaller')
+    }
+
+    req.getValidationResult().then(function (result) {
+    if (!result.isEmpty()) {
+        const errors = result.array().map(function (elem) {
+            return elem.msg
+        })
+        res.render('error', { errors: errors })
+    }
+    else {
+        let agg = []
+        if (req.params.format === 'map' && presRange) {
+            agg = helper.make_map_pres_agg(minPres, maxPres, box, startDate, endDate, shapeBool)
         }
-    
-        const llCorner = JSON.parse(req.query.llCorner)
-        const urCorner = JSON.parse(req.query.urCorner)
-        const box = [llCorner, urCorner]
-        shapeBool = false
-    
-        let presRange = null
-        let maxPres = null
-        let minPres = null
-        let deepOnly = null
-        let bgcOnly = null
-    
-        if (req.query.presRange) {
-            presRange = JSON.parse(req.query.presRange)
-            maxPres = Number(presRange[1])
-            minPres = Number(presRange[0])
+        else if (req.params.format === 'map' && !presRange) {
+            agg = [ {$match: {geoLocation: {$geoWithin: {$box: box}}}},
+                    {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
+                    {$project: HELPER_CONST.MAP_PROJ},
+                    {$limit: 1001}
+            ]
         }
-    
-    
-        if (req.query.bgcOnly) {
-            bgcOnly = true
-        }
-    
-        if (req.query.deepOnly) {
-            deepOnly = true
-        }
-    
-        const startDate = moment.utc(req.query.startDate, 'YYYY-MM-DD')
-        const endDate = moment.utc(req.query.endDate, 'YYYY-MM-DD')
-        const dateDiff = endDate.diff(startDate)
-        const monthDiff = Math.floor(moment.duration(dateDiff).asMonths())
-        if (monthDiff > 3) {
-            throw new Error('time range exceeds 3 months. consider making query smaller')
-        }
-    
-        req.getValidationResult().then(function (result) {
-        if (!result.isEmpty()) {
-            const errors = result.array().map(function (elem) {
-                return elem.msg
-            })
-            res.render('error', { errors: errors })
+        else if (req.params.format !== 'map' && presRange) {
+            agg = helper.make_pres_agg(minPres, maxPres, box, startDate, endDate, shapeBool)
         }
         else {
-            let agg = []
-            if (req.params.format === 'map' && presRange) {
-                agg = helper.make_map_pres_agg(minPres, maxPres, box, startDate, endDate, shapeBool)
-            }
-            else if (req.params.format === 'map' && !presRange) {
-                agg = [ {$match: {geoLocation: {$geoWithin: {$box: box}}}},
-                        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}},
-                        {$project: HELPER_CONST.MAP_PROJ},
-                        {$limit: 1001}
-                ]
-            }
-            else if (req.params.format !== 'map' && presRange) {
-                agg = helper.make_pres_agg(minPres, maxPres, box, startDate, endDate, shapeBool)
+            agg = [ {$match: {geoLocation: {$geoWithin: {$box: box}}}},
+                    {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}
+            ]
+        }
+        if (deepOnly) {
+            agg.push({$match: {isDeep: true}})
+        }
+        if (bgcOnly) {
+            agg.push({$match: {containsBGC: true}})
+        }
+        agg.push({$sort: { date: -1}}) // TODO: test if this causes slowdown)
+        const query = Profile.aggregate(agg)
+        const promise = query.exec()
+        promise
+        .then(function (profiles) {
+            //create virtural fields.
+            profiles = helper.make_virtural_fields(profiles)
+
+            //render page
+            if (req.params.format==='page'){
+                if (profiles === null) { res.send('profile not found') }
+                else {
+                    res.render('selected_profile_page', {title:'Custom box selection', profiles: JSON.stringify(profiles), moment: moment, url: req.originalUrl })
+                }
             }
             else {
-                agg = [ {$match: {geoLocation: {$geoWithin: {$box: box}}}},
-                        {$match:  {date: {$lte: endDate.toDate(), $gte: startDate.toDate()}}}
-                ]
+                res.json(profiles)
             }
-            if (deepOnly) {
-                agg.push({$match: {isDeep: true}})
-            }
-            if (bgcOnly) {
-                agg.push({$match: {containsBGC: true}})
-            }
-            const query = Profile.aggregate(agg)
-            const promise = query.exec()
-            promise
-            .then(function (profiles) {
-                //create virtural fields.
-                profiles = helper.make_virtural_fields(profiles)
-    
-                //render page
-                if (req.params.format==='page'){
-                    if (profiles === null) { res.send('profile not found') }
-                    else {
-                        res.render('selected_profile_page', {title:'Custom box selection', profiles: JSON.stringify(profiles), moment: moment, url: req.originalUrl })
-                    }
-                }
-                else {
-                    res.json(profiles)
-                }
-            })
-            .catch(function(err) { return next(err)})
-        }})
+        })
+        .catch(function(err) { return next(err)})
+    }})
 }
 

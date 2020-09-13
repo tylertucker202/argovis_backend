@@ -79,6 +79,7 @@ exports.platform_detail = function (req, res, next) {
     else {
         query.select('-bgcMeas') // BGC is usually too much data
     }
+    query.sort({cycle_number: -1}) // sort results by cycle_number in descending order
     query.exec(function (err, profiles) {
         if (err) return next(err)
 
