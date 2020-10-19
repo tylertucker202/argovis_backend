@@ -73,13 +73,13 @@ exports.platform_detail = function (req, res, next) {
     req.checkQuery('platform_number', 'platform_number should be numeric.').isNumeric()
     const platform_number = JSON.parse(req.params.platform_number)
     let query = Profile.find({platform_number: platform_number})    
+    query.sort({date: -1}) // sort results by date in descending order
     if (req.params.format==='map') {
         query.select(HELPER_CONST.MAP_PARAMS)
     }
     else {
         query.select('-bgcMeas') // BGC is usually too much data
     }
-    query.sort({cycle_number: -1}) // sort results by cycle_number in descending order
     query.exec(function (err, profiles) {
         if (err) return next(err)
 
