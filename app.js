@@ -22,6 +22,7 @@ const gridding = require('./routes/gridding');  //Import routes for "selection" 
 const griddedProducts = require('./routes/griddedProducts');  //Import routes for "griddedProduct" area of site
 const covarGrid = require('./routes/covarGrid'); //Import used for gridding
 const arShapes = require('./routes/arShapes');
+const tcTraj = require('./routes/tc');
 
 const compression = require('compression'); //All routs are compressed
 const helmet = require('helmet'); //sets appropriate HTTP headers
@@ -102,6 +103,7 @@ app.use('/gridding', gridding);
 app.use('/covarGrid', covarGrid);
 app.use('/griddedProducts', griddedProducts);
 app.use('/arShapes', arShapes);
+app.use('/tc', tcTraj);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
