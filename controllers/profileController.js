@@ -115,7 +115,7 @@ exports.selected_profile_list = function(req, res , next) {
 
     const errors = req.validationErrors()
     if (errors) {
-      res.send('There have been validation errors: ' + util.inspect(errors), 400)
+      res.status(400).send('There have been validation errors: ' + util.inspect(errors))
       return
     }
 
@@ -143,8 +143,9 @@ exports.selected_profile_list = function(req, res , next) {
         deepOnly = true
     }
 
-    const startDate = moment.utc(req.query.startDate, 'YYYY-MM-DD')
-    const endDate = moment.utc(req.query.endDate, 'YYYY-MM-DD')
+    const startDate = moment.utc(req.query.startDate, 'YYYY-MM-DDTHH:mm:ss')
+    const endDate = moment.utc(req.query.endDate, 'YYYY-MM-DDTHH:mm:ss')
+    console.log('startDate: ', startDate, 'endDate', endDate)
     const dateDiff = endDate.diff(startDate)
     const monthDiff = Math.floor(moment.duration(dateDiff).asMonths())
     if (monthDiff > 3) {

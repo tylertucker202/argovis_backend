@@ -12,6 +12,8 @@ router.get('/findByDate', tc_traj_controller.findByDate);
 
 router.get('/findByDateRange', tc_traj_controller.findByDateRange);
 
-router.get('/findByName', tc_traj_controller.findByName)
+router.get('/stormNameList', tc_traj_controller.getStormNames)
+
+router.get('/findByNameYear', tc_traj_controller.findByNameYear)
 
 module.exports = router
