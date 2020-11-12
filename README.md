@@ -1,2 +1,2 @@
-# argo
-website interface to the argo project
+# argovis_backend
+Express.js interface to the argo project
