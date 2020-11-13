@@ -5,6 +5,7 @@ module.exports = {
     docker: 'mongodb://database/argo',
     test: 'mongodb://127.0.0.1:27017/argo-express-test',
     REMOTE_DB: 'mongodb://testUser:testUser1@ds141786.mlab.com:41786/argo-express-test',
+    // REMOTE_DB: 'mongodb+srv://testUser:xES57KuTWkYi3zb0@cluster0.nh95z.mongodb.net' //atlas db
     jg: 'mongodb://127.0.0.1:27017/JG'
   },
 

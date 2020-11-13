@@ -15,6 +15,8 @@ const yaml = require('js-yaml');
 const swaggerDocs = yaml.load(fs.readFileSync('./public/api-docs/swagger.yaml', {encoding: 'utf-8'}));
 const mongoose = require('mongoose');
 const debug = require('debug')('app');
+
+
 const index = require('./routes/index');
 const catalog = require('./routes/catalog');  //Import routes for "catalog" area of site
 const selection = require('./routes/selection');  //Import routes for "selection" area of site
@@ -24,7 +26,7 @@ const covarGrid = require('./routes/covarGrid'); //Import used for gridding
 const arShapes = require('./routes/arShapes');
 const tcTraj = require('./routes/tc');
 
-const compression = require('compression'); //All routs are compressed
+const compression = require('compression'); //All routes are compressed
 const helmet = require('helmet'); //sets appropriate HTTP headers
 
 const app = express();
