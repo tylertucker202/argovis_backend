@@ -10,7 +10,7 @@ chai.use(chaiHttp);
 
 /* Test rgGrid */
 describe('/GET get a RG temp anom object', function() {
-    this.timeout(5000);
+    this.timeout(15000);
     const url = '/griddedProducts/grid/find?gridName=rgTempAnom'
     it('it should a get a rgTempAnom object', (done) => {
       chai.request(app)
@@ -40,7 +40,7 @@ describe('/GET get a RG temp anom object', function() {
   //test sose_si_area_3_day assums it is in the db
   describe('/GET get a sose_si_area_3_day object', function() {
 
-    this.timeout(5000);
+    this.timeout(15000);
     const url = '/griddedProducts/nonUniformGrid/window?latRange=[-75,-70]&lonRange=[-5,0]&gridName=sose_si_area_1_day_sparse&date=2013-01-04&presLevel=0'
     it('it should a get a sose_si_area_1_day_sparse object', (done) => {
       chai.request(app)
@@ -64,7 +64,7 @@ describe('/GET get a RG temp anom object', function() {
   });
 
   describe('/GET get a grid coordinate object', function() {
-    this.timeout(1000);
+    this.timeout(10000);
     const url = '/griddedProducts/gridCoords?latRange=[-75,-73]&lonRange=[-5,5]&gridName=sose_si_area_1_day_sparse'
     it('it should a get a grid_coord object', (done) => {
       chai.request(app)

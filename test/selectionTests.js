@@ -19,7 +19,7 @@ chai.use(chaiHttp);
 
 
 describe('/GET atlantic selection', function() {
-    this.timeout(800);
+    this.timeout(8000);
     it('it should GET the selected profiles within a speciied date range and lat-lon shape.', (done) => {
           const endDate = '2017-08-30';
           const startDate = '2017-08-15';
@@ -41,7 +41,7 @@ describe('/GET atlantic selection', function() {
               a_profile = res.body[0];
               a_profile.should.include.keys('_id', 'date', 'cycle_number','platform_number', 'geoLocation');
               a_profile._id.should.be.a('string');
-              moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
+              moment.utc(a_profile.date).toDate().should.be.a('date');
               (a_profile.platform_number * 1).should.be.a('number');
               (a_profile.cycle_number * 1).should.be.a('number');
               a_profile.geoLocation.coordinates.should.be.a('array');
@@ -128,7 +128,7 @@ describe('/GET atlantic selection', function() {
             a_profile = res.body[0];
             a_profile.should.include.keys('_id', 'date', 'cycle_number','platform_number', 'geoLocation');
             a_profile._id.should.be.a('string');
-            moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
+            moment.utc(a_profile.date).toDate().should.be.a('date');
             (a_profile.platform_number * 1).should.be.a('number');
             (a_profile.cycle_number * 1).should.be.a('number');
             a_profile.geoLocation.coordinates.should.be.a('array');

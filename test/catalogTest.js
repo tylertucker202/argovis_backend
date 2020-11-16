@@ -35,7 +35,7 @@ describe('/GET catalog list of platforms', function() {
                                       'geoLocation', 
                                       'dac');
         a_platform._id.should.be.a('number');
-        moment.utc(a_platform.most_recent_date).format('YYYY-MM-DD').should.be.a('string');
+        moment.utc(a_platform.most_recent_date).toDate().should.be.a('date');
         a_platform.platform_number.should.be.a('number');
         a_platform.cycle_number.should.be.a('number');
         a_platform.geoLocation.coordinates.should.be.a('array');
@@ -105,7 +105,7 @@ describe('/GET catalog dacs', function() {
         a_dac.should.include.keys('_id', 'number_of_profiles', 'dac');
         a_dac._id.should.be.a('string');
         a_dac.number_of_profiles.should.be.a('number');
-        moment.utc(a_dac.most_recent_date).format('YYYY-MM-DD').should.be.a('string');
+        moment.utc(a_dac.most_recent_date).toDate().should.be.a('date');
         a_dac.dac.should.be.a('string');
         done();
     });
