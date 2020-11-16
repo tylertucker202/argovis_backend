@@ -1,7 +1,7 @@
 const HELPER_CONST = require('./profileHelperConstants')
 
 module.exports = {}
-module.exports.presSliceProject = function(minPres, maxPres) {
+module.exports.pres_slice_projection = function(minPres, maxPres) {
     const psp = {$project: { //need to include all fields that you wish to keep.
         nc_url: 1,
         position_qc: 1,
@@ -34,7 +34,7 @@ module.exports.presSliceProject = function(minPres, maxPres) {
     return(psp)
 }
 
-module.exports.reduceIntpMeas = function(intPres) {
+module.exports.reduce_intp_meas = function(intPres) {
     const rim = [{$project: { // create lower and upper measurements
         position_qc: 1,
         date_qc: 1,

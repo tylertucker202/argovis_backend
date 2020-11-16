@@ -5,15 +5,15 @@ let router = express.Router();
 const tc_traj_controller = require('../controllers/tcTrajController')
 
 /* GET an ar shape. */
-router.get('/', tc_traj_controller.findOne);
+router.get('/', tc_traj_controller.find_one);
 
 /* GET an ar shape. */
-router.get('/findByDate', tc_traj_controller.findByDate);
+router.get('/findByDate', tc_traj_controller.find_by_date);
 
-router.get('/findByDateRange', tc_traj_controller.findByDateRange);
+router.get('/findByDateRange', tc_traj_controller.find_by_date_range);
 
-router.get('/stormNameList', tc_traj_controller.getStormNames)
+router.get('/stormNameList', tc_traj_controller.get_storm_names)
 
-router.get('/findByNameYear', tc_traj_controller.findByNameYear)
+router.get('/findByNameYear', tc_traj_controller.find_by_name_year)
 
 module.exports = router

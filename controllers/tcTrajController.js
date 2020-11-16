@@ -12,7 +12,7 @@ const TRAJ_PROJ = {
                     stormName: 1,
                   }
 
-exports.findOne = function(req, res , next) {
+exports.find_one = function(req, res , next) {
     const query = tcTraj.findOne();
     query.exec(function (err, tcTraj) {
     if (err) return next(err);
@@ -20,7 +20,7 @@ exports.findOne = function(req, res , next) {
     })
 }
 
-exports.findByDate = function(req, res , next) {
+exports.find_by_date = function(req, res , next) {
     req.checkQuery('date', 'date should be specified.').notEmpty();
     req.sanitize('date').toDate();
     const date = req.query.date;
@@ -31,7 +31,7 @@ exports.findByDate = function(req, res , next) {
     })
 }
 
-exports.getStormNames = function(req, res, next) {
+exports.get_storm_names = function(req, res, next) {
     let agg = [ {$addFields: {
                     stormName: {
                             $concat: [
@@ -54,7 +54,7 @@ exports.getStormNames = function(req, res, next) {
     .catch(function(err) { return next(err)})
 }
 
-exports.findByDateRange = function(req, res, next){
+exports.find_by_date_range = function(req, res, next){
     req.checkQuery('startDate', 'start date should be specified.').notEmpty();
     req.checkQuery('endDate', 'end date should be specified.').notEmpty();
     req.sanitize('startDate').toDate()
@@ -85,7 +85,7 @@ exports.findByDateRange = function(req, res, next){
     .catch(function(err) { return next(err)})
 }
 
-exports.findByNameYear = function(req, res, next) {
+exports.find_by_name_year = function(req, res, next) {
     req.checkQuery('name', 'name should be specified.').notEmpty();
     req.checkQuery('year', 'year should be specified.').notEmpty();
     req.checkQuery('year', 'year should be a number.').isNumeric();
