@@ -1,6 +1,5 @@
 const tcTraj = require('../models/tcTraj');
 const moment = require('moment');
-const { query } = require('@angular/animations');
 
 const TRAJ_GROUP = { _id: '$stormName',
                 }
