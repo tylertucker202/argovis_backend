@@ -15,7 +15,7 @@ let generate = require('./../public/javascripts/generate_arrays_for_plotting.js'
 chai.use(chaiHttp);
 
 describe('/GET a small bgc profile render', function() {
-  this.timeout(500);
+  this.timeout(2500);
   it('it should GET the selected bgc profile.', (done) => {
     const urlQuery = '/catalog/profiles/5903260_237'
     chai.request(app)
@@ -35,7 +35,7 @@ describe('/GET a small bgc profile render', function() {
 });
 
 describe('/GET bgc profile render', function() {
-    this.timeout(1500);
+    this.timeout(3500);
     it('it should GET the selected bgc profile.', (done) => {
       const urlQuery = '/catalog/profiles/2902755_199'
       chai.request(app)
@@ -62,11 +62,9 @@ describe('/GET bgc profile render', function() {
       });
     });
   });
-  
-  
 
 describe('/GET a bgc platform', function() {
-  this.timeout(9000);
+  this.timeout(2000);
   it('it should GET one bgc platform', (done) => {
     chai.request(app)
     .get('/catalog/platforms/5903260')
@@ -74,9 +72,49 @@ describe('/GET a bgc platform', function() {
         //test overall response
         res.should.have.status(200);
         let profiles = res.body;
-        const profile = profiles[1]
-        should.not.exist(profile.bgcMeas) //bgc not allowed in platforms
+        const a_profile = profiles[1]
+        should.not.exist(a_profile.bgcMeas) //bgc not allowed in platforms
+        done();
+    })
+  })
+
+  it('it should GET one bgc platform data', (done) => {
+    chai.request(app)
+    .get('/catalog/bgc_platform_data/5903260/?meas_1=pres&meas_2=temp')
+    .end((err, res) => {
+        //test overall response
+        res.should.have.status(200);
+        let profiles = res.body;
+        const a_profile = profiles[1]
+        should.exist(a_profile) //bgc not allowed in platforms
+        a_profile.should.include.keys('bgcMeas', '_id');
+        const a_meas = a_profile['bgcMeas'][0]
+        should.exist(a_meas)
+        a_meas.should.include.keys('pres', 'pres_qc', 'temp', 'temp_qc')
+
         done();
     })
   })
 })
+
+describe('/GET platform metadata', function() {
+  this.timeout(500);
+  it('it should GET the selected platform metadata.', (done) => {
+    const urlQuery = '/catalog/platform_metadata/5903260'
+    chai.request(app)
+    .get(urlQuery)
+    .end((err, res) => {
+        //test overall response
+        res.should.have.status(200);
+        a_profile = res.body[0];
+        a_profile._id.should.be.a('number');
+        a_profile.platform_number.should.be.a('number');
+        a_profile.dac.should.be.a('string');
+        a_profile.most_recent_date.should.be.a('string')
+        a_profile.most_recent_date_added.should.be.a('string')
+        a_profile.PI_NAME.should.be.a('string');
+        a_profile.POSITIONING_SYSTEM.should.be.a('string');
+        done();
+    });
+  });
+});

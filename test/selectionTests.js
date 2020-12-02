@@ -19,7 +19,7 @@ chai.use(chaiHttp);
 
 
 describe('/GET atlantic selection', function() {
-    this.timeout(200);
+    this.timeout(8000);
     it('it should GET the selected profiles within a speciied date range and lat-lon shape.', (done) => {
           const endDate = '2017-08-30';
           const startDate = '2017-08-15';
@@ -36,12 +36,12 @@ describe('/GET atlantic selection', function() {
               //test overall response
               res.should.have.status(200);
               res.body.should.be.a('array');
-              res.body.length.should.be.eql(6);
+              res.body.length.should.be.above(0);
               //test an element of the response
               a_profile = res.body[0];
               a_profile.should.include.keys('_id', 'date', 'cycle_number','platform_number', 'geoLocation');
               a_profile._id.should.be.a('string');
-              moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
+              moment.utc(a_profile.date).toDate().should.be.a('date');
               (a_profile.platform_number * 1).should.be.a('number');
               (a_profile.cycle_number * 1).should.be.a('number');
               a_profile.geoLocation.coordinates.should.be.a('array');
@@ -57,6 +57,7 @@ describe('/GET atlantic selection', function() {
               let psal = [];
               let _ids = [];
               let cvalues = [];
+              let dates = []
               for(let i=0; i<profiles.length; i++) {
                   let profile = profiles[i];
                   let profileMeas = generate.reduceGPSMeasurements(profile, 200);
@@ -69,7 +70,16 @@ describe('/GET atlantic selection', function() {
                   psal = psal.concat(profileMeas.psal);
                   cvalues = cvalues.concat(color_array);
                   _ids = _ids.concat(id_array);
+                  dates.push(profile.date)
               }
+
+                // date should be in order
+                let lastDate = moment()
+                dates.forEach( function(date) {
+                    mdate = moment(date)
+                    assert(mdate <= lastDate, 'check date order')
+                    lastDate = mdate
+                })
 
               out = generate.filterSelection(temp, pres, psal, cvalues, _ids)
               // presVsTemp array lengths should be equal
@@ -94,4 +104,64 @@ describe('/GET atlantic selection', function() {
           });
     });
   });
+
+  describe('/GET atlantic box selection', function() {
+    this.timeout(800);
+    it('it should GET the selected profiles within a speciied date range and box shape.', (done) => {
+          const endDate = '2017-08-30';
+          const startDate = '2017-08-15';
+          const llCorner = [-80.09,14.94]
+          const urCorner = [25.51,50.06]
+
+          const base = '/selection/box/profiles/map';
+          const urlQuery = base+'?startDate='+startDate+'&endDate='+endDate+'&llCorner='+JSON.stringify(llCorner)+'&urCorner='+JSON.stringify(urCorner);
+
+          console.log(urlQuery)
+          chai.request(app)
+          .get(urlQuery)
+          .end((err, res) => {
+            //test overall response
+            res.should.have.status(200);
+            res.body.should.be.a('array');
+            res.body.length.should.be.above(0);
+            //test an element of the response
+            a_profile = res.body[0];
+            a_profile.should.include.keys('_id', 'date', 'cycle_number','platform_number', 'geoLocation');
+            a_profile._id.should.be.a('string');
+            moment.utc(a_profile.date).toDate().should.be.a('date');
+            (a_profile.platform_number * 1).should.be.a('number');
+            (a_profile.cycle_number * 1).should.be.a('number');
+            a_profile.geoLocation.coordinates.should.be.a('array');
+            a_profile.geoLocation.coordinates.length.should.be.eql(2);
+            a_profile.geoLocation.type.should.be.eql('Point');
+
+            let profiles = res.body.splice(0);
+            let dates = []
+            let lats = []
+            for(let i=0; i<profiles.length; i++) {
+                const profile = profiles[i]
+                dates.push(profile.date)
+                lats.push(profile.geoLocation.coordinates[1])
+            }
+            
+            //lats should be within range
+            const upperLat = urCorner[1]
+            const lowerLat = llCorner[1]
+            lats.forEach( function(lat) {
+                assert( lat >= lowerLat, 'check prof in box')
+                assert( lat <= upperLat, 'check prof in box')
+            })
+
+            // date should be in order
+            let lastDate = moment()
+            dates.forEach( function(date) {
+                mdate = moment(date)
+                assert(mdate <= lastDate, 'check date order')
+                lastDate = mdate
+            })
+
+            done();
+        });
+  });
+});
   

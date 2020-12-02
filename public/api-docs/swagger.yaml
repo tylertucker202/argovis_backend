@@ -1,0 +1,1286 @@
+openapi: 3.0.2
+info:
+  title: Argovis APIs Document
+  version: '1.0'
+  description: Retrieve Argo profiles, platforms, selections, BGC data, gridded products,
+    etc outside of the browser.
+  termsOfService: ''
+  contact:
+    name: Tyler Tucker
+    email: tyler.tucker@colorado.edu
+    url: https://www.itsonlyamodel.us
+  license:
+    name: MIT
+    url: https://choosealicense.com/licenses/mit/
+tags: 
+  - name: 'covar'
+    description: 'Argo float position forcast product'
+  - name: 'grid'
+    description: 'Gridded products derived from Argo floats, simulation, or satalite product'
+  - name: 'selection'
+    description: 'geospatial selection of argo floats'
+  - name: 'metadata'
+    description: 'databse queries that leave out the data'
+  - name: 'biogeochemical'
+    description: 'biogeochemical specific queries'
+  - name: 'catalog'
+    description: 'profile or platform core data (temperature pressure salinity)'
+  - name: 'ar'
+    description: 'atmospheric river shapes'
+
+servers:
+  - url: 'https://argovis.colorado.edu'
+    description: Server Hosted by University of Colorado, Boulder
+  - url: 'http://localhost:3000'
+    description: Local server for testing and development
+components:
+  schemas:
+    DatabaseOverview:
+      type: object
+      properties:
+        numberOfProfiles:
+          type: integer
+        dacs: 
+          type: array
+          items:
+            type: string
+        numberDeep:
+          type: integer
+        numberBgc:
+          type: integer
+        lastAdded:
+          type: string
+          format: date-time
+    ProfileMapMeta:
+      type: object
+      required:
+        - _id
+        - platform_number
+        - date
+        - geoLocation
+        - cycle_number
+        - station_parameters
+        - lat
+        - lon
+      properties:
+        _id:
+          type: string
+        cycle_number:
+          type: integer
+        date: 
+          type: string
+          format: date-time
+        geoLocation:
+          type: object
+          properties:
+            type: 
+              type: string
+            coordinates: 
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                  minItems: 2
+                  maxItems: 2
+        lat:
+          type: number
+        lon: 
+          type: number
+        platform_number:
+          type: integer
+        station_parameters:
+          type: array
+          items: 
+            type: string
+        DATA_MODE: 
+          type: string
+        containsBGC:
+          type: boolean
+        isDeep:
+          type: boolean
+        DIRECTION:
+          type: string
+        url: 
+          type: string
+        core_data_mode:
+          type: string
+        jcommopsPlatform:
+          type: string
+        euroargoPlatform:
+          type: string
+        formatted_station_parameters:
+          type: array
+          items: 
+            type: string
+        roundLat:
+          type: string
+        roundLon:
+          type: string
+        strLat: 
+          type: string
+        strLon:
+          type: string
+        date_formatted:
+          type: string
+          format: date
+  
+    ProfileMeta:
+      type: object
+      required:
+        - _id
+        - nc_url
+        - position_qc
+        - cycle_number
+        - dac
+        - date
+        - max_pres
+        - measurements
+        - lat
+        - lon
+        - platform_number
+        - geoLocation
+        - station_parameters
+      properties:
+        _id:
+          type: string
+        nc_url:
+          type: string
+        position_qc:
+          type: integer
+        cycle_number:
+          type: integer
+        dac:
+          type: string
+        date: 
+          type: string
+          format: date-time
+        date_added:
+          type: string
+          format: date-time
+        date_qc:
+          type: integer
+        max_pres:
+          type: number
+        bgcMeasKeys:
+          type: array
+          items:
+            type: string
+        lat:
+          type: number
+        lon: 
+          type: number
+        platform_number:
+          type: integer
+        geoLocation:
+          type: object
+          properties:
+            type: 
+              type: string
+            coordinates: 
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                  minItems: 2
+                  maxItems: 2
+        station_parameters:
+          type: array
+          items: 
+            type: string
+        station_parameters_in_nc:
+          type: array
+          items: 
+            type: string
+        VERTICAL_SAMPLING_SCHEME:
+          type: string
+        PI_NAME:
+          type: string
+        WMO_INST_TYPE:
+          type: string
+        POSITIONING_SYSTEM:
+          type: string
+        DATA_MODE: 
+          type: string
+        PARAMETER_DATA_MODE:
+          type: array
+          items: 
+            type: string
+        DATA_CENTRE:
+          type: string
+        DIRECTION:
+          type: string
+        PLATFORM_TYPE:
+          type: string
+        pres_max_for_TEMP:
+          type: number
+        pres_max_for_PSAL:
+          type: number
+        pres_min_for_TEMP:
+          type: number
+        pres_min_for_PSAL:
+          type: number
+        containsBGC:
+          type: boolean
+        isDeep:
+          type: boolean
+        BASIN:
+          type: number
+        url: 
+          type: string
+        core_data_mode:
+          type: string
+        jcommopsPlatform:
+          type: string
+        euroargoPlatform:
+          type: string
+        formatted_station_parameters:
+          type: array
+          items: 
+            type: string
+        roundLat:
+          type: string
+        roundLon:
+          type: string
+        strLat: 
+          type: string
+        strLon:
+          type: string
+        date_formatted:
+          type: string
+          format: date
+
+    PlatformMeta:
+      type: object
+      required:
+        - _id
+        - most_recent_date
+        - most_recent_date_added
+        - number_of_profiles
+        - dac
+      properties:
+        _id:
+          type: string
+        most_recent_date:
+          type: string
+          format: date-time
+        most_recent_date_added:
+          type: string
+          format: date-time
+        number_of_profiles:
+          type: integer
+        POSITIONING_SYSTEM:
+          type: string
+        PI_NAME:
+          type: string
+        dac:
+          type: string
+        jcomoppsLink:
+          type: string
+        fleetMonitoringLink:
+          type: string
+        
+    bgcMeasurements:
+      type: object
+      properties:
+        pres:
+          type: number
+        pres_qc:
+          type: integer
+        temp: 
+          type: number  
+        temp_qc:
+          type: integer
+        psal:
+          type: number
+        psal_qc: 
+          type: integer  
+        cndx:
+          type: number
+        cndc_qc: 
+          type: integer  
+        doxy:
+          type: number
+        doxy_qc: 
+          type: integer
+        chla:
+          type: number
+        chla_qc: 
+          type: integer   
+        cdom:
+          type: number
+        cdom_qc: 
+          type: integer   
+        nitrate:
+          type: number
+        nitrate_qc: 
+          type: integer  
+        bbp700:
+          type: number
+        bbp700_qc: 
+          type: integer  
+        down_irradiance412:
+          type: number
+        down_irradiance412_qc: 
+          type: integer    
+        down_irradiance442:
+          type: number
+        down_irradiance442_qc: 
+          type: integer  
+        down_irradiance490:
+          type: number
+        down_irradiance490_qc: 
+          type: integer  
+        downwelling_par:
+          type: number
+        downwelling_par_qc:
+          type: string
+
+    BgcProfileData:
+      type: object
+      required:
+        - _id
+        - cycle_number
+        - date
+        - lat
+        - lon
+        - bgcMeasKeys
+        - POSITIONING_SYSTEM
+        - bgcMeas
+      properties:
+        _id:
+          type: string
+        cycle_number:
+          type: number
+        date:
+          type: string
+          format: date-time
+        lat:
+          type: number
+        lon:
+          type: number
+        bgcMeasKeys:
+          type: array
+          items:
+            type: number
+        POSITIONING_SYSTEM:
+          type: string
+        bgcMeas:
+          $ref: '#/components/schemas/bgcMeasurements'
+
+    GridMeta:
+      type: object
+      required:
+        - presLevels
+        - dates
+        - minDate
+        - maxDate
+      properties:
+        _id:
+          type: string
+        presLevels:
+          type: array
+          items:
+            type: number
+        dates:
+          type: array
+          items:
+            type: string
+            format: date-time
+        minDate:
+          type: string
+          format: date-time
+        maxDate:
+          type: string
+          format: date-time
+
+    RasterGrid:
+      type: object
+      required:
+        - _id
+        - pres
+        - cellXSize
+        - cellYSize
+        - noDataValue
+        - zs
+        - nRows
+        - nCols
+        - xllCorner
+        - yllCorner
+        - time
+      properties:
+        _id:
+          type: string
+        pres:
+          type: number
+        cellXSize:
+          type: number
+          nullable: true
+        cellYSize:
+          type: number
+          nullable: true
+        noDataValue:
+          type: number
+          nullable: true
+        zs: 
+          type: array
+          items:
+            type: number
+        nRows:
+          type: integer
+        nCols:
+          type: integer
+        xllCorner:
+          type: number
+        yllCorner:
+          type: number
+        gridName:
+          type: string
+        units:
+          type: string
+        measurement:
+          type: string
+        param:
+          type: string
+        time: 
+          type: number
+        date:
+          type: string
+          format: date-time
+
+    ProfileSchema:
+      type: object
+      required:
+        - _id
+        - nc_url
+        - position_qc
+        - cycle_number
+        - dac
+        - date
+        - max_pres
+        - measurements
+        - lat
+        - lon
+        - platform_number
+        - geoLocation
+        - station_parameters
+      properties:
+        _id:
+          type: string
+        nc_url:
+          type: string
+        position_qc:
+          type: integer
+        cycle_number:
+          type: integer
+        dac:
+          type: string
+        date: 
+          type: string
+          format: date-time
+        date_added:
+          type: string
+          format: date-time
+        date_qc:
+          type: integer
+        max_pres:
+          type: number
+        measurements:
+          type: array
+          items:
+            type: object
+            properties:
+              pres:
+                type: number
+              temp:
+                type: number
+              psal: 
+                type: number
+        bgcMeas:
+          $ref: '#/components/schemas/bgcMeasurements'
+        bgcMeasKeys:
+          type: array
+          items:
+            type: string
+        lat:
+          type: number
+        lon: 
+          type: number
+        platform_number:
+          type: integer
+        geoLocation:
+          type: object
+          properties:
+            type: 
+              type: string
+            coordinates: 
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                  minItems: 2
+                  maxItems: 2
+        station_parameters:
+          type: array
+          items: 
+            type: string
+        station_parameters_in_nc:
+          type: array
+          items: 
+            type: string
+        VERTICAL_SAMPLING_SCHEME:
+          type: string
+        PI_NAME:
+          type: string
+        WMO_INST_TYPE:
+          type: string
+        POSITIONING_SYSTEM:
+          type: string
+        DATA_MODE: 
+          type: string
+        PARAMETER_DATA_MODE:
+          type: array
+          items: 
+            type: string
+        DATA_CENTRE:
+          type: string
+        DIRECTION:
+          type: string
+        PLATFORM_TYPE:
+          type: string
+        pres_max_for_TEMP:
+          type: number
+        pres_max_for_PSAL:
+          type: number
+        pres_min_for_TEMP:
+          type: number
+        pres_min_for_PSAL:
+          type: number
+        containsBGC:
+          type: boolean
+        isDeep:
+          type: boolean
+        BASIN:
+          type: number
+        url: 
+          type: string
+        core_data_mode:
+          type: string
+        jcommopsPlatform:
+          type: string
+        euroargoPlatform:
+          type: string
+        formatted_station_parameters:
+          type: array
+          items: 
+            type: string
+        roundLat:
+          type: string
+        roundLon:
+          type: string
+        strLat: 
+          type: string
+        strLon:
+          type: string
+        date_formatted:
+          type: string
+          format: date
+                                                                                                                                                                                                                                     
+    GridSchema:
+      type: object
+      required:
+        - _it
+        - measurement
+        - units
+        - pres
+        - param
+        - cellSize
+        - NODATA_value
+      properties:
+        _id:
+          type: string
+        gridName: 
+          type: string
+        measurement:
+          type: string
+        units:
+          type: string
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              lat:
+                type: number
+              lon:
+                type: number
+              value: 
+                type: number
+        variable:
+          type: string
+        date:
+          type: string
+          format: date-time
+        pres:
+          type: number
+        model:
+          type: string
+        trend:
+          type: string
+        param:
+          type: string
+        chunk: 
+          type: integer
+        cellSize: 
+          type: number
+        NODATA_value:
+          type: number
+
+    GridCoordSchema:
+      type: object
+      required:
+        - _id
+        - lats
+        - lons
+        - gridName
+      properties:
+        _id:
+          type: string
+        lats:
+          type: array
+          items:
+            type: number
+        lons: 
+          type: array
+          items:
+            type: number
+        gridName: 
+          type: string
+        
+    CovarSchema:
+      type: object
+      required:
+      - _id
+      - feature
+      - dLat
+      - forcastDays
+      - dLon
+      - geoLocation
+      properties:
+        features:
+          type: array
+          items:
+            type: object
+            properties:
+              geometry:
+                type: object
+                properties:
+                  type: 
+                    type: string
+                  coordinates: 
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: number
+                        minItems: 2
+                        maxItems: 2
+              type: 
+                type: string    
+        _id:
+          type: string
+        dLat:
+          type: number
+        dLon:
+          type: number
+        forcastDays:
+          type: integer
+        geoLocation:
+          type: object
+          properties:
+            type:
+              type: string
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                  minItems: 2
+                  maxItems: 2
+                uniqueItems: true
+
+    arShapeSchema:
+      type: object
+      required:
+      - _id
+      - date
+      - shapeID
+      - geoLocation
+      - date_formatted
+      properties:
+        _id:
+          type: string
+        date:
+          type: string
+          format: date-time
+        shapeId:
+          type: integer
+        geoLocation:
+          type: object
+          properties:
+            type:
+              type: string
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                  minItems: 2
+                  maxItems: 2
+                uniqueItems: true
+        date_formateed:
+          type: string
+          format: date
+
+  parameters:
+    llCorner:
+      name: llCorner
+      in: query
+      required: true
+      description: lower left corner of box [longitude, latitude]
+      schema:
+        type: array
+        items:
+          type: number
+          minItems: 2
+          maxItems: 2
+      example: "[-160,20]"
+    urCorner:
+      name: urCorner
+      in: query
+      required: true
+      description: upper right corner of box [longitude, latitude]
+      schema:
+        type: array
+        items:
+          type: number
+          minItems: 2
+          maxItems: 2
+      example: "[-150,30]"
+    startDate:
+      name: startDate
+      in: query
+      required: true
+      description: start date of selection
+      schema:
+        type: string
+        format: date-time
+      example: "2019-10-01"
+    endDate:
+      name: endDate
+      in: query
+      required: true
+      description: end date of selection
+      schema:
+        type: string
+        format: date-time
+      example: "2019-10-04"
+    presRange:
+      name: presRange
+      in: query
+      required: false
+      description: pressure range of selection
+      schema:
+        type: array
+        items:
+          type: number
+          minItems: 2
+          maxItems: 2
+      example: "[618,635]"
+    shape:
+      name: shape
+      in: query
+      required: true
+      description: nested list of [lng, lat] arrays. First point should equal last.
+      schema:
+        type: array
+        items:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+              minItems: 2
+              maxItems: 2
+      example: "[[[127.12, 16], [150, 16.0], [144.45, 0], [130, 8], [127.12, 16]]]"
+
+    profile_number:
+      name: profile_number
+      in: path
+      required: true
+      description: actually a _string_ comprised of platform_number and cycle_number prefixed by a '_'
+      schema:
+        type: string
+      examples:
+        bgc:
+         value: "4900093_90"
+         summary: a profile with bgcMeas data
+        core:
+          value: "4902911_67"
+          summary: a core argo float
+        deep:
+          value: "2902738_2"
+          summary: an argo float that goes deeper than 2000 dbar
+    format:
+      name: format
+      in: path
+      required: true
+      description: 'flag that reduces data to a few metadata parameters for charting on a map'
+      schema:
+        type: string
+        enum: ['map']
+
+    meas_1:
+      name: meas_1
+      in: query
+      required: true
+      description: First of two measurements to create 2d chart 
+      schema:
+        type: string
+      example: pres
+    meas_2:
+      name: meas_2
+      in: query
+      required: true
+      description: Second of two measurements to create 2d chart 
+      schema:
+        type: string
+      example: temp
+    platform_number:
+      in: path
+      name: platform_number
+      required: true
+      description: WMO number for the argo float (aka platform)
+      schema:
+        type: integer
+      example: 4900093
+    arDate:
+      in: query
+      name: date
+      description: three hour increments starting at 2004-01-01T00:00:00 and ending at 2017-04-02T03:00:00
+      schema:
+        type: string
+        format: date-time
+      example: '2010-01-01T00:00:00Z'
+    gridNameNonUniform:
+      in: query
+      name: gridName
+      description: name of the gridded product
+      schema:
+        type: string
+      required: true
+      example: sose_si_area_1_day_sparse
+
+    gridNameUniform:
+      in: query
+      name: gridName
+      description: name of the gridded product
+      schema:
+        type: string
+      required: true
+      example: rgTempAnom
+
+    latRangeNonUniform:
+      in: query
+      name: latRange
+      required: true
+      example: "[-75,-73]"
+      schema:
+        type: array
+        items:
+          type: number
+          minItems: 2
+          maxItems: 2
+          minimum: -90
+          maximum: 90
+      description: Latitude range (-90 to 90 degrees)
+
+    latRangeUniform:
+      in: query
+      name: latRange
+      required: true
+      example: "[-5, 5.33]"
+      schema:
+        type: array
+        items:
+          type: number
+          minItems: 2
+          maxItems: 2
+          minimum: -90
+          maximum: 90
+      description: Longitude range (-180 to 180 degrees)
+  
+    lonRange:
+      in: query
+      name: lonRange
+      required: true
+      example: "[0,2.153]"
+      schema:
+        type: array
+        items:
+          type: number
+          minItems: 2
+          maxItems: 2
+          minimum: -180
+          maximum: 180
+      description: Longitude range (-180 to 180 degrees)
+
+    dateUniform:
+      in: query
+      name: date
+      required: true
+      example: '2012-01-01'
+      schema:
+        type: string
+        format: date
+      description: YYYY-MM-DD format. Monthly grids use the first day of the month.
+
+    dateNonUniform:
+      in: query
+      name: date
+      required: true
+      example: '2013-01-04'
+      schema:
+        type: string
+        format: date
+      description: YYYY-MM-DD format. Monthly grids use the first day of the month.
+  
+    presLevelUniform:
+      in: query
+      name: presLevel
+      required: true
+      example: 10
+      schema:
+        type: number
+      description: pressure level (dbar)
+  
+    presLevelNonUniform:
+      in: query
+      name: presLevel
+      required: true
+      example: "0"
+      schema:
+        type: number
+      description: pressure level (dbar)
+  
+    lat:
+      in: path
+      name: lat
+      schema: 
+        type: number
+        minimum: -90
+        maximum: 90
+        example: 5.25
+      required: true
+      description: latitude (degrees) of Argo float location
+
+    lon:
+      in: path
+      name: lon
+      schema: 
+        type: number
+        minimum: -180
+        maximum: 180
+        example: -20.33
+      required: true
+      description: longitude (degrees) of Argo float location
+
+    forcastDays:
+      required: true
+      in: path
+      name: forcastDays
+      schema: 
+        type: number
+        minimum: 60
+        maximum: 1800
+        example: 60
+        enum: [60, 120, 140, 240, 360, 480, 720, 840, 960, 1080, 1200, 1320, 1440, 1560, 1680, 1800]
+
+paths:
+  /selection/box/profiles{format}:
+    get:
+      tags: ['selection']
+      description: Charting data for cartesian space and time along
+      parameters:
+        - $ref: '#/components/parameters/format'
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/presRange'
+        - $ref: '#/components/parameters/llCorner'
+        - $ref: '#/components/parameters/urCorner'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileMapMeta'
+  /selection/box/profiles:
+    get:
+      tags: ['selection']
+      description: Cartesian space and time selection of core argo profiles (no biogeochemical measurements included)
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/presRange'
+        - $ref: '#/components/parameters/llCorner'
+        - $ref: '#/components/parameters/urCorner'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileSchema'     
+  /selection/profiles/{format}:
+    get:
+      tags: ['selection']
+      description: Charting data for space and time selection
+      parameters:
+        - $ref: '#/components/parameters/format'
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/presRange'
+        - $ref: '#/components/parameters/shape'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileMapMeta'
+  /selection/profiles:
+    get:
+      tags: ['selection']
+      description: space and time selection of core argo profiles (no biogeochemical measurements included)
+      parameters:
+        - $ref: '#/components/parameters/startDate'
+        - $ref: '#/components/parameters/endDate'
+        - $ref: '#/components/parameters/presRange'
+        - $ref: '#/components/parameters/shape'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileSchema'
+  /selection/overview:
+    get:
+      tags: ['metadata']
+      description: database overview
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseOverview'
+  /catalog/profiles/{profile_number}:
+    get:
+      tags: ['catalog']
+      description: profile data and metadata of a given profile number
+      parameters:
+        - $ref: '#/components/parameters/profile_number'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileSchema'
+  /catalog/profiles/{profile_number}/{format}:
+    get:
+      tags: ['catalog']
+      description: Charting data for a given profile number
+      parameters:
+        - $ref: '#/components/parameters/profile_number'
+        - $ref: '#/components/parameters/format'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileMapMeta'
+  /catalog/platforms/{platform_number}:
+    get:
+      tags: ['catalog']
+      description: profile data and metadata excluding biogeochemical measurements of a given platform_number
+      parameters:
+        - $ref: '#/components/parameters/platform_number'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileSchema'
+  /catalog/platforms/{platform_number}/{format}:
+    get:
+      tags: ['catalog']
+      summary: Charting data for profiles of a given platform_number, excluding biogeochemical measurements
+      parameters:
+        - $ref: '#/components/parameters/platform_number'
+        - $ref: '#/components/parameters/format'
+      description: 
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileMapMeta'
+  /catalog/platform_metadata/{platform_number}:
+    get:
+      tags: ['catalog', 'metadata']
+      summary: Metadata for a given platform number
+      parameters:
+        - $ref: '#/components/parameters/platform_number'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformMeta'
+  /catalog/bgc_platform_data/{platform_number}:
+    get:
+      tags: ['biogeochemical', 'catalog']
+      summary: Returns data and qc of two measurements and limited metadata for a given platform number 
+      parameters:
+        - $ref: '#/components/parameters/platform_number'
+        - $ref: '#/components/parameters/meas_1'
+        - $ref: '#/components/parameters/meas_2'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BgcProfileData'
+  /catalog/platform_profile_metadata/{platform_number}:
+    get:
+      tags: ['catalog', 'metadata']
+      summary: Returns all profile metadata for a given platform number
+      parameters:
+        - $ref: '#/components/parameters/platform_number'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileMeta'
+  /arShapes/findByDate:
+    get:
+      tags: ['ar']
+      summary: shapes representing atmospheric rivers at a given date-time
+      parameters:
+        - $ref: '#/components/parameters/arDate'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/arShapeSchema'
+  /griddedProducts/gridMetadata:
+    get:
+      tags: ['grid', 'metadata']
+      summary: metadata from grid unique dates, pres levels
+      parameters:
+        - $ref: '#/components/parameters/gridNameUniform'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GridMeta'
+
+  /griddedProducts/grid/window:
+    get:
+      tags: ['grid']
+      summary: uniformly spaced rectangular gridded product selector
+      parameters:
+        - $ref: '#/components/parameters/gridNameUniform'
+        - $ref: '#/components/parameters/presLevelUniform'
+        - $ref: '#/components/parameters/latRangeUniform'
+        - $ref: '#/components/parameters/lonRange'            
+        - $ref: '#/components/parameters/dateUniform'  
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RasterGrid'
+
+  /griddedProducts/nonUniformGrid/window:
+    get:
+      tags: ['grid']
+      summary: non uniformly spaced rectangular gridded product
+      parameters:
+        - $ref: '#/components/parameters/gridNameNonUniform'
+        - $ref: '#/components/parameters/presLevelNonUniform'
+        - $ref: '#/components/parameters/latRangeNonUniform'
+        - $ref: '#/components/parameters/lonRange'    
+        - $ref: '#/components/parameters/dateNonUniform'  
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GridSchema'
+
+  /griddedProducts/gridCoords:
+    get:
+      tags: ['grid', 'metadata']
+      summary: coordinates for gridded product
+      parameters:
+        - $ref: '#/components/parameters/gridNameNonUniform'
+        - $ref: '#/components/parameters/latRangeNonUniform'
+        - $ref: '#/components/parameters/lonRange'    
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GridCoordSchema'
+          
+  /covarGrid/{lat}/{lon}/{forcastDays}:
+    get:
+      tags: ['covar']
+      summary: Probability distribution field for a float at point lat-lon after forcastDays.
+      parameters:
+        - $ref: '#/components/parameters/lat'
+        - $ref: '#/components/parameters/lon'
+        - $ref: '#/components/parameters/forcastDays'
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CovarSchema'
+security:
+  - name: []
+

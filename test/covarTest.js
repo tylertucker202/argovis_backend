@@ -15,7 +15,6 @@ describe('/GET get a covar object', function() {
     const forcastDays = '140'
     let url = '/covarGrid/'
     url += long + '/' + lat + '/' + forcastDays
-    console.log('A covar query is: ' + url);
     it('it should a get a covar object', (done) => {
       chai.request(app)
       .get(url)
@@ -24,6 +23,7 @@ describe('/GET get a covar object', function() {
           res.should.have.status(200);
           //test an element of the response
           a_covar = res.body
+          assert(a_covar, 'covar should be returned')
           a_covar.forcastDays.should.be.a('number')
           a_covar.dLat.should.be.a('number')
           a_covar.dLong.should.be.a('number')

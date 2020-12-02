@@ -7,9 +7,11 @@
   "private": true,
   "scripts": {
     "test": "export NODE_ENV=test && mocha",
+    "travis_test": "export NODE_ENV=test && export REMOTE_DB=true && mocha --exit",
     "start": "export NODE_ENV=production && node ./bin/www",
     "dockerstart": "export NODE_ENV=docker && node ./bin/www",
     "devstart": "export NODE_ENV=development && nodemon ./bin/www",
+    "yamldevstart": "export NODE_ENV=development && nodemon ./bin/www --watch ./public/api-docs/swagger.yaml",
     "jgstart": "export NODE_ENV=jg && nodemon ./bin/www"
   },
   "dependencies": {
@@ -33,6 +35,7 @@
     "graceful-fs": "^4.1.15",
     "helmet": "^3.21.2",
     "jquery-ui": "^1.12.1",
+    "js-yaml": "^3.14.0",
     "leaflet": "^1.4.0",
     "leaflet-draw": "^0.4.14",
     "leaflet-easybutton": "^2.4.0",
@@ -51,6 +54,7 @@
     "readdirp": "^2.2.1",
     "requirejs": "^2.3.6",
     "serve-favicon": "^2.5.0",
+    "swagger-ui-express": "^4.1.4",
     "tableexport": "^4.0.11",
     "undefsafe": "^2.0.2"
   },
@@ -58,7 +62,7 @@
     "chai": "^4.2.0",
     "chai-http": "^4.2.1",
     "mocha": "^5.2.0",
-    "nodemon": "^1.18.10",
+    "nodemon": "^1.19.4",
     "sinon": "^7.2.7"
   }
 }

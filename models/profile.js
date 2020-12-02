@@ -99,15 +99,15 @@ ProfileSchema
 })
 
 ProfileSchema
-.virtual('jcompsPlatform')
+.virtual('jcommopsPlatform')
 .get(function () {
   return 'http://www.jcommops.org/board/wa/Platform?ref=' + this.platform_number
 })
 
 ProfileSchema
-.virtual('ifremerProfile')
+.virtual('euroargoPlatform')
 .get(function () {
-  return 'http://www.ifremer.fr/co-argoFloats/cycle?detail=false&ptfCode='+this.platform_number+'&cycleNum='+this.cycle_number
+  return 'https://fleetmonitoring.euro-argo.eu/float/'+this.platform_number
 })
 
 ProfileSchema

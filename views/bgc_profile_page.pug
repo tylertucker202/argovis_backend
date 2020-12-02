@@ -22,7 +22,7 @@ html(lang='en')
                 tr
                     td Cycle number: #{profile.cycle_number}
                     td 
-                        a(href='/catalog/platforms/'+ platform_number + '/page' target='_blank') Link to platform #{profile.platform_number} page                                          
+                        a(href='/ng/profview?platform_number=' + platform_number) Link to BGC platform #{profile.platform_number} page
                 tr
                     td Latitude: #{profile.strLat}
                     td 
@@ -41,11 +41,11 @@ html(lang='en')
                 tr
                     td Parameters reported in NC file: #{paramKeys}
                     td 
-                        a(href=profile.ifremerProfile target='_blank') Link to Ifremer visualization of this profile
+                        a(href=profile.euroargoPlatform target='_blank') Link to Euro-Argo visualization of this platform
                 tr
                     td Positioning system: #{profile.POSITIONING_SYSTEM}
                     td 
-                        a(href=profile.jcompsPlatform target='_blank') Link to platform on JCOMMOPS
+                        a(href=profile.jcommopsPlatform target='_blank') Link to platform on JCOMMOPS
                 tr
                     td Platform type: #{profile.PLATFORM_TYPE}
                 tr
@@ -65,8 +65,6 @@ html(lang='en')
             if (paramKey==='pres') {continue}
             plotDivs[paramKey] = document.createElement('div');
             plotDivs[paramKey].setAttribute("id", paramKey+'_chart');
-            console.log(paramKey+'_chart')
-            
             parent.append(plotDivs[paramKey]);
         }
 
@@ -95,10 +93,8 @@ html(lang='en')
             presVsParamMask = getMaskForPair(paramMeas, pres)
             presForParam = pres.filter((item, i) => presVsParamMask[i]);
             presQcForParam = presQc.filter((item, i) => presVsParamMask[i]);
-
             paramForPres = paramMeas.filter((item, i) => presVsParamMask[i]);
             paramQcForPres = paramQC.filter((item, i) => presVsParamMask[i]);
-            //console.log(key)
             plotAxes[key] = { 'pres': presForParam.map(roundArray), 'pres_qc': presQcForParam, 'param': paramForPres.map(roundArray), 'qc': paramQcForPres}
         }
 

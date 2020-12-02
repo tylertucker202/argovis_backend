@@ -75,7 +75,7 @@ exports.pres_layer_selection = function(req, res , next) {
         else {
             var query = Profile.aggregate([
                 match,
-                helper.presSliceProject(minPres, maxPres),
+                helper.pres_slice_projection(minPres, maxPres),
                 HELPER_CONST.COUNT_PROJECT,
                 HELPER_CONST.COUNT_MATCH
                 ]);
@@ -133,12 +133,12 @@ exports.layer_for_interpolation = function(req, res , next) {
         }
         else {
             let agg = [match,
-                        helper.presSliceProject(minPres, maxPres),
+                        helper.pres_slice_projection(minPres, maxPres),
                         HELPER_CONST.COUNT_PROJECT,
                         HELPER_CONST.COUNT_MATCH]
 
             if (reduceMeas) {
-                agg.concat(helper.reduceIntpMeas(intPres));
+                agg.concat(helper.reduce_intp_meas(intPres));
             }
             
             var query = Profile.aggregate(agg);

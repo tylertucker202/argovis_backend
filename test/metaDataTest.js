@@ -8,50 +8,23 @@ let app = require('../app');
 
 chai.use(chaiHttp);
 
-/* Test selection */
-describe('/GET last reported profiles', function() {
-    this.timeout(2000);
-    it('it should GET the last profiles reported for each platform.', (done) => {
-          chai.request(app)
-          .get('/selection/lastProfiles')
-          .end((err, res) => {
-              res.should.have.status(200);
-              res.body.should.be.a('array');
-              a_profile = res.body[0];
-              a_profile.should.include.keys('_id', 'date', 'platform_number', 'cycle_number', 'geoLocation');
-              a_profile._id.should.be.a('number');
-              moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
-              a_profile.platform_number.should.be.a('number');
-              a_profile.cycle_number.should.be.a('number');
-              a_profile.geoLocation.coordinates.should.be.a('array');
-              a_profile.geoLocation.coordinates.length.should.be.eql(2);
-              a_profile.geoLocation.type.should.be.eql('Point');
-              done();
-          });
-    });
-  });
 
-  describe('/GET latest reported profiles', function() {
+  describe('/GET global map profiles', function() {
     this.timeout(2000);
-    it('it should GET the last profiles reported for each platform.', (done) => {
-          chai.request(app)
-          .get('/selection/latestProfiles')
-          .end((err, res) => {
-              res.should.have.status(200);
-              res.body.should.be.a('array');
-              a_profile = res.body[0];
-              a_profile.should.include.keys('_id', 'date', 'platform_number', 'cycle_number', 'geoLocation');
-              a_profile._id.should.be.a('number');
-              moment.utc(a_profile.date).format('YYYY-MM-DD').should.be.a('string');
-              a_profile.platform_number.should.be.a('number');
-              a_profile.cycle_number.should.be.a('number');
-              a_profile.geoLocation.coordinates.should.be.a('array');
-              a_profile.geoLocation.coordinates.length.should.be.eql(2);
-              a_profile.geoLocation.type.should.be.eql('Point');
-              done();
-          });
-    });
-  });
+    const startDate = '2018-08-29T06:00:00Z'
+    const endDate = '2018-08-30T18:00:00Z'
+    const url = '/selection/globalMapProfiles/' + startDate + '/' + endDate
+    it('it should GET the profiles failling within the datetimes', (done) => {
+      chai.request(app)
+      .get(url)
+      .end( (err, res) => {
+        res.should.have.status(200)
+        const profile = res.body[0]
+        profile.should.include.keys('DATA_MODE', 'date', 'geoLocation', 'cycle_number', 'platform_number', 'DIRECTION', '_id')
+        done()
+      })
+    })
+  })
 
   describe('/GET last 3 days profiles', function() {
     this.timeout(2000);
@@ -62,6 +35,7 @@ describe('/GET last reported profiles', function() {
           .end((err, res) => {
               res.should.have.status(200);
               res.body.should.be.a('array');
+              res.body.length.should.be.above(0)
               a_profile = res.body[0];
               a_profile.should.include.keys('_id', 'date', 'platform_number', 'cycle_number', 'geoLocation');
               a_profile._id.should.be.a('number');

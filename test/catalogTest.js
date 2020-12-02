@@ -35,7 +35,7 @@ describe('/GET catalog list of platforms', function() {
                                       'geoLocation', 
                                       'dac');
         a_platform._id.should.be.a('number');
-        moment.utc(a_platform.most_recent_date).format('YYYY-MM-DD').should.be.a('string');
+        moment.utc(a_platform.most_recent_date).toDate().should.be.a('date');
         a_platform.platform_number.should.be.a('number');
         a_platform.cycle_number.should.be.a('number');
         a_platform.geoLocation.coordinates.should.be.a('array');
@@ -54,9 +54,6 @@ describe('/GET a platform', function() {
     .end((err, res) => {
         //test overall response
         res.should.have.status(200);
-
-
-
         let profiles = res.body.splice(0);
         let psal = [];
         let pres = [];
@@ -83,18 +80,18 @@ describe('/GET a platform', function() {
         out.presForTemp.length.should.be.equal(presVsTempLength);
         out.cycleForTemp.length.should.be.equal(presVsTempLength);
 
-        // presVsPsal array lengths should be equal
-        presVsPsalLength = out.psalForPres.length;
-        out.presForPsal.length.should.be.equal(presVsPsalLength);
-        out.psalForPres.length.should.be.equal(presVsPsalLength);
-        out.cycleForTemp.length.should.be.equal(presVsPsalLength);
+        // date should be in order
+        const cnLatest = cycle[0]
+        cycle.forEach( function(cn) {
+          assert(cn <= cnLatest, 'check order')
+        })
         done();
     });
   });
 });
 
 describe('/GET catalog dacs', function() {
-  this.timeout(200);
+  this.timeout(2000);
   it('it should GET the dac summary', (done) => {
     chai.request(app)
     .get('/catalog/dacs')
@@ -108,7 +105,7 @@ describe('/GET catalog dacs', function() {
         a_dac.should.include.keys('_id', 'number_of_profiles', 'dac');
         a_dac._id.should.be.a('string');
         a_dac.number_of_profiles.should.be.a('number');
-        moment.utc(a_dac.most_recent_date).format('YYYY-MM-DD').should.be.a('string');
+        moment.utc(a_dac.most_recent_date).toDate().should.be.a('date');
         a_dac.dac.should.be.a('string');
         done();
     });
@@ -117,30 +114,33 @@ describe('/GET catalog dacs', function() {
 
 describe('/GET a list of profiles from a list', function() {
   this.timeout(5000);
-  const list = "ids=['4902323_45D','3900740_34']"
+  const list = "ids=['1900722_1','1900722_2']"
   const presRange = "&presRange=[0,20]"
   it('it should GET a list of profiles', (done) => {
     const urlQuery = '/catalog/mprofiles/?' + list
+    // console.log(urlQuery)
     chai.request(app)
     .get(urlQuery)
     .end((err, res) => {
       res.should.have.status(200);
       a_profile = res.body[0];
-      assert(a_profile._id === "4902323_45D", 'wrong profile returned');
-      assert(a_profile.count === 564, 'check the length of measurements');
+      // console.log(a_profile._id)
+      assert(a_profile._id === "1900722_2", 'wrong profile returned');
+      assert(a_profile.count === 71, 'check the length of measurements');
       done()
     })
   })
   it('it should GET a list of selected profiles within a pressure range', (done) => {
     const urlQuery = '/catalog/mprofiles/?' + list + presRange
+    // console.log(urlQuery)
     chai.request(app)
     .get(urlQuery)
     .end((err, res) => {
       res.should.have.status(200);
       a_profile = res.body[0];
       a_measurement = a_profile.measurements
-      assert(a_profile._id === "4902323_45D", 'wrong profile returned');
-      assert(a_profile.count === 15, 'there should be fewer measurements');
+      assert(a_profile._id === "1900722_2", 'wrong profile returned');
+      assert(a_measurement.length === 2, 'there should be two measurements');
       done();
     })
   })
@@ -150,7 +150,7 @@ describe('/GET a list of profiles from a list', function() {
 describe('/GET profile render', function() {
   this.timeout(500);
   it('it should GET the selected profile.', (done) => {
-    const urlQuery = '/catalog/profiles/2902972_69'
+    const urlQuery = '/catalog/profiles/2902972_1'
     chai.request(app)
     .get(urlQuery)
     .end((err, res) => {
@@ -177,7 +177,7 @@ describe('/GET profile render', function() {
                                       'VERTICAL_SAMPLING_SCHEME',
                                       'WMO_INST_TYPE',
                                       'DATA_MODE',
-                                      //'DATA_CENTRE',
+                                      'DATA_CENTRE',
                                       'DIRECTION',
                                       'PI_NAME',
                                       'POSITIONING_SYSTEM',
@@ -189,8 +189,11 @@ describe('/GET profile render', function() {
                                       'pres_min_for_PSAL',
                                       'formatted_station_parameters',
                                       'date_formatted',
-                                      'ifremerProfile',
-                                      'jcompsPlatform',
+                                      'euroargoPlatform',
+                                      'PARAMETER_DATA_MODE',
+                                      'bgcMeasKeys',
+                                      'jcommopsPlatform',
+                                      'core_data_mode',
                                       'roundLat',
                                       'roundLon',
                                       'strLat',
@@ -213,7 +216,6 @@ describe('/GET profile render', function() {
     });
   });
 });
-
 
 describe('/GET profile render with nan in psal', function() {
   this.timeout(500);

@@ -5,11 +5,11 @@ let router = express.Router();
 const ar_shapes_controller = require('../controllers/arShapesController')
 
 /* GET an ar shape. */
-router.get('/', ar_shapes_controller.findOne);
+router.get('/', ar_shapes_controller.find_one);
 
 /* GET an ar shape. */
-router.get('/findByDate', ar_shapes_controller.findByDate);
+router.get('/findByDate', ar_shapes_controller.find_by_date);
 
-router.get('/findByID', ar_shapes_controller.findByID)
+router.get('/findByID', ar_shapes_controller.find_by_id)
 
 module.exports = router
